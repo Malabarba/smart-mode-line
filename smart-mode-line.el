@@ -4,36 +4,31 @@
  
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 0.1
+;; Version: 0.1.3
 ;; Keywords: faces frames
-;; 
-;; This file is NOT part of GNU Emacs.
-;;
-;; This program is free software; you can redistribute it and/or
-;; modify it under the terms of the GNU General Public License
-;; as published by the Free Software Foundation; either version 2
-;; of the License, or (at your option) any later version.
-;;
-;; This program is distributed in the hope that it will be useful,
-;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;; GNU General Public License for more details.
-;; 
 
 ;;; Commentary:
 
-;; 	INSTALLATION
-;; 
+;; Smart Mode Line is a mode-line format that aims to be easy to
+;; read from small to large monitors by using a prefix feature and
+;; smart truncation.  
+
+;; Your mode-line will be color coded, smartly truncated (if you
+;; want), easily customizable, and will have a few extra fancy
+;; features like file path prefixes and minor mode filtering.  
+
+;;; Instructions:
+
+;; INSTALLATION
+
 ;;	Make sure "smart-mode-line.el" is in your load path, then place
 ;; 	this code in your .emacs file:
 ;;		(require 'smart-mode-line)
 ;; 		(sml/setup)
 
-;;	DESCRIPTION
-;; 
-;;	Smart Mode Line is a mode-line format that aims to be easy to
-;;	read from small to large monitors by using a prefix feature and
-;;	smart truncation.  Its main features are:
+;; DESCRIPTION
+
+;;  Its main features are:
 
 ;; 		1) Color coded:
 ;; 			Highlights the most important information for you
@@ -54,7 +49,7 @@
 ;; 			of it (by configuring `sml/replacer-regexp-list').  Mousing
 ;;			over the abbreviated path will show you the full
 ;;			path.  See below for examples.
-;; 
+
 ;; 			Hidden-modes feature saves even more space.  Select
 ;; 			which minor modes you don't want to see listed by
 ;; 			customizing the `sml/hidden-modes' variable.  This will
@@ -68,8 +63,8 @@
 ;;			`smart-mode-line'.  Just run `sml/customize' and see
 ;;			what's in there.  If you feel anything is missing send me
 ;;			an e-mail.
-
-;; 	IMPORTANT VARIABLES
+;; 
+;; Variables
 ;; 
 ;; 	All variables can be edited by running `sml/customize', and the
 ;; 	documentations are mostly self explanatory, I list here only the
@@ -115,6 +110,21 @@
 ;;	;; Added in the right order, they even work sequentially:
 ;;	(add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/" ":DB:"))
 ;;	(add-to-list 'sml/replacer-regexp-list '("^:DB:Documents" ":DDocs:"))
+
+;;; License:
+
+;; This file is NOT part of GNU Emacs.
+;;
+;; This program is free software; you can redistribute it and/or
+;; modify it under the terms of the GNU General Public License
+;; as published by the Free Software Foundation; either version 2
+;; of the License, or (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;; 
 
 ;;; Code:
 
