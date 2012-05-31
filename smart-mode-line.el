@@ -1,106 +1,122 @@
 ;;; smart-mode-line.el --- A fixed width smart mode line.
  
-;; Copyright 2012 Artur Malabarba
+;; Copyright (C) 2012 Artur Malabarba <bruce.connor.am@gmail.com>
  
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
 ;; Version: 0.1
-
-;;	DESCRIPTION
+;; Keywords: faces frames
 ;; 
-;;	Smart Mode Line is a mode-line format that aims to be easy to
-;;	read from small to large monitors by using a prefix feature and
-;;	smart truncation. Its main features are:
+;; This file is NOT part of GNU Emacs.
 ;;
-;; 		1) Color coded:
-;; 			Highlights the most important information for you
-;; 			(buffer name, modified state, line number). Don't
-;;			like the colors? See item 4)!
+;; This program is free software; you can redistribute it and/or
+;; modify it under the terms of the GNU General Public License
+;; as published by the Free Software Foundation; either version 2
+;; of the License, or (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
 ;; 
-;; 		2) Fixed width (if you want):
-;;			Lets you set a maxium width for the path name and mode
-;;			names, and truncated intelligently (truncates the
-;;			directory, not the buffer name).
-;; 
-;;		3) Fancy features:
-;; 			Prefix feature saves a LOT of space. e.g. "~/.emacs.d/"
-;; 			is translated to ":ED:" in the path (open a file inside
-;; 			this folder to see it in action). Long path names you
-;; 			are commmonly working on are displayed as short
-;; 			abbreviations. Set your own prefixes to make best use
-;; 			of it (by configuring `sml/replacer-regexp-list'). Mousing
-;;			over the abbreviated path will show you the full
-;;			path. See below for examples.
-;; 
-;; 			Hidden-modes feature saves even more space. Select
-;; 			which minor modes you don't want to see listed by
-;; 			customizing the `sml/hidden-modes' variable. This will
-;; 			filter out the modes you don't care about and unclutter
-;; 			the modes list (mousing over the modes list still shows
-;; 			the full list).
-;; 
-;; 		4) Very easy to configure:
-;;			All fonts are in the `smart-mode-line-faces'
-;;			customization group, and all other options are in
-;;			`smart-mode-line'. Just run `sml/customize' and see
-;;			what's in there. If you feel anything is missing send me
-;;			an e-mail.
-;; 
-;; 	USAGE:
+
+;;; Commentary:
+
+;; 	INSTALLATION
 ;; 
 ;;	Make sure "smart-mode-line.el" is in your load path, then place
 ;; 	this code in your .emacs file:
 ;;		(require 'smart-mode-line)
 ;; 		(sml/setup)
-;;
-;; 	IMPORTANT VARIABLES:
+
+;;	DESCRIPTION
+;; 
+;;	Smart Mode Line is a mode-line format that aims to be easy to
+;;	read from small to large monitors by using a prefix feature and
+;;	smart truncation.  Its main features are:
+
+;; 		1) Color coded:
+;; 			Highlights the most important information for you
+;; 			(buffer name, modified state, line number).  Don't
+;;			like the colors? See item 4)!
+
+;; 		2) Fixed width (if you want):
+;;			Lets you set a maxium width for the path name and mode
+;;			names, and truncated intelligently (truncates the
+;;			directory, not the buffer name).
+
+;;		3) Fancy features:
+;; 			Prefix feature saves a LOT of space.  e.g. "~/.emacs.d/"
+;; 			is translated to ":ED:" in the path (open a file inside
+;; 			this folder to see it in action). Long path names you
+;; 			are commmonly working on are displayed as short
+;; 			abbreviations.  Set your own prefixes to make best use
+;; 			of it (by configuring `sml/replacer-regexp-list').  Mousing
+;;			over the abbreviated path will show you the full
+;;			path.  See below for examples.
+;; 
+;; 			Hidden-modes feature saves even more space.  Select
+;; 			which minor modes you don't want to see listed by
+;; 			customizing the `sml/hidden-modes' variable.  This will
+;; 			filter out the modes you don't care about and unclutter
+;; 			the modes list (mousing over the modes list still shows
+;; 			the full list).
+
+;; 		4) Very easy to configure:
+;;			All fonts are in the `smart-mode-line-faces'
+;;			customization group, and all other options are in
+;;			`smart-mode-line'.  Just run `sml/customize' and see
+;;			what's in there.  If you feel anything is missing send me
+;;			an e-mail.
+
+;; 	IMPORTANT VARIABLES
 ;; 
 ;; 	All variables can be edited by running `sml/customize', and the
 ;; 	documentations are mostly self explanatory, I list here only the
 ;; 	most important ones.
-;;
+
 ;; 	`sml/shorten-directory' and `sml/shorten-modes'
 ;; 		Setting both of these to t garantees a fixed width mode-line
-;; 		(directory name and modes list will be truncated to fit). To
+;; 		(directory name and modes list will be truncated to fit).  To
 ;; 		actually define the width, see below.
-;; 
-;;	`sml/name-width' and `sml/mode-width'	
-;;		Customize these according to the width of your emacs
-;;		frame. I set them to 40 and 30 respectively, and the
+
+;;	`sml/name-width' and `sml/mode-width'
+;;		Customize these according to the width of your Emacs
+;;		frame.  I set them to 40 and 30 respectively, and the
 ;;		mode-line fits perfectly when the frame is split in two even
 ;;		on my laptop's small 17" monitor.
-;; 
+
 ;; 	`sml/replacer-regexp-list'
 ;; 		This variable is a list of (REGEXP REPLACEMENT) that is used
-;; 		to parse the path. The replacements are applied
-;; 		sequentially. This allows you to greatly abbreviate the path
-;; 		that's shown in the mode-line. If this abbreviation is of
+;; 		to parse the path.  The replacements are applied
+;; 		sequentially.  This allows you to greatly abbreviate the path
+;; 		that's shown in the mode-line.  If this abbreviation is of
 ;; 		the form ":SOMETHING:", it is considered a prefix and get's
 ;; 		a different color (you can change what's considered a prefix
 ;; 		by customizing `sml/prefix-regexp').
-;; 
+
 ;;		For example, if you do a lot of work on a folder called
 ;;		"~/Dropbox/Projects/In-Development/" almost half the
 ;;		mode-line would be occupied just by the folder name, which
-;;		is much less important than the buffer name. But, you can't
+;;		is much less important than the buffer name.  But, you can't
 ;;		just hide the folder name, since editting a file in
 ;;		"~/Dropbox/Projects/In-Development/Source" is VERY different
-;;		from editting a file in "~/Dropbox/Projects/Source". By
+;;		from editting a file in "~/Dropbox/Projects/Source".  By
 ;;		setting up a prefix for your commonly used folders, you get
-;;		all that information without wasting all that space. In this
+;;		all that information without wasting all that space.  In this
 ;;		example you could set the replacement to ":ProjDev:" or just
 ;;		":InDev:", so the path shown in the mode-line will be
 ;;		":ProjDev:Source/" (saves a lot of space without hiding
 ;;		information).
-;; 
+
 ;;		Here go some more useful examples:
 ;; 	(add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/Projects/In-Development/" ":ProjDev:"))
 ;;	(add-to-list 'sml/replacer-regexp-list '("^~/Documents/Work/" ":Work:))
 ;;	;; Added in the right order, they even work sequentially:
 ;;	(add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/" ":DB:"))
-;;	(add-to-list 'sml/replacer-regexp-list '("^:DB:Documents" ":DDocs:")) 
+;;	(add-to-list 'sml/replacer-regexp-list '("^:DB:Documents" ":DDocs:"))
 
-;; Code goes here
+;;; Code:
 
 (defun sml/customize ()
   "Open the customization menu the `smart-mode-line' group."
@@ -143,7 +159,7 @@ Empty it to hide the number."
 
 Empty it to hide the number."
   :type 'string
-  :group 'smart-mode-line) 
+  :group 'smart-mode-line)
 
 (defcustom sml/numbers-separator ":"
   "Separator between line and column number."
@@ -180,7 +196,7 @@ otherwise it is toggled. This can be used as an alternative to
 customizing the variable with `customize-group'. Setting the
 variable with `setq' will NOT work and should be avoided."
   (interactive)
-  (sml/set-shortener-func 'sml/shorten-directory 
+  (sml/set-shortener-func 'sml/shorten-directory
 					 (if val (car val)
 					   (not sml/shorten-directory))))
 
@@ -188,9 +204,9 @@ variable with `setq' will NOT work and should be avoided."
   "Should directory name be shortened to fit width?
 
 When the buffer+directory name is longer than
-`sml/name-width': 
+`sml/name-width':
 	if nil the rest of the mode-line is pushed right;
-	otherwise the directory name is shortened to fit. "
+	otherwise the directory name is shortened to fit."
   :type 'boolean
   :group 'smart-mode-line
   :set 'sml/set-shortener-func)
@@ -209,9 +225,9 @@ setting the variable with `setq'."
 (defcustom sml/shorten-modes t
   "Should modes list be shortened to fit width?
 
-When the modes list is longer than `sml/mode-width': 
+When the modes list is longer than `sml/mode-width':
 	if nil the rest of the mode-line is pushed right;
-	otherwise the list is shortened to fit. "
+	otherwise the list is shortened to fit."
   :type 'boolean
   :group 'smart-mode-line)
 
@@ -278,7 +294,7 @@ name."
   "Maybe trim the modes list."
   (let ((out (concat major minor))
 	   (N sml/mode-width))
-    (if sml/shorten-modes 
+    (if sml/shorten-modes
 	   (if (> (length out) N)
 		  (concat (substring out 0 (- N 3)) "...")
 		(concat out (make-string (- N (length out)) ?\ )))
@@ -292,6 +308,7 @@ name."
   (setq-default mode-line-format sml/format-backup)
   )
 
+;;;###autoload
 (defun sml/setup (&optional arg)
   "Setup the mode-line, or revert it.
 
@@ -307,7 +324,7 @@ Otherwise, setup the mode-line."
 	  (:propertize "%e" face sml/warning)
 	  ;; emacsclient
 	  (:eval (if sml/show-client (if (frame-parameter nil 'client)
-							   (propertize "@" 
+							   (propertize "@"
 										'face 'sml/client
 										'help-echo "emacsclient frame")
 							 " ")))
@@ -384,7 +401,7 @@ Otherwise, setup the mode-line."
 								 mode-line-process))))
 	  
 	  ;; add the time, with the date and the emacs uptime in the tooltip
-	  (:eval (if sml/show-time 
+	  (:eval (if sml/show-time
 			   (propertize (format-time-string sml/time-format)
 						'face 'sml/time
 						'help-echo (concat (format-time-string "%c;")
@@ -423,7 +440,7 @@ Used by `sml/strip-prefix' and `sml/get-prefix'."
 	 (concat left (mapconcat 'identity sml/prefix-regexp "\\|") right))))
 
 (defun sml/strip-prefix (path)
-  "Remove prefix from string. 
+  "Remove prefix from string.
 
 A prefix is anything at the begining of the line that matches a
 regexp in `sml/prefix-regexp'."
@@ -464,30 +481,30 @@ regexp in `sml/prefix-regexp'."
 
 (defun sml/set-face-color (sym val)
   (if sym (set-default sym val))
-  (set-face-attribute 'mode-line nil				
+  (set-face-attribute 'mode-line nil
 				  :foreground sml/active-foreground-color
 				  :background sml/active-background-color)
   (set-face-attribute 'mode-line-inactive nil
-				  :background sml/inactive-background-color 
+				  :background sml/inactive-background-color
 				  :foreground sml/inactive-foreground-color))
 
 (defcustom sml/active-foreground-color "gray60"
-  ""
+  "Foreground mode-line color for the active frame."
   :type 'color
   :group 'smart-mode-line-faces
   :set 'sml/set-face-color
   :initialize 'set-default)
-(defcustom sml/active-background-color "black" ""
+(defcustom sml/active-background-color "black" "Background mode-line color for the active frame."
   :type 'color :group 'smart-mode-line-faces
   :set 'sml/set-face-color
   :initialize 'set-default)
 
 
-(defcustom sml/inactive-foreground-color "gray60" ""
+(defcustom sml/inactive-foreground-color "gray60" "Foreground mode-line color for the inactive frame."
   :type 'color :group 'smart-mode-line-faces
   :set 'sml/set-face-color
   :initialize 'set-default)
-(defcustom sml/inactive-background-color "#404045" ""
+(defcustom sml/inactive-background-color "#404045" "Background mode-line color for the inactive frame."
   :type 'color :group 'smart-mode-line-faces
   :set 'sml/set-face-color
   :initialize 'set-default)
@@ -496,12 +513,12 @@ regexp in `sml/prefix-regexp'."
 
 (defface sml/global
   '((t
-	:foreground "gray60" 
+	:foreground "gray40"
 	))
   ""
   :group 'smart-mode-line-faces)
 
-(defface sml/warning 
+(defface sml/warning
   '((t
 	:inherit sml/global
 	:foreground "#bf0000"
@@ -521,14 +538,14 @@ regexp in `sml/prefix-regexp'."
 
 (defface sml/col-number
   '((t
-	:inherit sml/global 
+	:inherit sml/global
 	))
   ""
   :group 'smart-mode-line-faces)
 
 (defface sml/numbers-separator
   '((t
-	:inherit sml/global 
+	:inherit sml/global
 	))
   ""
   :group 'smart-mode-line-faces)
@@ -548,7 +565,7 @@ regexp in `sml/prefix-regexp'."
   :group 'smart-mode-line-faces)
 
 
-(defface sml/read-only 
+(defface sml/read-only
   '((t
 	:inherit sml/global
 	:foreground "#4271ae"
@@ -558,7 +575,7 @@ regexp in `sml/prefix-regexp'."
 
 
 
-(defface sml/outside-modified 
+(defface sml/outside-modified
   '((t
 	:inherit sml/global
 	:foreground "#ffffff"
@@ -581,7 +598,7 @@ regexp in `sml/prefix-regexp'."
 
 
 
-(defface sml/prefix 
+(defface sml/prefix
   '((t
 	:inherit sml/global
 	:foreground "#bf6000"
@@ -592,7 +609,7 @@ regexp in `sml/prefix-regexp'."
 
 
 
-(defface sml/sudo 
+(defface sml/sudo
   '((t
 	:inherit sml/warning
 	))
@@ -600,17 +617,17 @@ regexp in `sml/prefix-regexp'."
   :group 'smart-mode-line-faces)
 
 
-(defface sml/folder 
+(defface sml/folder
   '((t
 	:inherit sml/global
-	:foreground "gray40"
+	;; :foreground "gray40"
 	))
   ""
   :group 'smart-mode-line-faces)
 
 
 
-(defface sml/filename 
+(defface sml/filename
   '((t
 	:inherit sml/global
 	:foreground "#eab700"
@@ -631,7 +648,7 @@ regexp in `sml/prefix-regexp'."
 
 (defface sml/time
   '((t
-	:inherit sml/filename 
+	:inherit sml/filename
 	))
   ""
   :group 'smart-mode-line-faces)
@@ -648,11 +665,9 @@ regexp in `sml/prefix-regexp'."
 (copy-face 'mode-line 'sml/active-backup)
 (copy-face 'mode-line-inactive 'sml/inactive-backup)
 
-;; (sml/setup)
 
 (provide 'smart-mode-line)
 
 
 
 ;;; smart-mode-line.el ends here
-
