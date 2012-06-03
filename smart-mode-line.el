@@ -1,10 +1,10 @@
-;;; smart-mode-line.el --- A fixed width smart mode line.
+;;; smart-mode-line.el --- A color coded smart mode-line.
  
 ;; Copyright (C) 2012 Artur Malabarba <bruce.connor.am@gmail.com>
  
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 0.1.3
+;; Version: 0.1.4
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -404,8 +404,8 @@ Otherwise, setup the mode-line."
 	   (let ((major (format-mode-line  (concat " %[" mode-name "%]")
 								'sml/modes))
 		    ;;(sizemajor (length (substring-no-properties major)))
-		    (minor (sml/format-minor-list minor-mode-alist)))
-		(propertize (sml/trim-modes major minor)
+		    (minor (format-mode-line minor-mode-alist 'sml/folder)))
+		(propertize (sml/trim-modes major (sml/format-minor-list minor))
 				  'help-echo (concat "Major: " mode-name		"\n"
 								 "minor:" minor	"\n"
 								 mode-line-process))))
@@ -424,8 +424,8 @@ Otherwise, setup the mode-line."
     (if sml/hidden-modes
 	   (replace-regexp-in-string (concat " \\(" (mapconcat 'identity sml/hidden-modes "\\|") "\\)")
 						    ""
-						    (format-mode-line mml	'sml/folder))
-	 (format-mode-line mml	'sml/folder))))
+						    mml)
+	 mml)))
   
 (defun sml/replacer (in)
   "Runs the replacements specified in `sml/replacer-regexp-list'.
