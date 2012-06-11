@@ -4,7 +4,7 @@
  
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 0.1.4
+;; Version: 0.1.5
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -63,7 +63,14 @@
 ;;			`smart-mode-line'.  Just run `sml/customize' and see
 ;;			what's in there.  If you feel anything is missing send me
 ;;			an e-mail.
-;; 
+
+;; 		5) Compatible with `battery-display-mode':
+;; 			Just turn the mode on to have the battery level
+;; 			displayed. sml uses a very short syntax for the
+;; 			battery. Only the battery level is displayed (with no %
+;; 			symbol), and green/red font means charging/discharging
+;; 			respectively.
+
 ;; Variables
 ;; 
 ;; 	All variables can be edited by running `sml/customize', and the
@@ -126,6 +133,11 @@
 ;; GNU General Public License for more details.
 ;; 
 
+;;; Change Log:
+
+;; 1.5 - 20121106 - Added support for display-battery-mode. See the
+;; description for more
+
 ;;; Code:
 
 (defun sml/customize ()
@@ -157,6 +169,11 @@ want. You can also set properties like bold with ':weight bold'."
   :type 'boolean
   :group 'smart-mode-line)
 
+(defcustom sml/show-battery t
+  "Whether to show the battery percentage at the end of the mode-line."
+  :type 'boolean
+  :group 'smart-mode-line)
+
 (defcustom sml/line-number-format "%3l"
   "Format used to display line number.
 
@@ -180,6 +197,14 @@ Empty it to hide the number."
   "Format used to display the time in the mode-line.
 
 Only relevant if `sml/show-time' is not nil."
+  :type 'string
+  :group 'smart-mode-line)
+
+(defcustom sml/battery-format " %p"
+  "Format used to display the battery in the mode-line.
+
+Only relevant if using `display-battery-mode'. See that function
+for the syntax."
   :type 'string
   :group 'smart-mode-line)
 
@@ -316,6 +341,7 @@ name."
   (copy-face 'sml/active-backup 'mode-line)
   (copy-face 'sml/inactive-backup 'mode-line-inactive)
   (setq-default mode-line-format sml/format-backup)
+  (setq battery-mode-line-format sml/battery-format-backup)
   )
 
 ;;;###autoload
@@ -328,6 +354,7 @@ Otherwise, setup the mode-line."
   (if (and (integerp arg) (< arg 1))
 	 (sml/revert)
     (sml/set-face-color nil nil)
+    (setq battery-mode-line-format " %p")
     (setq-default
 	mode-line-format
 	'(
@@ -409,14 +436,26 @@ Otherwise, setup the mode-line."
 				  'help-echo (concat "Major: " mode-name		"\n"
 								 "minor:" minor	"\n"
 								 mode-line-process))))
+
+	  (:propertize battery-mode-line-string
+				face sml/battery)
 	  
 	  ;; add the time, with the date and the emacs uptime in the tooltip
 	  (:eval (if sml/show-time
 			   (propertize (format-time-string sml/time-format)
 						'face 'sml/time
 						'help-echo (concat (format-time-string "%c;")
-									    (emacs-uptime "\nUptime: %hh")))))))
-    ))
+									    (emacs-uptime "\nUptime: %hh")))))))))
+(defun sml/set-battery-font ()
+  "Set `sml/battery' face depending on battery state."
+  (interactive)
+  (let ((data (and battery-status-function (funcall battery-status-function))))
+    (if  (string-equal "Charging" (cdr (assoc 66 data)))
+	   (copy-face 'sml/charging 'sml/battery)
+	   (copy-face 'sml/discharging 'sml/battery))))
+
+(defadvice battery-update (before sml/set-battery-font activate)
+  (sml/set-battery-font))
 
 (defun sml/format-minor-list (mml)
   "Cleans and fontifies the minor mode list."
@@ -656,6 +695,22 @@ regexp in `sml/prefix-regexp'."
   ""
   :group 'smart-mode-line-faces)
 
+(defface sml/charging
+  '((t
+	:inherit sml/global 
+	:foreground "green"
+	))
+  ""
+  :group 'smart-mode-line-faces)
+
+(defface sml/discharging
+  '((t
+	:inherit sml/global 
+	:foreground "red"
+	))
+  ""
+  :group 'smart-mode-line-faces)
+
 (defface sml/time
   '((t
 	:inherit sml/filename
@@ -672,6 +727,9 @@ regexp in `sml/prefix-regexp'."
 (defconst sml/format-backup mode-line-format
   "Backs up the `mode-line-format' before SML was required.")
 
+(defconst sml/battery-format-backup (if (boundp 'battery-mode-line-format) battery-mode-line-format "")
+  "Backs up the `battery-mode-line-format' before SML was required.")
+
 (copy-face 'mode-line 'sml/active-backup)
 (copy-face 'mode-line-inactive 'sml/inactive-backup)
 
@@ -680,4 +738,9 @@ regexp in `sml/prefix-regexp'."
 
 
 
+			   ;; (propertize (cdr (assoc 112 (funcall battery-status-function)))
+			   ;; 				   'face (if  (string-equal "Discharging" (cdr (assoc 66 (funcall battery-status-function))))
+			   ;; 						   'sml/discharging 'sml/charging))
+
 ;;; smart-mode-line.el ends here
+
