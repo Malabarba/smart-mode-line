@@ -4,7 +4,7 @@
  
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 0.1.5
+;; Version: 1.5.1
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -135,7 +135,9 @@
 
 ;;; Change Log:
 
-;; 1.5 - 20121106 - Added support for display-battery-mode. See the
+;; 1.5.1 - 20120612 - Fixed battery font for corner cases.
+
+;; 1.5 - 20120611 - Added support for display-battery-mode. See the
 ;; description for more
 
 ;;; Code:
@@ -450,7 +452,7 @@ Otherwise, setup the mode-line."
   "Set `sml/battery' face depending on battery state."
   (interactive)
   (let ((data (and battery-status-function (funcall battery-status-function))))
-    (if  (string-equal "Charging" (cdr (assoc 66 data)))
+    (if  (string-equal "AC" (cdr (assoc 76 data)))
 	   (copy-face 'sml/charging 'sml/battery)
 	   (copy-face 'sml/discharging 'sml/battery))))
 
