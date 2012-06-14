@@ -1,10 +1,10 @@
 ;;; smart-mode-line.el --- A color coded smart mode-line.
- 
+
 ;; Copyright (C) 2012 Artur Malabarba <bruce.connor.am@gmail.com>
- 
+
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.5.1
+;; Version: 1.5.2
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -134,6 +134,9 @@
 ;; 
 
 ;;; Change Log:
+
+;; 1.5.2 - 20120614 - Saner default widths and mode-name fix for
+;; Term.
 
 ;; 1.5.1 - 20120612 - Fixed battery font for corner cases.
 
@@ -302,7 +305,7 @@ example)."
   :group 'smart-mode-line)
 
 
-(defcustom sml/name-width 40
+(defcustom sml/name-width 44
   "Minimum and maximum size of the file name in the mode-line.
 
 If `sml/shorten-directory' is nil, this is the minimum width.
@@ -310,7 +313,7 @@ Otherwise, this is both the minimum and maximum width."
   :type 'integer
   :group 'smart-mode-line)
 
-(defcustom sml/mode-width 30
+(defcustom sml/mode-width 24
   "Maximum and minimum size of the modes list in the mode-line.
 
 If `sml/shorten-modes' is nil, this is the minimum width.
@@ -430,14 +433,14 @@ Otherwise, setup the mode-line."
 	  
 	  ;; The modes list
 	  (:eval
-	   (let ((major (format-mode-line  (concat " %[" mode-name "%]")
+	   (let ((major (format-mode-line  (concat mode-name (mapconcat 'identity mode-line-process ""))
 								'sml/modes))
-		    ;;(sizemajor (length (substring-no-properties major)))
-		    (minor (format-mode-line minor-mode-alist 'sml/folder)))
+		    (minor (format-mode-line 
+				  minor-mode-alist 'sml/folder)))
 		(propertize (sml/trim-modes major (sml/format-minor-list minor))
 				  'help-echo (concat "Major: " mode-name		"\n"
 								 "minor:" minor	"\n"
-								 mode-line-process))))
+								 (nth 2 mode-line-process)))))
 
 	  (:propertize battery-mode-line-string
 				face sml/battery)
@@ -454,7 +457,7 @@ Otherwise, setup the mode-line."
   (let ((data (and battery-status-function (funcall battery-status-function))))
     (if  (string-equal "AC" (cdr (assoc 76 data)))
 	   (copy-face 'sml/charging 'sml/battery)
-	   (copy-face 'sml/discharging 'sml/battery))))
+	 (copy-face 'sml/discharging 'sml/battery))))
 
 (defadvice battery-update (before sml/set-battery-font activate)
   (sml/set-battery-font))
@@ -467,7 +470,7 @@ Otherwise, setup the mode-line."
 						    ""
 						    mml)
 	 mml)))
-  
+
 (defun sml/replacer (in)
   "Runs the replacements specified in `sml/replacer-regexp-list'.
 
@@ -740,9 +743,9 @@ regexp in `sml/prefix-regexp'."
 
 
 
-			   ;; (propertize (cdr (assoc 112 (funcall battery-status-function)))
-			   ;; 				   'face (if  (string-equal "Discharging" (cdr (assoc 66 (funcall battery-status-function))))
-			   ;; 						   'sml/discharging 'sml/charging))
+;; (propertize (cdr (assoc 112 (funcall battery-status-function)))
+;; 				   'face (if  (string-equal "Discharging" (cdr (assoc 66 (funcall battery-status-function))))
+;; 						   'sml/discharging 'sml/charging))
 
 ;;; smart-mode-line.el ends here
 
