@@ -135,6 +135,7 @@
 
 ;;; Change Log:
 
+;; 1.5.3 - 20120620 - Remove prefix and folder for non-files. Color the :Git prefix.
 ;; 1.5.2 - 20120614 - Saner default widths and mode-name fix for
 ;; Term.
 
@@ -281,7 +282,7 @@ replaced by \"\" in the minor-modes list."
   :group 'smart-mode-line)
 
 
-(defcustom sml/prefix-regexp '(":.*:" "~/")
+(defcustom sml/prefix-regexp '(":\\(.*:\\)" "~/")
   "List of Regexps used to identify prefixes.
 
 A prefix is anything at the begining of a line that matches any
@@ -410,15 +411,17 @@ Otherwise, setup the mode-line."
 
 	  ;; Full path to buffer/file name
 	  (:eval
-	   (let* ((prefix (sml/get-prefix (sml/replacer (abbreviate-file-name default-directory))))
+	   (let* ((prefix (sml/get-prefix (sml/replacer (abbreviate-file-name (sml/get-directory)))))
 			(bufname (buffer-name))
 			;; (if (and (buffer-file-name) (file-directory-p (buffer-file-name)))
 			;; 			   "" (buffer-name))
 			(dirsize (max 4 (- (abs sml/name-width) (length prefix) (length bufname))))
-			(dirstring (funcall sml/shortener-func default-directory dirsize)))
+			(dirstring (funcall sml/shortener-func (sml/get-directory) dirsize)))
 
 		(propertize (concat (cond ((string-equal prefix ":SU:")
 							  (propertize prefix 'face 'sml/sudo))
+							 ((search ":Git" prefix)
+							  (propertize prefix 'face 'sml/git))
 							 (t
 							  (propertize prefix 'face 'sml/prefix)))
 						
@@ -451,6 +454,14 @@ Otherwise, setup the mode-line."
 						'face 'sml/time
 						'help-echo (concat (format-time-string "%c;")
 									    (emacs-uptime "\nUptime: %hh")))))))))
+
+(defun sml/get-directory ()
+  "Decide if we want directory shown. If so, return it."
+  (cond ((buffer-file-name) default-directory)
+	   ((search "Dired" mode-name :start1)
+	    (replace-regexp-in-string "/[^/]*/$" "/" default-directory))
+	   (t "")))
+
 (defun sml/set-battery-font ()
   "Set `sml/battery' face depending on battery state."
   (interactive)
@@ -490,7 +501,10 @@ Used by `sml/strip-prefix' and `sml/get-prefix'."
   "Prepares the actual regexp using `sml/prefix-regexp'."
   (let ((left "^\\(")
 	   (right (if getter "\\|\\).*" "\\)")))
-    (if (stringp sml/prefix-regexp) (concat left sml/prefix-regexp right )
+    (if (stringp sml/prefix-regexp) 
+	   (if (search "\\(" sml/prefix-regexp) 
+		  sml/prefix-regexp
+		(concat left sml/prefix-regexp right)) 
 	 (concat left (mapconcat 'identity sml/prefix-regexp "\\|") right))))
 
 (defun sml/strip-prefix (path)
@@ -666,6 +680,16 @@ regexp in `sml/prefix-regexp'."
 (defface sml/sudo
   '((t
 	:inherit sml/warning
+	))
+  ""
+  :group 'smart-mode-line-faces)
+
+
+
+(defface sml/git
+  '((t
+	:foreground "DeepSkyBlue"
+	:inherit sml/prefix
 	))
   ""
   :group 'smart-mode-line-faces)
