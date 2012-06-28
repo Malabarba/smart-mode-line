@@ -764,9 +764,5 @@ regexp in `sml/prefix-regexp'."
 
 
 
-;; (propertize (cdr (assoc 112 (funcall battery-status-function)))
-;; 				   'face (if  (string-equal "Discharging" (cdr (assoc 66 (funcall battery-status-function))))
-;; 						   'sml/discharging 'sml/charging))
-
 ;;; smart-mode-line.el ends here
 
