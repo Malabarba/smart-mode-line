@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.5.2
+;; Version: 1.5.4
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -135,6 +135,7 @@
 
 ;;; Change Log:
 
+;; 1.5.4 - 20120628 - Optimized regexp-replacer.
 ;; 1.5.3 - 20120620 - Remove prefix and folder for non-files. Color the :Git prefix.
 ;; 1.5.2 - 20120614 - Saner default widths and mode-name fix for
 ;; Term.
@@ -238,8 +239,8 @@ customizing the variable with `customize-group'. Setting the
 variable with `setq' will NOT work and should be avoided."
   (interactive)
   (sml/set-shortener-func 'sml/shorten-directory
-					 (if val (car val)
-					   (not sml/shorten-directory))))
+                          (if val (car val)
+                            (not sml/shorten-directory))))
 
 (defcustom sml/shorten-directory t
   "Should directory name be shortened to fit width?
@@ -261,7 +262,7 @@ customizing the variable with `customize-group'. Equivalent to
 setting the variable with `setq'."
   (interactive)
   (setq sml/shorten-modes (if val (car val)
-					   (not sml/shorten-modes))))
+                            (not sml/shorten-modes))))
 
 (defcustom sml/shorten-modes t
   "Should modes list be shortened to fit width?
@@ -334,12 +335,12 @@ name."
 (defun sml/trim-modes (major minor)
   "Maybe trim the modes list."
   (let ((out (concat major minor))
-	   (N sml/mode-width))
+        (N sml/mode-width))
     (if sml/shorten-modes
-	   (if (> (length out) N)
-		  (concat (substring out 0 (- N 3)) "...")
-		(concat out (make-string (- N (length out)) ?\ )))
-	 (concat out (make-string (max 0 (- N (length out))) ?\ )))))
+        (if (> (length out) N)
+            (concat (substring out 0 (- N 3)) "...")
+          (concat out (make-string (- N (length out)) ?\ )))
+      (concat out (make-string (max 0 (- N (length out))) ?\ )))))
 
 
 (defun sml/revert ()
@@ -358,117 +359,117 @@ If argument is a non-positive integer, revert any changes made.
 Otherwise, setup the mode-line."
   (interactive)
   (if (and (integerp arg) (< arg 1))
-	 (sml/revert)
+      (sml/revert)
     (sml/set-face-color nil nil)
     (setq battery-mode-line-format " %p")
     (setq-default
-	mode-line-format
-	'(
-	  (:propertize "%e" face sml/warning)
-	  ;; emacsclient
-	  (:eval (if sml/show-client (if (frame-parameter nil 'client)
-							   (propertize "@"
-										'face 'sml/client
-										'help-echo "emacsclient frame")
-							 " ")))
-	  
-	  ;; Position
-	  (:eval (propertize sml/col-number-format
-					 'face 'sml/col-number
-					 'help-echo (format-mode-line "Buffer size:\n\t%IB")))
-	  (:eval (propertize sml/numbers-separator
-					 'face 'sml/numbers-separator
-					 'help-echo (format-mode-line "Buffer size:\n\t%IB")))
-	  (:eval (propertize sml/line-number-format
-					 'face 'sml/line-number
-					 'help-echo (format-mode-line "Buffer size:\n\t%IB")))
+     mode-line-format
+     '(
+       (:propertize "%e" face sml/warning)
+       ;; emacsclient
+       (:eval (if sml/show-client (if (frame-parameter nil 'client)
+                                      (propertize "@"
+                                                  'face 'sml/client
+                                                  'help-echo "emacsclient frame")
+                                    " ")))
+       
+       ;; Position
+       (:eval (propertize sml/col-number-format
+                          'face 'sml/col-number
+                          'help-echo (format-mode-line "Buffer size:\n\t%IB")))
+       (:eval (propertize sml/numbers-separator
+                          'face 'sml/numbers-separator
+                          'help-echo (format-mode-line "Buffer size:\n\t%IB")))
+       (:eval (propertize sml/line-number-format
+                          'face 'sml/line-number
+                          'help-echo (format-mode-line "Buffer size:\n\t%IB")))
 
-	  ;; Modified status
-	  (:eval
-	   (cond ((not (verify-visited-file-modtime))
-			(propertize "M"
-					  'face 'sml/outside-modified
-					  'help-echo "Modified outside Emacs!\nRevert first!"))
+       ;; Modified status
+       (:eval
+        (cond ((not (verify-visited-file-modtime))
+               (propertize "M"
+                           'face 'sml/outside-modified
+                           'help-echo "Modified outside Emacs!\nRevert first!"))
 
-		    (buffer-read-only
-			(propertize "R"
-					  'face 'sml/read-only
-					  'help-echo "Read-Only Buffer"))
-		    
-		    ((buffer-modified-p)
-			(propertize "×"
-					  'face 'sml/modified
-					  'help-echo (if (buffer-file-name)
-								  (format-time-string
-								   sml/modified-time-string
-								   (nth 5 (file-attributes (buffer-file-name))))
-								"Buffer Modified")))
-		    
-		    (t
-			(propertize " "
-					  'face 'sml/not-modified
-					  'help-echo "Buffer Not Modified"))))
+              (buffer-read-only
+               (propertize "R"
+                           'face 'sml/read-only
+                           'help-echo "Read-Only Buffer"))
+              
+              ((buffer-modified-p)
+               (propertize "×"
+                           'face 'sml/modified
+                           'help-echo (if (buffer-file-name)
+                                          (format-time-string
+                                           sml/modified-time-string
+                                           (nth 5 (file-attributes (buffer-file-name))))
+                                        "Buffer Modified")))
+              
+              (t
+               (propertize " "
+                           'face 'sml/not-modified
+                           'help-echo "Buffer Not Modified"))))
 
-	  ;; Full path to buffer/file name
-	  (:eval
-	   (let* ((prefix (sml/get-prefix (sml/replacer (abbreviate-file-name (sml/get-directory)))))
-			(bufname (buffer-name))
-			;; (if (and (buffer-file-name) (file-directory-p (buffer-file-name)))
-			;; 			   "" (buffer-name))
-			(dirsize (max 4 (- (abs sml/name-width) (length prefix) (length bufname))))
-			(dirstring (funcall sml/shortener-func (sml/get-directory) dirsize)))
+       ;; Full path to buffer/file name
+       (:eval
+        (let* ((prefix (sml/get-prefix (sml/replacer (abbreviate-file-name (sml/get-directory)))))
+               (bufname (buffer-name))
+               ;; (if (and (buffer-file-name) (file-directory-p (buffer-file-name)))
+               ;; 			   "" (buffer-name))
+               (dirsize (max 4 (- (abs sml/name-width) (length prefix) (length bufname))))
+               (dirstring (funcall sml/shortener-func (sml/get-directory) dirsize)))
 
-		(propertize (concat (cond ((string-equal prefix ":SU:")
-							  (propertize prefix 'face 'sml/sudo))
-							 ((search ":Git" prefix)
-							  (propertize prefix 'face 'sml/git))
-							 (t
-							  (propertize prefix 'face 'sml/prefix)))
-						
-						(propertize dirstring
-								  'face 'sml/folder)
-						(propertize bufname
-								  'face 'sml/filename)
-						(make-string (max 0 (- dirsize (length dirstring))) ?\ )
-						)
-				  'help-echo (buffer-file-name))))
-	  
-	  
-	  ;; The modes list
-	  (:eval
-	   (let ((major (format-mode-line  (concat mode-name (mapconcat 'identity mode-line-process ""))
-								'sml/modes))
-		    (minor (format-mode-line 
-				  minor-mode-alist 'sml/folder)))
-		(propertize (sml/trim-modes major (sml/format-minor-list minor))
-				  'help-echo (concat "Major: " mode-name		"\n"
-								 "minor:" minor	"\n"
-								 (nth 2 mode-line-process)))))
+          (propertize (concat (cond ((string-equal prefix ":SU:")
+                                     (propertize prefix 'face 'sml/sudo))
+                                    ((search ":Git" prefix)
+                                     (propertize prefix 'face 'sml/git))
+                                    (t
+                                     (propertize prefix 'face 'sml/prefix)))
+                              
+                              (propertize dirstring
+                                          'face 'sml/folder)
+                              (propertize bufname
+                                          'face 'sml/filename)
+                              (make-string (max 0 (- dirsize (length dirstring))) ?\ )
+                              )
+                      'help-echo (buffer-file-name))))
+       
+       
+       ;; The modes list
+       (:eval
+        (let ((major (format-mode-line  (concat mode-name (mapconcat 'identity mode-line-process ""))
+                                        'sml/modes))
+              (minor (format-mode-line 
+                      minor-mode-alist 'sml/folder)))
+          (propertize (sml/trim-modes major (sml/format-minor-list minor))
+                      'help-echo (concat "Major: " mode-name		"\n"
+                                         "minor:" minor	"\n"
+                                         (nth 2 mode-line-process)))))
 
-	  (:propertize battery-mode-line-string
-				face sml/battery)
-	  
-	  ;; add the time, with the date and the emacs uptime in the tooltip
-	  (:eval (if sml/show-time
-			   (propertize (format-time-string sml/time-format)
-						'face 'sml/time
-						'help-echo (concat (format-time-string "%c;")
-									    (emacs-uptime "\nUptime: %hh")))))))))
+       (:propertize battery-mode-line-string
+                    face sml/battery)
+       
+       ;; add the time, with the date and the emacs uptime in the tooltip
+       (:eval (if sml/show-time
+                  (propertize (format-time-string sml/time-format)
+                              'face 'sml/time
+                              'help-echo (concat (format-time-string "%c;")
+                                                 (emacs-uptime "\nUptime: %hh")))))))))
 
 (defun sml/get-directory ()
   "Decide if we want directory shown. If so, return it."
   (cond ((buffer-file-name) default-directory)
-	   ((search "Dired" mode-name :start1)
-	    (replace-regexp-in-string "/[^/]*/$" "/" default-directory))
-	   (t "")))
+        ((search "Dired" mode-name :start1)
+         (replace-regexp-in-string "/[^/]*/$" "/" default-directory))
+        (t "")))
 
 (defun sml/set-battery-font ()
   "Set `sml/battery' face depending on battery state."
   (interactive)
   (let ((data (and battery-status-function (funcall battery-status-function))))
     (if  (string-equal "AC" (cdr (assoc 76 data)))
-	   (copy-face 'sml/charging 'sml/battery)
-	 (copy-face 'sml/discharging 'sml/battery))))
+        (copy-face 'sml/charging 'sml/battery)
+      (copy-face 'sml/discharging 'sml/battery))))
 
 (defadvice battery-update (before sml/set-battery-font activate)
   (sml/set-battery-font))
@@ -477,35 +478,31 @@ Otherwise, setup the mode-line."
   "Cleans and fontifies the minor mode list."
   (let ((case-fold-search nil))
     (if sml/hidden-modes
-	   (replace-regexp-in-string (concat " \\(" (mapconcat 'identity sml/hidden-modes "\\|") "\\)")
-						    ""
-						    mml)
-	 mml)))
+        (replace-regexp-in-string (concat " \\(" (mapconcat 'identity sml/hidden-modes "\\|") "\\)")
+                                  ""
+                                  mml)
+      mml)))
 
 (defun sml/replacer (in)
   "Runs the replacements specified in `sml/replacer-regexp-list'.
 
 Used by `sml/strip-prefix' and `sml/get-prefix'."
-  (let ((out in)
-  	   (rlist sml/replacer-regexp-list)
-  	   (cur '()))
-    (while rlist
-  	 (setq cur (car rlist))
-  	 (setq out (replace-regexp-in-string (car cur)
-								  (car (cdr cur))
-								  out))
-  	 (setq rlist (cdr rlist)))
+  (let ((out in))
+    (dolist (cur sml/replacer-regexp-list)
+      (setq out (replace-regexp-in-string (car cur)
+                                          (car (cdr cur))
+                                          out)))
     out))
 
 (defun sml/regexp-composer (getter)
   "Prepares the actual regexp using `sml/prefix-regexp'."
   (let ((left "^\\(")
-	   (right (if getter "\\|\\).*" "\\)")))
+        (right (if getter "\\|\\).*" "\\)")))
     (if (stringp sml/prefix-regexp) 
-	   (if (search "\\(" sml/prefix-regexp) 
-		  sml/prefix-regexp
-		(concat left sml/prefix-regexp right)) 
-	 (concat left (mapconcat 'identity sml/prefix-regexp "\\|") right))))
+        (if (search "\\(" sml/prefix-regexp) 
+            sml/prefix-regexp
+          (concat left sml/prefix-regexp right)) 
+      (concat left (mapconcat 'identity sml/prefix-regexp "\\|") right))))
 
 (defun sml/strip-prefix (path)
   "Remove prefix from string.
@@ -530,31 +527,31 @@ regexp in `sml/prefix-regexp'."
   (let ((longname (sml/strip-prefix (sml/replacer (abbreviate-file-name dir)))))
     ;; If it fits, return the string.
     (if (<= (length longname) max-length) longname
-	 ;; If it doesn't, shorten it
-	 (let ((path (reverse (split-string longname "/")))
-		  (output ""))
-	   (when (and path (equal "" (car path)))
-		(setq path (cdr path)))
-	   ;; Concat as many levels as possible, leaving 4 chars for safety.
-	   (while (and path (< (length (concat (car path) "/" output)) (- max-length 3)))
-		(setq output (concat (car path) "/" output))
-		(setq path (cdr path)))
-	   ;; If we had to shorten, prepend .../
-	   (when path
-		(setq output (concat ".../" output)))
-	   output
-	   ))))
+      ;; If it doesn't, shorten it
+      (let ((path (reverse (split-string longname "/")))
+            (output ""))
+        (when (and path (equal "" (car path)))
+          (setq path (cdr path)))
+        ;; Concat as many levels as possible, leaving 4 chars for safety.
+        (while (and path (< (length (concat (car path) "/" output)) (- max-length 3)))
+          (setq output (concat (car path) "/" output))
+          (setq path (cdr path)))
+        ;; If we had to shorten, prepend .../
+        (when path
+          (setq output (concat ".../" output)))
+        output
+        ))))
 
 ;; Color definitions
 
 (defun sml/set-face-color (sym val)
   (if sym (set-default sym val))
   (set-face-attribute 'mode-line nil
-				  :foreground sml/active-foreground-color
-				  :background sml/active-background-color)
+                      :foreground sml/active-foreground-color
+                      :background sml/active-background-color)
   (set-face-attribute 'mode-line-inactive nil
-				  :background sml/inactive-background-color
-				  :foreground sml/inactive-foreground-color))
+                      :background sml/inactive-background-color
+                      :foreground sml/inactive-foreground-color))
 
 (defcustom sml/active-foreground-color "gray60"
   "Foreground mode-line color for the active frame."
@@ -581,63 +578,63 @@ regexp in `sml/prefix-regexp'."
 
 (defface sml/global
   '((t
-	:foreground "gray40"
-	))
+     :foreground "gray40"
+     ))
   ""
   :group 'smart-mode-line-faces)
 
 (defface sml/warning
   '((t
-	:inherit sml/global
-	:foreground "#bf0000"
-	:weight bold
-	))
+     :inherit sml/global
+     :foreground "#bf0000"
+     :weight bold
+     ))
   ""
   :group 'smart-mode-line-faces)
 
 (defface sml/line-number
   '((t
-	:inherit sml/global
-	:foreground "white"
-	:weight bold
-	))
+     :inherit sml/global
+     :foreground "white"
+     :weight bold
+     ))
   ""
   :group 'smart-mode-line-faces)
 
 (defface sml/col-number
   '((t
-	:inherit sml/global
-	))
+     :inherit sml/global
+     ))
   ""
   :group 'smart-mode-line-faces)
 
 (defface sml/numbers-separator
   '((t
-	:inherit sml/global
-	))
+     :inherit sml/global
+     ))
   ""
   :group 'smart-mode-line-faces)
 
 (defface sml/client
   '((t
-	:inherit sml/global ;;sml/active-foreground-color
-	))
+     :inherit sml/global ;;sml/active-foreground-color
+     ))
   ""
   :group 'smart-mode-line-faces)
 
 (defface sml/not-modified
   '((t
-	:inherit sml/global ;;sml/active-foreground-color
-	))
+     :inherit sml/global ;;sml/active-foreground-color
+     ))
   ""
   :group 'smart-mode-line-faces)
 
 
 (defface sml/read-only
   '((t
-	:inherit sml/global
-	:foreground "#4271ae"
-	))
+     :inherit sml/global
+     :foreground "#4271ae"
+     ))
   ""
   :group 'smart-mode-line-faces)
 
@@ -645,10 +642,10 @@ regexp in `sml/prefix-regexp'."
 
 (defface sml/outside-modified
   '((t
-	:inherit sml/global
-	:foreground "#ffffff"
-	:background "#c82829"
-	))
+     :inherit sml/global
+     :foreground "#ffffff"
+     :background "#c82829"
+     ))
   ""
   :group 'smart-mode-line-faces)
 
@@ -657,10 +654,10 @@ regexp in `sml/prefix-regexp'."
 
 (defface sml/modified
   '((t
-	:inherit sml/global
-	:foreground "#c82829"
-	:weight bold
-	))
+     :inherit sml/global
+     :foreground "#c82829"
+     :weight bold
+     ))
   ""
   :group 'smart-mode-line-faces)
 
@@ -668,10 +665,10 @@ regexp in `sml/prefix-regexp'."
 
 (defface sml/prefix
   '((t
-	:inherit sml/global
-	:foreground "#bf6000"
-	;; :weight bold ;; not sure if it's best bold or not
-	))
+     :inherit sml/global
+     :foreground "#bf6000"
+     ;; :weight bold ;; not sure if it's best bold or not
+     ))
   ""
   :group 'smart-mode-line-faces)
 
@@ -679,8 +676,8 @@ regexp in `sml/prefix-regexp'."
 
 (defface sml/sudo
   '((t
-	:inherit sml/warning
-	))
+     :inherit sml/warning
+     ))
   ""
   :group 'smart-mode-line-faces)
 
@@ -688,18 +685,18 @@ regexp in `sml/prefix-regexp'."
 
 (defface sml/git
   '((t
-	:foreground "DeepSkyBlue"
-	:inherit sml/prefix
-	))
+     :foreground "DeepSkyBlue"
+     :inherit sml/prefix
+     ))
   ""
   :group 'smart-mode-line-faces)
 
 
 (defface sml/folder
   '((t
-	:inherit sml/global
-	;; :foreground "gray40"
-	))
+     :inherit sml/global
+     ;; :foreground "gray40"
+     ))
   ""
   :group 'smart-mode-line-faces)
 
@@ -707,10 +704,10 @@ regexp in `sml/prefix-regexp'."
 
 (defface sml/filename
   '((t
-	:inherit sml/global
-	:foreground "#eab700"
-	:weight bold
-	))
+     :inherit sml/global
+     :foreground "#eab700"
+     :weight bold
+     ))
   ""
   :group 'smart-mode-line-faces)
 
@@ -718,32 +715,32 @@ regexp in `sml/prefix-regexp'."
 
 (defface sml/modes
   '((t
-	:inherit sml/global
-	:foreground "gray80"
-	))
+     :inherit sml/global
+     :foreground "gray80"
+     ))
   ""
   :group 'smart-mode-line-faces)
 
 (defface sml/charging
   '((t
-	:inherit sml/global 
-	:foreground "green"
-	))
+     :inherit sml/global 
+     :foreground "green"
+     ))
   ""
   :group 'smart-mode-line-faces)
 
 (defface sml/discharging
   '((t
-	:inherit sml/global 
-	:foreground "red"
-	))
+     :inherit sml/global 
+     :foreground "red"
+     ))
   ""
   :group 'smart-mode-line-faces)
 
 (defface sml/time
   '((t
-	:inherit sml/filename
-	))
+     :inherit sml/filename
+     ))
   ""
   :group 'smart-mode-line-faces)
 
