@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.5.4
+;; Version: 1.6
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -135,10 +135,10 @@
 
 ;;; Change Log:
 
+;; 1.5.5 - 20120707 - NEW FEATURE: Customizable faces for the prefix, see `sml/prefix-face-list'.
 ;; 1.5.4 - 20120628 - Optimized regexp-replacer.
 ;; 1.5.3 - 20120620 - Remove prefix and folder for non-files. Color the :Git prefix.
-;; 1.5.2 - 20120614 - Saner default widths and mode-name fix for
-;; Term.
+;; 1.5.2 - 20120614 - Saner default widths and mode-name fix for Term.
 
 ;; 1.5.1 - 20120612 - Fixed battery font for corner cases.
 
@@ -292,20 +292,26 @@ parser applies that for you."
   :type '(repeat regexp)
   :group 'smart-mode-line)
 
-(defconst sml/replacer-regexp-list-default '(("^~/\\.emacs\\.d/" ":ED:") ("^/sudo:.*:" ":SU:"))
-  "Default values used by `sml/replacer-regexp-list'.")
-
-(defcustom sml/replacer-regexp-list sml/replacer-regexp-list-default
+(defcustom sml/replacer-regexp-list '(("^~/\\.emacs\\.d/" ":ED:") ("^/sudo:.*:" ":SU:"))
   "List of pairs of strings used by `sml/replacer'.
 
 The first string of each pair is a regular expression, the second
 is a replacement. These replacements are sequentially called on
 the filename to replace portions of it. To be considered a prefix
 a string must start and end with \":\" (see the default as an
-example)."
+example).
+
+You can also set custom colors (faces) for these prefixes, just
+set `sml/prefix-face-list' accordingly."
   :type '(repeat (list regexp string))
   :group 'smart-mode-line)
 
+(defcustom sml/prefix-face-list '((":SU:" sml/sudo)
+                                  (":G" sml/git)
+                                  ("" sml/prefix))
+  "List of (STRING FACE) pairs used by `sml/prefix-face-list'."
+  :type '(repeat (list string face))
+  :group 'smart-mode-line)
 
 (defcustom sml/name-width 44
   "Minimum and maximum size of the file name in the mode-line.
@@ -331,25 +337,6 @@ file\" character (which is usually a * right before the file
 name."
   :type 'string
   :group 'smart-mode-line)
-
-(defun sml/trim-modes (major minor)
-  "Maybe trim the modes list."
-  (let ((out (concat major minor))
-        (N sml/mode-width))
-    (if sml/shorten-modes
-        (if (> (length out) N)
-            (concat (substring out 0 (- N 3)) "...")
-          (concat out (make-string (- N (length out)) ?\ )))
-      (concat out (make-string (max 0 (- N (length out))) ?\ )))))
-
-
-(defun sml/revert ()
-  "Called by `sml/setup' with arg = -1."
-  (copy-face 'sml/active-backup 'mode-line)
-  (copy-face 'sml/inactive-backup 'mode-line-inactive)
-  (setq-default mode-line-format sml/format-backup)
-  (setq battery-mode-line-format sml/battery-format-backup)
-  )
 
 ;;;###autoload
 (defun sml/setup (&optional arg)
@@ -419,13 +406,7 @@ Otherwise, setup the mode-line."
                (dirsize (max 4 (- (abs sml/name-width) (length prefix) (length bufname))))
                (dirstring (funcall sml/shortener-func (sml/get-directory) dirsize)))
 
-          (propertize (concat (cond ((string-equal prefix ":SU:")
-                                     (propertize prefix 'face 'sml/sudo))
-                                    ((search ":Git" prefix)
-                                     (propertize prefix 'face 'sml/git))
-                                    (t
-                                     (propertize prefix 'face 'sml/prefix)))
-                              
+          (propertize (concat (sml/propertize-prefix prefix)
                               (propertize dirstring
                                           'face 'sml/folder)
                               (propertize bufname
@@ -455,6 +436,30 @@ Otherwise, setup the mode-line."
                               'face 'sml/time
                               'help-echo (concat (format-time-string "%c;")
                                                  (emacs-uptime "\nUptime: %hh")))))))))
+
+(defun sml/propertize-prefix (prefix)
+  "Set the color of the prefix according to its contents."
+  (dolist (pair sml/prefix-face-list)
+    (if (search (car pair) prefix)
+        (return (propertize prefix 'face (car (cdr pair)))))))
+
+(defun sml/trim-modes (major minor)
+  "Maybe trim the modes list."
+  (let ((out (concat major minor))
+        (N sml/mode-width))
+    (if sml/shorten-modes
+        (if (> (length out) N)
+            (concat (substring out 0 (- N 3)) "...")
+          (concat out (make-string (- N (length out)) ?\ )))
+      (concat out (make-string (max 0 (- N (length out))) ?\ )))))
+
+(defun sml/revert ()
+  "Called by `sml/setup' with arg = -1."
+  (copy-face 'sml/active-backup 'mode-line)
+  (copy-face 'sml/inactive-backup 'mode-line-inactive)
+  (setq-default mode-line-format sml/format-backup)
+  (setq battery-mode-line-format sml/battery-format-backup)
+  )
 
 (defun sml/get-directory ()
   "Decide if we want directory shown. If so, return it."
