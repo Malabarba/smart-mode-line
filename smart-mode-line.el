@@ -135,7 +135,7 @@
 
 ;;; Change Log:
 
-;; 1.5.5 - 20120707 - NEW FEATURE: Customizable faces for the prefix, see `sml/prefix-face-list'.
+;; 1.6 - 20120709 - NEW FEATURE: Customizable faces for the prefix, see `sml/prefix-face-list'.
 ;; 1.5.4 - 20120628 - Optimized regexp-replacer.
 ;; 1.5.3 - 20120620 - Remove prefix and folder for non-files. Color the :Git prefix.
 ;; 1.5.2 - 20120614 - Saner default widths and mode-name fix for Term.
