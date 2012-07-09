@@ -147,6 +147,8 @@
 
 ;;; Code:
 
+(eval-when-compile (require 'cl))
+
 (defun sml/customize ()
   "Open the customization menu the `smart-mode-line' group."
   (interactive)
@@ -309,7 +311,7 @@ set `sml/prefix-face-list' accordingly."
 (defcustom sml/prefix-face-list '((":SU:" sml/sudo)
                                   (":G" sml/git)
                                   ("" sml/prefix))
-  "List of (STRING FACE) pairs used by `sml/prefix-face-list'."
+  "List of (STRING FACE) pairs used by `sml/propertize-prefix'."
   :type '(repeat (list string face))
   :group 'smart-mode-line)
 
@@ -407,12 +409,9 @@ Otherwise, setup the mode-line."
                (dirstring (funcall sml/shortener-func (sml/get-directory) dirsize)))
 
           (propertize (concat (sml/propertize-prefix prefix)
-                              (propertize dirstring
-                                          'face 'sml/folder)
-                              (propertize bufname
-                                          'face 'sml/filename)
-                              (make-string (max 0 (- dirsize (length dirstring))) ?\ )
-                              )
+                              (propertize dirstring 'face 'sml/folder)
+                              (propertize bufname 'face 'sml/filename)
+                              (make-string (max 0 (- dirsize (length dirstring))) ?\ ))
                       'help-echo (buffer-file-name))))
        
        
@@ -437,11 +436,13 @@ Otherwise, setup the mode-line."
                               'help-echo (concat (format-time-string "%c;")
                                                  (emacs-uptime "\nUptime: %hh")))))))))
 
+
 (defun sml/propertize-prefix (prefix)
   "Set the color of the prefix according to its contents."
-  (dolist (pair sml/prefix-face-list)
-    (if (search (car pair) prefix)
-        (return (propertize prefix 'face (car (cdr pair)))))))
+  (let ((out prefix))
+    (dolist (pair sml/prefix-face-list)
+      (if (search (car pair) prefix)
+	(return (propertize prefix 'face (car (cdr pair))))))))
 
 (defun sml/trim-modes (major minor)
   "Maybe trim the modes list."
