@@ -414,11 +414,13 @@ Otherwise, setup the mode-line."
                               (make-string (max 0 (- dirsize (length dirstring))) ?\ ))
                       'help-echo (buffer-file-name))))
        
-       
-       ;; The modes list
+       ;; The modes list 
        (:eval
-        (let ((major (format-mode-line  (concat mode-name (mapconcat 'identity mode-line-process ""))
-                                        'sml/modes))
+        (let ((major (propertize mode-name
+                                 'face		'sml/modes
+                                 'help-echo	(format-mode-line minor-mode-alist)
+                                 'mouse-face	'mode-line-highlight
+                                 'local-map	mode-line-major-mode-keymap))
               (minor (format-mode-line 
                       minor-mode-alist 'sml/folder)))
           (propertize (sml/trim-modes major (sml/format-minor-list minor))
