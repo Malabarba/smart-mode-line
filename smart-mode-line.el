@@ -418,15 +418,13 @@ Otherwise, setup the mode-line."
        (:eval
         (let ((major (propertize mode-name
                                  'face		'sml/modes
-                                 'help-echo	(format-mode-line minor-mode-alist)
-                                 'mouse-face	'mode-line-highlight
                                  'local-map	mode-line-major-mode-keymap))
-              (minor (format-mode-line 
-                      minor-mode-alist 'sml/folder)))
+              (minor (propertize (format-mode-line minor-mode-alist)
+                                 'face		'sml/folder
+                                 'local-map	mode-line-minor-mode-keymap)))
           (propertize (sml/trim-modes major (sml/format-minor-list minor))
                       'help-echo (concat "Major: " mode-name		"\n"
-                                         "minor:" minor	"\n"
-                                         (nth 2 mode-line-process)))))
+                                         "Minor:" minor))))
 
        (:propertize battery-mode-line-string
                     face sml/battery)
