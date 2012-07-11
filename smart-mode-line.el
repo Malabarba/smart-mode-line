@@ -419,9 +419,7 @@ Otherwise, setup the mode-line."
         (let ((major (propertize mode-name
                                  'face		'sml/modes
                                  'local-map	mode-line-major-mode-keymap))
-              (minor (propertize (format-mode-line minor-mode-alist)
-                                 'face		'sml/folder
-                                 'local-map	mode-line-minor-mode-keymap)))
+              (minor (sml/extract-minor-modes minor-mode-alist)))
           (propertize (sml/trim-modes major (sml/format-minor-list minor))
                       'help-echo (concat "Major: " mode-name		"\n"
                                          "Minor:" minor))))
@@ -436,6 +434,17 @@ Otherwise, setup the mode-line."
                               'help-echo (concat (format-time-string "%c;")
                                                  (emacs-uptime "\nUptime: %hh")))))))))
 
+(defun sml/extract-minor-modes (ml)
+  "Extracts all rich strings necessary for the minor mode list."
+  (let ((out ""))
+    (dolist (cur ml out)
+      (if (eval (car cur)) 
+          (setq out (concat out 
+                            (propertize (eval (nth 1 cur))
+                                        'face		'sml/folder
+                                        'local-map	mode-line-minor-mode-keymap)))
+    ))))
+(sml/extract-minor-modes    minor-mode-alist ) 
 
 (defun sml/propertize-prefix (prefix)
   "Set the color of the prefix according to its contents."
