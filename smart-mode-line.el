@@ -415,14 +415,16 @@ Otherwise, setup the mode-line."
                       'help-echo (buffer-file-name))))
        
        ;; The modes list 
-       (:eval
-        (let ((major (propertize mode-name
-                                 'face		'sml/modes
-                                 'local-map	mode-line-major-mode-keymap))
-              (minor (sml/extract-minor-modes minor-mode-alist)))
-          (propertize (sml/trim-modes major (sml/format-minor-list minor))
-                      'help-echo (concat "Major: " mode-name		"\n"
-                                         "Minor:" minor))))
+       (:propertize mode-name
+                   face       sml/modes
+                   local-map  mode-line-major-mode-keymap)
+       ;; (:eval (sml/extract-minor-modes minor-mode-alist))
+       ;; (let ((major )
+       ;;        (minor (sml/extract-minor-modes minor-mode-alist)))
+       ;;    (propertize (sml/trim-modes major (sml/format-minor-list minor))
+       ;;                'help-echo (concat "Major: " mode-name		"\n"
+       ;;                                   "Minor:" minor)))
+       ;; )
 
        (:propertize battery-mode-line-string
                     face sml/battery)
@@ -436,10 +438,10 @@ Otherwise, setup the mode-line."
 
 (defun sml/extract-minor-modes (ml)
   "Extracts all rich strings necessary for the minor mode list."
-  (let ((out ""))
+  (let ((out '()))
     (dolist (cur ml out)
       (if (eval (car cur)) 
-          (setq out (concat out 
+          (setq out (append out 
                             (propertize (eval (nth 1 cur))
                                         'face		'sml/folder
                                         'local-map	mode-line-minor-mode-keymap)))
