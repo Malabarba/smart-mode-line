@@ -415,9 +415,10 @@ Otherwise, setup the mode-line."
                       'help-echo (buffer-file-name))))
        
        ;; The modes list 
-       (:propertize mode-name
-                   face       sml/modes
-                   local-map  mode-line-major-mode-keymap)
+       (:eval (propertize mode-name
+                          'mouse-face 'mode-line-highlight
+                          'face       'sml/modes
+                          'local-map  mode-line-major-mode-keymap))
        ;; (:eval (sml/extract-minor-modes minor-mode-alist))
        ;; (let ((major )
        ;;        (minor (sml/extract-minor-modes minor-mode-alist)))
