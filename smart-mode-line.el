@@ -135,17 +135,14 @@
 
 ;;; Change Log:
 
-;; 1.6.1 - 20120713 - NEW FEATURE: Modes list now fully supports clicking.
-;; 1.6.1 - 20120713 - NEW FEATURE: `sml/version' constant.
+;; 1.6.1 - 20120712 - NEW FEATURE: Modes list now fully supports clicking.
+;; 1.6.1 - 20120712 - NEW FEATURE: `sml/version' constant.
 ;; 1.6 - 20120709 - NEW FEATURE: Customizable faces for the prefix, see `sml/prefix-face-list'.
 ;; 1.5.4 - 20120628 - Optimized regexp-replacer.
 ;; 1.5.3 - 20120620 - Remove prefix and folder for non-files. Color the :Git prefix.
 ;; 1.5.2 - 20120614 - Saner default widths and mode-name fix for Term.
-
 ;; 1.5.1 - 20120612 - Fixed battery font for corner cases.
-
-;; 1.5 - 20120611 - Added support for display-battery-mode. See the
-;; description for more
+;; 1.5 - 20120611 - Added support for display-battery-mode. See the description for more.
 
 ;;; Code:
 
