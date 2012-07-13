@@ -275,13 +275,13 @@ When the modes list is longer than `sml/mode-width':
   :type 'boolean
   :group 'smart-mode-line)
 
-(defcustom sml/hidden-modes '("hl-p")
+(defcustom sml/hidden-modes '(" hl-p")
   "List of minor modes you want to hide, or empty.
 
 If empty (or nil), all minor modes are shown in the
 mode-line. Otherwise this is a list of REGEXP's that will be
 replaced by \"\" in the minor-modes list."
-  :type '(repeat regexp)
+  :type '(repeat string)
   :group 'smart-mode-line)
 
 
@@ -419,13 +419,17 @@ Otherwise, setup the mode-line."
                           'mouse-face 'mode-line-highlight
                           'face       'sml/modes
                           'local-map  mode-line-major-mode-keymap))
-       ;; (:eval (sml/extract-minor-modes minor-mode-alist))
-       ;; (let ((major )
-       ;;        (minor (sml/extract-minor-modes minor-mode-alist)))
+       ;; The mode line process, doesn't get counted into the width
+       ;; limit. The only mode I know that uses this is Term.
+       (:propertize ("" mode-line-process)
+                    'mouse-face 'mode-line-highlight
+                    'face       'sml/modes)
+       (:eval (sml/extract-minor-modes minor-mode-alist))
+       ;; (let ((minor (sml/extract-minor-modes minor-mode-alist)))
        ;;    (propertize (sml/trim-modes major (sml/format-minor-list minor))
        ;;                'help-echo (concat "Major: " mode-name		"\n"
        ;;                                   "Minor:" minor)))
-       ;; )
+       
 
        (:propertize battery-mode-line-string
                     face sml/battery)
@@ -439,15 +443,31 @@ Otherwise, setup the mode-line."
 
 (defun sml/extract-minor-modes (ml)
   "Extracts all rich strings necessary for the minor mode list."
-  (let ((out '()))
-    (dolist (cur ml out)
+  (let ((nameList nil))
+    (dolist (cur ml nameList)
       (if (eval (car cur)) 
-          (setq out (append out 
-                            (propertize (eval (nth 1 cur))
-                                        'face		'sml/folder
-                                        'local-map	mode-line-minor-mode-keymap)))
-    ))))
-(sml/extract-minor-modes    minor-mode-alist ) 
+          (add-to-list 'nameList (eval (nth 1 cur)))))
+    (let ((out nil)
+          (helpString (concat "Full list:\n  "
+                              (mapconcat 'identity nameList "\n  "))))
+      (dolist (name nameList out)
+        (unless (find name sml/hidden-modes :test #'equal)
+          (add-to-list 'out (propertize name
+                      'help-echo helpString
+                      'mouse-face 'mode-line-highlight
+                      'face 'sml/folder
+                      'local-map mode-line-minor-mode-keymap)))))))
+
+(defun sml/filter-and-propertize-modes (helpstring)
+  "Takes a mode name. If should be hidden return nil, otherwise
+propertizes the name and returns it."
+  (lambda (name)
+    (unless (find name sml/hidden-modes :test #'equal)
+      (propertize name
+                  'help-echo helpstring
+                  'mouse-face 'mode-line-highlight
+                  'face 'sml/folder
+                  'local-map mode-line-minor-mode-keymap)))) 
 
 (defun sml/propertize-prefix (prefix)
   "Set the color of the prefix according to its contents."
