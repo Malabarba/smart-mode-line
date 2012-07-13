@@ -135,6 +135,8 @@
 
 ;;; Change Log:
 
+;; 1.6.1 - 20120713 - NEW FEATURE: Modes list now fully supports clicking.
+;; 1.6.1 - 20120713 - NEW FEATURE: `sml/version' constant.
 ;; 1.6 - 20120709 - NEW FEATURE: Customizable faces for the prefix, see `sml/prefix-face-list'.
 ;; 1.5.4 - 20120628 - Optimized regexp-replacer.
 ;; 1.5.3 - 20120620 - Remove prefix and folder for non-files. Color the :Git prefix.
@@ -149,6 +151,7 @@
 
 (eval-when-compile (require 'cl))
 
+(defconst sml/version "1.6.1" "Version of the smart-mode-line.el package.")
 (defun sml/customize ()
   "Open the customization menu the `smart-mode-line' group."
   (interactive)
@@ -340,6 +343,9 @@ name."
   :type 'string
   :group 'smart-mode-line)
 
+(defconst sml/major-help-echo
+  "Mouse-1: mode menu.\nMouse-2: mode help.\nMouse-3: toggle minor modes.")
+
 ;;;###autoload
 (defun sml/setup (&optional arg)
   "Setup the mode-line, or revert it.
@@ -418,12 +424,14 @@ Otherwise, setup the mode-line."
        (:eval (propertize mode-name
                           'mouse-face 'mode-line-highlight
                           'face       'sml/modes
-                          'local-map  mode-line-major-mode-keymap))
+                          'local-map  mode-line-major-mode-keymap
+                          'help-echo sml/major-help-echo))
        ;; The mode line process, doesn't get counted into the width
        ;; limit. The only mode I know that uses this is Term.
        (:propertize ("" mode-line-process)
                     'mouse-face 'mode-line-highlight
-                    'face       'sml/modes)
+                    'face       'sml/modes
+                    'help-echo	sml/major-help-echo)
        (:eval (sml/extract-minor-modes minor-mode-alist))
        ;; (let ((minor (sml/extract-minor-modes minor-mode-alist)))
        ;;    (propertize (sml/trim-modes major (sml/format-minor-list minor))
