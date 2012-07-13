@@ -333,7 +333,7 @@ Otherwise, this is both the minimum and maximum width."
   :type 'integer
   :group 'smart-mode-line)
 
-(defcustom sml/mode-width 24
+(defcustom sml/mode-width 30
   "Maximum and minimum size of the modes list in the mode-line.
 
 If `sml/shorten-modes' is nil, this is the minimum width.
@@ -358,6 +358,10 @@ name."
   :type 'boolean
   :group 'smart-mode-line)
 
+(defcustom sml/full-mode-string " +"
+  "String that's appended to the minor-mode list when it's full."
+  :type 'string
+  :group 'smart-mode-line)
 ;;;###autoload
 (defun sml/setup (&optional arg)
   "Setup the mode-line, or revert it.
@@ -478,22 +482,26 @@ syntax means the items should start with a space."
                               (mapconcat 'identity nameList "\n  "))))
       (dolist (name nameList out)
         (unless (find name sml/hidden-modes :test #'equal)
-          (when (< size (length name))
-            (if (< size 3) (setq out (cdr out))) 
-            (add-to-list 'out (propertize "..."
+          ;; If we're shortenning, check if it fits
+          (when (and sml/shorten-modes (< size (length name)))
+            ;; (message "size is %s, length name is %s" size (length name))
+            (while (< size (length sml/full-mode-string)) (setq out (cdr out)))
+            (add-to-list 'out (propertize sml/full-mode-string
                                           'help-echo helpString
                                           ;; 'mouse-face 'mode-line-highlight
-                                          'face 'sml/folder))
+                                          'face 'sml/folder) t)
+            (decf size (length sml/full-mode-string))
             (return))
+          ;; If it fits or we're not shortenning, append the next one.
           (decf size (length name))
           (add-to-list 'out (propertize name
                                         'help-echo helpString
                                         'mouse-face 'mode-line-highlight
                                         'face 'sml/folder
                                         'local-map mode-line-minor-mode-keymap))))
+      ;; Fill with spaces, unless size is negative.
       (append out (list (propertize (make-string (max 0 size) ?\ )
                                     'help-echo helpString
-                                    'mouse-face 'mode-line-highlight
                                     'face 'sml/folder))))))
   
 (defun sml/propertize-prefix (prefix)
