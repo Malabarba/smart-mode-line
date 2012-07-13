@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.6
+;; Version: 1.6.2
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -139,9 +139,10 @@
 
 ;;; Change Log:
 
-;; 1.6.1 - 20120713 - NEW FEATURE: Modes list now fully supports clicking.
-;; 1.6.1 - 20120713 - NEW FEATURE: `sml/version' constant.
-;; 1.6.1 - 20120713 - `sml/hidden-modes' is now a list of strings (not regexps).
+;; 1.6.2 - 20120713 - Fixed mode shortenning.
+;; 1.6.1 - 20120712 - NEW FEATURE: Modes list now fully supports clicking.
+;; 1.6.1 - 20120712 - NEW FEATURE: `sml/version' constant.
+;; 1.6.1 - 20120712 - `sml/hidden-modes' is now a list of strings (not regexps).
 ;; 1.6 - 20120709 - NEW FEATURE: Customizable faces for the prefix, see `sml/prefix-face-list'.
 ;; 1.5.4 - 20120628 - Optimized regexp-replacer.
 ;; 1.5.3 - 20120620 - Remove prefix and folder for non-files. Color the :Git prefix.
@@ -153,7 +154,7 @@
 
 (eval-when-compile (require 'cl))
 
-(defconst sml/version "1.6.1" "Version of the smart-mode-line.el package.")
+(defconst sml/version "1.6.2" "Version of the smart-mode-line.el package.")
 
 (defun sml/customize ()
   "Open the customization menu the `smart-mode-line' group."
@@ -352,6 +353,11 @@ name."
 (defconst sml/major-help-echo
   "Mouse-1: mode menu.\nMouse-2: mode help.\nMouse-3: toggle minor modes.")
 
+(defcustom sml/show-warning t
+  "Should `sml/setup' warn you about baddly formated variables?"
+  :type 'boolean
+  :group 'smart-mode-line)
+
 ;;;###autoload
 (defun sml/setup (&optional arg)
   "Setup the mode-line, or revert it.
@@ -361,6 +367,7 @@ Otherwise, setup the mode-line."
   (interactive)
   (if (and (integerp arg) (< arg 1))
       (sml/revert)
+    (if sml/show-warning (sml/check-hidden-modes))
     (sml/set-face-color nil nil)
     (setq battery-mode-line-format " %p")
     (setq-default
@@ -438,12 +445,8 @@ Otherwise, setup the mode-line."
                     'mouse-face 'mode-line-highlight
                     'face       'sml/modes
                     'help-echo	sml/major-help-echo)
-       (:eval (sml/extract-minor-modes minor-mode-alist))
-       ;; (let ((minor (sml/extract-minor-modes minor-mode-alist)))
-       ;;    (propertize (sml/trim-modes major (sml/format-minor-list minor))
-       ;;                'help-echo (concat "Major: " mode-name		"\n"
-       ;;                                   "Minor:" minor)))
-       
+
+       (:eval (sml/extract-minor-modes minor-mode-alist sml/mode-width))
 
        (:propertize battery-mode-line-string
                     face sml/battery)
@@ -455,34 +458,44 @@ Otherwise, setup the mode-line."
                               'help-echo (concat (format-time-string "%c;")
                                                  (emacs-uptime "\nUptime: %hh")))))))))
 
-(defun sml/extract-minor-modes (ml)
+(defun sml/check-hidden-modes ()
+  "Checks if `sml/hidden-modes' is using the new syntax. New
+syntax means the items should start with a space."
+  (dolist (cur sml/hidden-modes)
+    (unless (eq ?\  (string-to-char cur))
+      (warn "[sml]Strings in `sml/hidden-modes' should start with a space (\" \").\nTo stop showing this message, edit `sml/show-warning.'")
+      (return)))) 
+
+(defun sml/extract-minor-modes (ml maxSize)
   "Extracts all rich strings necessary for the minor mode list."
   (let ((nameList nil))
     (dolist (cur ml nameList)
       (if (eval (car cur)) 
           (add-to-list 'nameList (eval (nth 1 cur)))))
     (let ((out nil)
+          (size maxSize)
           (helpString (concat "Full list:\n  "
                               (mapconcat 'identity nameList "\n  "))))
       (dolist (name nameList out)
         (unless (find name sml/hidden-modes :test #'equal)
+          (when (< size (length name))
+            (if (< size 3) (setq out (cdr out))) 
+            (add-to-list 'out (propertize "..."
+                                          'help-echo helpString
+                                          ;; 'mouse-face 'mode-line-highlight
+                                          'face 'sml/folder))
+            (return))
+          (decf size (length name))
           (add-to-list 'out (propertize name
-                      'help-echo helpString
-                      'mouse-face 'mode-line-highlight
-                      'face 'sml/folder
-                      'local-map mode-line-minor-mode-keymap)))))))
-
-(defun sml/filter-and-propertize-modes (helpstring)
-  "Takes a mode name. If should be hidden return nil, otherwise
-propertizes the name and returns it."
-  (lambda (name)
-    (unless (find name sml/hidden-modes :test #'equal)
-      (propertize name
-                  'help-echo helpstring
-                  'mouse-face 'mode-line-highlight
-                  'face 'sml/folder
-                  'local-map mode-line-minor-mode-keymap)))) 
-
+                                        'help-echo helpString
+                                        'mouse-face 'mode-line-highlight
+                                        'face 'sml/folder
+                                        'local-map mode-line-minor-mode-keymap))))
+      (append out (list (propertize (make-string (max 0 size) ?\ )
+                                    'help-echo helpString
+                                    'mouse-face 'mode-line-highlight
+                                    'face 'sml/folder))))))
+  
 (defun sml/propertize-prefix (prefix)
   "Set the color of the prefix according to its contents."
   (let ((out prefix))
