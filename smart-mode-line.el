@@ -112,11 +112,15 @@
 ;;		information).
 
 ;;		Here go some more useful examples:
-;; 	(add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/Projects/In-Development/" ":ProjDev:"))
-;;	(add-to-list 'sml/replacer-regexp-list '("^~/Documents/Work/" ":Work:))
+;;
+;; 	(add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/Projects/In-Development/"	":ProjDev:"))
+;;	(add-to-list 'sml/replacer-regexp-list '("^~/Documents/Work/"			":Work:))
+;;
 ;;	;; Added in the right order, they even work sequentially:
-;;	(add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/" ":DB:"))
-;;	(add-to-list 'sml/replacer-regexp-list '("^:DB:Documents" ":DDocs:"))
+;;	(add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/"				":DB:"))
+;;	(add-to-list 'sml/replacer-regexp-list '("^:DB:Documents"			":DDocs:"))
+;;	(add-to-list 'sml/replacer-regexp-list '("^~/Git-Projects/"			":Git:"))
+;;	(add-to-list 'sml/replacer-regexp-list '("^:Git:\\(.*\\)/src/main/java/"	":G/\\1/SMJ:"))
 
 ;;; License:
 
@@ -135,8 +139,9 @@
 
 ;;; Change Log:
 
-;; 1.6.1 - 20120712 - NEW FEATURE: Modes list now fully supports clicking.
-;; 1.6.1 - 20120712 - NEW FEATURE: `sml/version' constant.
+;; 1.6.1 - 20120713 - NEW FEATURE: Modes list now fully supports clicking.
+;; 1.6.1 - 20120713 - NEW FEATURE: `sml/version' constant.
+;; 1.6.1 - 20120713 - `sml/hidden-modes' is now a list of strings (not regexps).
 ;; 1.6 - 20120709 - NEW FEATURE: Customizable faces for the prefix, see `sml/prefix-face-list'.
 ;; 1.5.4 - 20120628 - Optimized regexp-replacer.
 ;; 1.5.3 - 20120620 - Remove prefix and folder for non-files. Color the :Git prefix.
@@ -149,10 +154,12 @@
 (eval-when-compile (require 'cl))
 
 (defconst sml/version "1.6.1" "Version of the smart-mode-line.el package.")
+
 (defun sml/customize ()
   "Open the customization menu the `smart-mode-line' group."
   (interactive)
   (customize-group 'smart-mode-line t))
+
 (defun sml/customize-faces ()
   "Open the customization menu the `smart-mode-line-faces' group."
   (interactive)
@@ -279,8 +286,10 @@ When the modes list is longer than `sml/mode-width':
   "List of minor modes you want to hide, or empty.
 
 If empty (or nil), all minor modes are shown in the
-mode-line. Otherwise this is a list of REGEXP's that will be
-replaced by \"\" in the minor-modes list."
+mode-line. Otherwise this is a list of minor mode names that will be
+hidden in the minor-modes list. 
+
+Don't forget to start with a blank space."
   :type '(repeat string)
   :group 'smart-mode-line)
 
