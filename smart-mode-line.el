@@ -481,9 +481,29 @@ syntax means the items should start with a space."
 (defun sml/extract-minor-modes (ml maxSize)
   "Extracts all rich strings necessary for the minor mode list."
   (let ((nameList nil))
+
     (dolist (cur ml nameList)
-      (if (eval (car cur)) 
-          (add-to-list 'nameList (eval (nth 1 cur)))))
+      (let ((mname (car cur))
+            (mval (cadr cur)))
+        (when (listp (symbol-value mname))
+          (let ((namelist (symbol-value mname)))
+            (when (not (null namelist))
+              (when (eq (caar namelist) ':eval)
+                (setq mname (cadar namelist))))))
+        (if (listp mval)
+            (when (not (null mval))
+              (when (eq (car mval) ':eval)
+                (setq mval (cadr mval))))
+          (when (symbolp mval)
+            (when (listp (symbol-value mval))
+              (let ((vallist (symbol-value mval)))
+                (when (not (null vallist))
+                  (when (eq (caar vallist) ':eval)
+                    (setq mval (cadar vallist))))))))
+
+        (if (eval mname)
+            (add-to-list 'nameList (eval mval)))))
+
     (let ((out nil)
           (size maxSize)
           (helpString (concat "Full list:\n  "
