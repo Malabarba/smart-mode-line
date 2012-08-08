@@ -487,10 +487,12 @@ syntax means the items should start with a space."
               (when (eq (car mval) ':eval)
                 (setq mval (cadr mval))))
           (when (symbolp mval)
-            (let ((vallist (symbol-value mval)))
-              (when (not (null vallist))
-                (when (eq (caar vallist) ':eval)
-                  (setq mval (cadar vallist)))))))
+            (when (listp (symbol-value mval))
+              (let ((vallist (symbol-value mval)))
+                (when (not (null vallist))
+                  (when (eq (caar vallist) ':eval)
+                    (setq mval (cadar vallist))))))))
+
         (if (eval mname)
             (add-to-list 'nameList (eval mval)))))
 
