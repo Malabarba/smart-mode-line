@@ -438,11 +438,19 @@ Otherwise, setup the mode-line."
                       'help-echo (buffer-file-name))))
        
        ;; The modes list 
-       (:eval (propertize mode-name
-                          'mouse-face 'mode-line-highlight
-                          'face       'sml/modes
-                          'local-map  mode-line-major-mode-keymap
-                          'help-echo sml/major-help-echo))
+       (let ((mname mode-name))
+         (when (listp mname)
+           (when (symbolp (car mname))
+             (if (symbol-value (car mname))
+                 (setq manme (cadr mname))
+               (setq mname (caddr mname)))))
+          
+         (propertize mname
+                     'mouse-face 'mode-line-highlight
+                     'face       'sml/modes
+                     'local-map  mode-line-major-mode-keymap
+                     'help-echo sml/major-help-echo)))
+
        ;; The mode line process, doesn't get counted into the width
        ;; limit. The only mode I know that uses this is Term.
        (:propertize ("" mode-line-process)
