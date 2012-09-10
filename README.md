@@ -97,9 +97,12 @@ most important ones.
   information).  
 
 Here go some more useful examples:
-  
+
     (add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/Projects/In-Development/" ":ProjDev:"))
     (add-to-list 'sml/replacer-regexp-list '("^~/Documents/Work/" ":Work:))
+    
     ;; Added in the right order, they even work sequentially:
-    (add-to-list 'sml/replacer-regexp-list '("^:DB:Documents" ":DDocs:")) 
+    (add-to-list 'sml/replacer-regexp-list '("^:DB:Documents" ":DDocs:"))
     (add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/" ":DB:"))
+    (add-to-list 'sml/replacer-regexp-list '("^~/Git-Projects/" ":Git:"))
+    (add-to-list 'sml/replacer-regexp-list '("^:Git:\\(.*\\)/src/main/java/" ":G/\\1/SMJ:"))

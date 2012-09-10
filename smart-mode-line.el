@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.6
+;; Version: 1.6.2
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -112,11 +112,15 @@
 ;;		information).
 
 ;;		Here go some more useful examples:
-;; 	(add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/Projects/In-Development/" ":ProjDev:"))
-;;	(add-to-list 'sml/replacer-regexp-list '("^~/Documents/Work/" ":Work:))
+;;
+;; 	(add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/Projects/In-Development/"	":ProjDev:"))
+;;	(add-to-list 'sml/replacer-regexp-list '("^~/Documents/Work/"			":Work:))
+;;
 ;;	;; Added in the right order, they even work sequentially:
-;;	(add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/" ":DB:"))
-;;	(add-to-list 'sml/replacer-regexp-list '("^:DB:Documents" ":DDocs:"))
+;;	(add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/"				":DB:"))
+;;	(add-to-list 'sml/replacer-regexp-list '("^:DB:Documents"			":DDocs:"))
+;;	(add-to-list 'sml/replacer-regexp-list '("^~/Git-Projects/"			":Git:"))
+;;	(add-to-list 'sml/replacer-regexp-list '("^:Git:\\(.*\\)/src/main/java/"	":G/\\1/SMJ:"))
 
 ;;; License:
 
@@ -135,24 +139,28 @@
 
 ;;; Change Log:
 
+;; 1.6.2 - 20120713 - Fixed mode shortenning.
+;; 1.6.1 - 20120712 - NEW FEATURE: Modes list now fully supports clicking.
+;; 1.6.1 - 20120712 - NEW FEATURE: `sml/version' constant.
+;; 1.6.1 - 20120712 - `sml/hidden-modes' is now a list of strings (not regexps).
 ;; 1.6 - 20120709 - NEW FEATURE: Customizable faces for the prefix, see `sml/prefix-face-list'.
 ;; 1.5.4 - 20120628 - Optimized regexp-replacer.
 ;; 1.5.3 - 20120620 - Remove prefix and folder for non-files. Color the :Git prefix.
 ;; 1.5.2 - 20120614 - Saner default widths and mode-name fix for Term.
-
 ;; 1.5.1 - 20120612 - Fixed battery font for corner cases.
-
-;; 1.5 - 20120611 - Added support for display-battery-mode. See the
-;; description for more
+;; 1.5 - 20120611 - Added support for display-battery-mode. See the description for more.
 
 ;;; Code:
 
 (eval-when-compile (require 'cl))
 
+(defconst sml/version "1.6.2" "Version of the smart-mode-line.el package.")
+
 (defun sml/customize ()
   "Open the customization menu the `smart-mode-line' group."
   (interactive)
   (customize-group 'smart-mode-line t))
+
 (defun sml/customize-faces ()
   "Open the customization menu the `smart-mode-line-faces' group."
   (interactive)
@@ -275,13 +283,15 @@ When the modes list is longer than `sml/mode-width':
   :type 'boolean
   :group 'smart-mode-line)
 
-(defcustom sml/hidden-modes '("hl-p")
+(defcustom sml/hidden-modes '(" hl-p")
   "List of minor modes you want to hide, or empty.
 
 If empty (or nil), all minor modes are shown in the
-mode-line. Otherwise this is a list of REGEXP's that will be
-replaced by \"\" in the minor-modes list."
-  :type '(repeat regexp)
+mode-line. Otherwise this is a list of minor mode names that will be
+hidden in the minor-modes list. 
+
+Don't forget to start with a blank space."
+  :type '(repeat string)
   :group 'smart-mode-line)
 
 
@@ -323,7 +333,7 @@ Otherwise, this is both the minimum and maximum width."
   :type 'integer
   :group 'smart-mode-line)
 
-(defcustom sml/mode-width 24
+(defcustom sml/mode-width 30
   "Maximum and minimum size of the modes list in the mode-line.
 
 If `sml/shorten-modes' is nil, this is the minimum width.
@@ -340,6 +350,18 @@ name."
   :type 'string
   :group 'smart-mode-line)
 
+(defconst sml/major-help-echo
+  "Mouse-1: mode menu.\nMouse-2: mode help.\nMouse-3: toggle minor modes.")
+
+(defcustom sml/show-warning t
+  "Should `sml/setup' warn you about baddly formated variables?"
+  :type 'boolean
+  :group 'smart-mode-line)
+
+(defcustom sml/full-mode-string " +"
+  "String that's appended to the minor-mode list when it's full."
+  :type 'string
+  :group 'smart-mode-line)
 ;;;###autoload
 (defun sml/setup (&optional arg)
   "Setup the mode-line, or revert it.
@@ -349,6 +371,7 @@ Otherwise, setup the mode-line."
   (interactive)
   (if (and (integerp arg) (< arg 1))
       (sml/revert)
+    (if sml/show-warning (sml/check-hidden-modes))
     (sml/set-face-color nil nil)
     (setq battery-mode-line-format " %p")
     (setq-default
@@ -415,16 +438,19 @@ Otherwise, setup the mode-line."
                       'help-echo (buffer-file-name))))
        
        ;; The modes list 
-       (:eval
-        (let ((major (propertize mode-name
-                                 'face		'sml/modes
-                                 'local-map	mode-line-major-mode-keymap))
-              (minor (propertize (format-mode-line minor-mode-alist)
-                                 'face		'sml/folder
-                                 'local-map	mode-line-minor-mode-keymap)))
-          (propertize (sml/trim-modes major (sml/format-minor-list minor))
-                      'help-echo (concat "Major: " mode-name		"\n"
-                                         "Minor:" minor))))
+       (:eval (propertize mode-name
+                          'mouse-face 'mode-line-highlight
+                          'face       'sml/modes
+                          'local-map  mode-line-major-mode-keymap
+                          'help-echo sml/major-help-echo))
+       ;; The mode line process, doesn't get counted into the width
+       ;; limit. The only mode I know that uses this is Term.
+       (:propertize ("" mode-line-process)
+                    'mouse-face 'mode-line-highlight
+                    'face       'sml/modes
+                    'help-echo	sml/major-help-echo)
+
+       (:eval (sml/extract-minor-modes minor-mode-alist sml/mode-width))
 
        (:propertize battery-mode-line-string
                     face sml/battery)
@@ -436,7 +462,48 @@ Otherwise, setup the mode-line."
                               'help-echo (concat (format-time-string "%c;")
                                                  (emacs-uptime "\nUptime: %hh")))))))))
 
+(defun sml/check-hidden-modes ()
+  "Checks if `sml/hidden-modes' is using the new syntax. New
+syntax means the items should start with a space."
+  (dolist (cur sml/hidden-modes)
+    (unless (eq ?\  (string-to-char cur))
+      (warn "[sml]Strings in `sml/hidden-modes' should start with a space (\" \").\nTo stop showing this message, edit `sml/show-warning.'")
+      (return)))) 
 
+(defun sml/extract-minor-modes (ml maxSize)
+  "Extracts all rich strings necessary for the minor mode list."
+  (let ((nameList nil))
+    (dolist (cur ml nameList)
+      (if (eval (car cur)) 
+          (add-to-list 'nameList (eval (nth 1 cur)))))
+    (let ((out nil)
+          (size maxSize)
+          (helpString (concat "Full list:\n  "
+                              (mapconcat 'identity nameList "\n  "))))
+      (dolist (name nameList out)
+        (unless (find name sml/hidden-modes :test #'equal)
+          ;; If we're shortenning, check if it fits
+          (when (and sml/shorten-modes (< size (length name)))
+            ;; (message "size is %s, length name is %s" size (length name))
+            (while (< size (length sml/full-mode-string)) (setq out (cdr out)))
+            (add-to-list 'out (propertize sml/full-mode-string
+                                          'help-echo helpString
+                                          ;; 'mouse-face 'mode-line-highlight
+                                          'face 'sml/folder) t)
+            (decf size (length sml/full-mode-string))
+            (return))
+          ;; If it fits or we're not shortenning, append the next one.
+          (decf size (length name))
+          (add-to-list 'out (propertize name
+                                        'help-echo helpString
+                                        'mouse-face 'mode-line-highlight
+                                        'face 'sml/folder
+                                        'local-map mode-line-minor-mode-keymap))))
+      ;; Fill with spaces, unless size is negative.
+      (append out (list (propertize (make-string (max 0 size) ?\ )
+                                    'help-echo helpString
+                                    'face 'sml/folder))))))
+  
 (defun sml/propertize-prefix (prefix)
   "Set the color of the prefix according to its contents."
   (let ((out prefix))
