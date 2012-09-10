@@ -3,6 +3,8 @@ smart-mode-line
 
 A fixed width smart mode line for Emacs.
 
+![Example](http://bruce-connor.github.com/control-pianobar/sml/screenshot.png)
+
 Usage:
 ===
 Make sure **"smart-mode-line.el"** is in your load path, then place
