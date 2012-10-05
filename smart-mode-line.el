@@ -538,7 +538,6 @@ syntax means the items should start with a space."
 
 (defun sml/set-battery-font ()
   "Set `sml/battery' face depending on battery state."
-  (interactive)
   (let ((data (and battery-status-function (funcall battery-status-function))))
     (if  (string-equal "AC" (cdr (assoc 76 data)))
         (copy-face 'sml/charging 'sml/battery)
