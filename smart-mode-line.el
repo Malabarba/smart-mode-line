@@ -362,6 +362,8 @@ name."
   "String that's appended to the minor-mode list when it's full."
   :type 'string
   :group 'smart-mode-line)
+
+
 ;;;###autoload
 (defun sml/setup (&optional arg)
   "Setup the mode-line, or revert it.
@@ -384,6 +386,9 @@ Otherwise, setup the mode-line."
                                                   'face 'sml/client
                                                   'help-echo "emacsclient frame")
                                     " ")))
+
+       (:eval (if (and (boundp 'nyan-mode) nyan-mode)
+                  (nyan-create)))
        
        ;; Position
        (:eval (propertize sml/col-number-format
@@ -436,13 +441,23 @@ Otherwise, setup the mode-line."
                               (propertize bufname 'face 'sml/filename)
                               (make-string (max 0 (- dirsize (length dirstring))) ?\ ))
                       'help-echo (buffer-file-name))))
+
        
        ;; The modes list 
-       (:eval (propertize mode-name
-                          'mouse-face 'mode-line-highlight
-                          'face       'sml/modes
-                          'local-map  mode-line-major-mode-keymap
-                          'help-echo sml/major-help-echo))
+       (:eval
+
+        (let ((mname mode-name))
+          (when (listp mname)
+            (when (symbolp (car mname))
+              (if (symbol-value (car mname))
+                  (setq manme (cadr mname))
+                (setq mname (caddr mname)))))
+
+          (propertize mname
+                      'mouse-face 'mode-line-highlight
+                      'face       'sml/modes
+                      'local-map  mode-line-major-mode-keymap
+                      'help-echo sml/major-help-echo)))
        ;; The mode line process, doesn't get counted into the width
        ;; limit. The only mode I know that uses this is Term.
        (:propertize ("" mode-line-process)
@@ -462,6 +477,8 @@ Otherwise, setup the mode-line."
                               'help-echo (concat (format-time-string "%c;")
                                                  (emacs-uptime "\nUptime: %hh")))))))))
 
+
+
 (defun sml/check-hidden-modes ()
   "Checks if `sml/hidden-modes' is using the new syntax. New
 syntax means the items should start with a space."
@@ -470,12 +487,30 @@ syntax means the items should start with a space."
       (warn "[sml]Strings in `sml/hidden-modes' should start with a space (\" \").\nTo stop showing this message, edit `sml/show-warning.'")
       (return)))) 
 
+
 (defun sml/extract-minor-modes (ml maxSize)
   "Extracts all rich strings necessary for the minor mode list."
   (let ((nameList nil))
     (dolist (cur ml nameList)
-      (if (eval (car cur)) 
-          (add-to-list 'nameList (eval (nth 1 cur)))))
+      (let ((mname (car cur))
+            (mval (cadr cur)))
+        (when (and (symbolp mname) (listp (symbol-value mname)))
+          (let ((name-list (symbol-value mname)))
+            (when (not (null name-list))
+              (when (eq (caar name-list) ':eval)
+                (setq mname (cadar name-list))))))
+        (if (listp mval)
+            (unless (null mval)
+              (when (eq (car mval) ':eval)
+                (setq mval (cadr mval))))
+            (when (and (symbolp mval) (listp (symbol-value mval)))
+              (let ((vallist (symbol-value mval)))
+                (when (not (null vallist))
+                  (when (and (listp (car vallist)) (eq (caar vallist) ':eval))
+                    (setq mval (cadar vallist)))))))
+        (if (eval mname)
+            (add-to-list 'nameList (eval mval)))))
+
     (let ((out nil)
           (size maxSize)
           (helpString (concat "Full list:\n  "
@@ -503,7 +538,8 @@ syntax means the items should start with a space."
       (append out (list (propertize (make-string (max 0 size) ?\ )
                                     'help-echo helpString
                                     'face 'sml/folder))))))
-  
+
+
 (defun sml/propertize-prefix (prefix)
   "Set the color of the prefix according to its contents."
   (let ((out prefix))
@@ -835,6 +871,4 @@ regexp in `sml/prefix-regexp'."
 (provide 'smart-mode-line)
 
 
-
 ;;; smart-mode-line.el ends here
-
