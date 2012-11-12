@@ -470,12 +470,41 @@ syntax means the items should start with a space."
       (warn "[sml]Strings in `sml/hidden-modes' should start with a space (\" \").\nTo stop showing this message, edit `sml/show-warning.'")
       (return)))) 
 
+(defun mode-list-to-string-list (ml)
+  (case (type-of ml)
+    ('string (list ml))
+    ('symbol
+     (if ml
+         (mode-list-to-string-list (symbol-value ml) )
+       nil))
+    (('function 'subr) (mode-list-to-string-list (list (funcall ml))))
+    ('cons
+     (let ((kar (car ml))
+           (kdr (cdr ml)))
+       (case (type-of kar)
+         ('symbol
+          (setq kdr (car kdr))
+          (let ((val (symbol-value kar)))
+            (case val
+              (:eval (mode-list-to-string-list (eval kdr) ))
+              ;; properties now not handlet properly
+              (:propertize (mode-list-to-string-list kdr ))
+              (t (if (eq val t)
+                     (mode-list-to-string-list kdr)
+                   (if (null val)
+                       nil
+                     (mode-list-to-string-list (cons val kdr))))))))
+         ('integer
+          ;; heh, now do nothing, must reduce max width if < 0 or do padding if > 0
+          (mode-list-to-string-list kdr ))        
+         (t (append (mode-list-to-string-list kar ) (mode-list-to-string-list kdr ))))))
+    ;; unknown
+    (t (list (format "%s" ml)))))
+
 (defun sml/extract-minor-modes (ml maxSize)
   "Extracts all rich strings necessary for the minor mode list."
-  (let ((nameList nil))
-    (dolist (cur ml nameList)
-      (if (eval (car cur)) 
-          (add-to-list 'nameList (eval (nth 1 cur)))))
+  (let ((nameList (mode-list-to-string-list (reverse ml))))
+    
     (let ((out nil)
           (size maxSize)
           (helpString (concat "Full list:\n  "
