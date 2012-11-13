@@ -483,23 +483,23 @@ syntax means the items should start with a space."
            (kdr (cdr ml)))
        (case (type-of kar)
          ('symbol
-          (setq kdr (car kdr))
-          (let ((val (symbol-value kar)))
+          (let ((val (symbol-value kar))
+                (kadr (if (listp kdr) (car kdr) nil)))
             (case val
-              (:eval (mode-list-to-string-list (eval kdr) ))
+              (:eval (mode-list-to-string-list (eval kadr) ))
               ;; properties now not handlet properly
               (:propertize (mode-list-to-string-list kdr ))
-              (t (if (eq val t)
-                     (mode-list-to-string-list kdr)
-                   (if (null val)
-                       nil
-                     (mode-list-to-string-list (cons val kdr))))))))
+              (t
+               (if val
+                   (mode-list-to-string-list kadr)
+                 (mode-list-to-string-list (cdr kdr)))))))
          ('integer
           ;; heh, now do nothing, must reduce max width if < 0 or do padding if > 0
-          (mode-list-to-string-list kdr ))        
+          (mode-list-to-string-list kdr ))
          (t (append (mode-list-to-string-list kar ) (mode-list-to-string-list kdr ))))))
     ;; unknown
-    (t (list (format "%s" ml)))))
+    (t ;;(message "mode-list-to-string-error Unknown: type: %s;\nval: %s" ml (type-of ml))
+     (list (format "%s" ml)))))
 
 (defun sml/extract-minor-modes (ml maxSize)
   "Extracts all rich strings necessary for the minor mode list."
