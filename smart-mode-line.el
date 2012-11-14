@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.6.2
+;; Version: 1.6.3
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -139,6 +139,10 @@
 
 ;;; Change Log:
 
+;; 1.6.3 - 20121114 - Fixed some modes not showing in the minor mode list - Thanks Constantin.
+;; 1.6.3 - 20121114 - Fixed infinite loop.  - Thanks Constantin.
+;; 1.6.3 - 20121114 - Fixed for dired-mode.
+;; 1.6.3 - 20121114 - Added parent customize groups.
 ;; 1.6.2 - 20120713 - Fixed mode shortenning.
 ;; 1.6.1 - 20120712 - NEW FEATURE: Modes list now fully supports clicking.
 ;; 1.6.1 - 20120712 - NEW FEATURE: `sml/version' constant.
@@ -154,7 +158,7 @@
 
 (eval-when-compile (require 'cl))
 
-(defconst sml/version "1.6.2" "Version of the smart-mode-line.el package.")
+(defconst sml/version "1.6.3" "Version of the smart-mode-line.el package.")
 
 (defun sml/customize ()
   "Open the customization menu the `smart-mode-line' group."
@@ -167,14 +171,16 @@
   (customize-group 'smart-mode-line-faces t))
 
 (defgroup smart-mode-line '()
-  "Customization group for the `smart-mode-line.el' package.")
+  "Customization group for the `smart-mode-line.el' package."
+    :group 'convenience)
 
 (defgroup smart-mode-line-faces '()
   "Font (face) colors for the `smart-mode-line.el' package.
 
 You can fully customize any of the fonts to match the color you
 want. You can also set properties like bold with ':weight bold'."
-  :group 'smart-mode-line)
+  :group 'smart-mode-line
+  :group 'faces)
 
 (defcustom sml/show-client nil
   "Whether to show an \"@\" for emacsclient frames."
@@ -438,11 +444,11 @@ Otherwise, setup the mode-line."
                       'help-echo (buffer-file-name))))
        
        ;; The modes list 
-       (:eval (propertize mode-name
-                          'mouse-face 'mode-line-highlight
-                          'face       'sml/modes
-                          'local-map  mode-line-major-mode-keymap
-                          'help-echo sml/major-help-echo))
+       (:eval (propertize (format-mode-line mode-name)
+                          'mouse-face  'mode-line-highlight
+                          'face        'sml/modes
+                          'local-map   mode-line-major-mode-keymap
+                          'help-echo   sml/major-help-echo))
        ;; The mode line process, doesn't get counted into the width
        ;; limit. The only mode I know that uses this is Term.
        (:propertize ("" mode-line-process)
@@ -470,14 +476,16 @@ syntax means the items should start with a space."
       (warn "[sml]Strings in `sml/hidden-modes' should start with a space (\" \").\nTo stop showing this message, edit `sml/show-warning.'")
       (return)))) 
 
-(defun mode-list-to-string-list (ml)
+(defun sml/mode-list-to-string-list (ml) ;;Credits to Constantin
+  "Try to read the mode-list (which contains almost anything) and
+return a sensible list of strings."     
   (case (type-of ml)
     ('string (list ml))
     ('symbol
      (if ml
-         (mode-list-to-string-list (symbol-value ml) )
+         (sml/mode-list-to-string-list (symbol-value ml) )
        nil))
-    (('function 'subr) (mode-list-to-string-list (list (funcall ml))))
+    (('function 'subr) (sml/mode-list-to-string-list (list (funcall ml))))
     ('cons
      (let ((kar (car ml))
            (kdr (cdr ml)))
@@ -486,52 +494,56 @@ syntax means the items should start with a space."
           (let ((val (symbol-value kar))
                 (kadr (if (listp kdr) (car kdr) nil)))
             (case val
-              (:eval (mode-list-to-string-list (eval kadr) ))
+              (:eval (sml/mode-list-to-string-list (eval kadr) ))
               ;; properties now not handlet properly
-              (:propertize (mode-list-to-string-list kdr ))
+              (:propertize (sml/mode-list-to-string-list kdr ))
               (t
                (if val
-                   (mode-list-to-string-list kadr)
-                 (mode-list-to-string-list (cdr kdr)))))))
+                   (sml/mode-list-to-string-list kadr)
+                 (sml/mode-list-to-string-list (cdr kdr)))))))
          ('integer
           ;; heh, now do nothing, must reduce max width if < 0 or do padding if > 0
-          (mode-list-to-string-list kdr ))
-         (t (append (mode-list-to-string-list kar ) (mode-list-to-string-list kdr ))))))
+          (sml/mode-list-to-string-list kdr ))
+         (t (append (sml/mode-list-to-string-list kar ) (sml/mode-list-to-string-list kdr ))))))
     ;; unknown
     (t ;;(message "mode-list-to-string-error Unknown: type: %s;\nval: %s" ml (type-of ml))
      (list (format "%s" ml)))))
 
 (defun sml/extract-minor-modes (ml maxSize)
   "Extracts all rich strings necessary for the minor mode list."
-  (let ((nameList (mode-list-to-string-list (reverse ml))))
-    
-    (let ((out nil)
-          (size maxSize)
-          (helpString (concat "Full list:\n  "
-                              (mapconcat 'identity nameList "\n  "))))
-      (dolist (name nameList out)
-        (unless (find name sml/hidden-modes :test #'equal)
-          ;; If we're shortenning, check if it fits
-          (when (and sml/shorten-modes (< size (length name)))
-            ;; (message "size is %s, length name is %s" size (length name))
-            (while (< size (length sml/full-mode-string)) (setq out (cdr out)))
-            (add-to-list 'out (propertize sml/full-mode-string
-                                          'help-echo helpString
-                                          ;; 'mouse-face 'mode-line-highlight
-                                          'face 'sml/folder) t)
-            (decf size (length sml/full-mode-string))
-            (return))
-          ;; If it fits or we're not shortenning, append the next one.
-          (decf size (length name))
-          (add-to-list 'out (propertize name
-                                        'help-echo helpString
-                                        'mouse-face 'mode-line-highlight
-                                        'face 'sml/folder
-                                        'local-map mode-line-minor-mode-keymap))))
-      ;; Fill with spaces, unless size is negative.
-      (append out (list (propertize (make-string (max 0 size) ?\ )
-                                    'help-echo helpString
-                                    'face 'sml/folder))))))
+  (let* ((nameList (sml/mode-list-to-string-list (reverse ml)))
+         (out nil)
+         (size maxSize)
+         (helpString (concat "Full list:\n  "
+                             (mapconcat 'identity nameList "\n  ")))
+         (propertized-full-mode-string (propertize sml/full-mode-string
+                                                   'help-echo helpString
+                                                   ;; 'mouse-face 'mode-line-highlight
+                                                   'face 'sml/folder)))
+    (dolist (name nameList out)
+      (unless (find name sml/hidden-modes :test #'equal)
+        ;; If we're shortenning, check if it fits
+        (when (and sml/shorten-modes (< size (length name)))
+          ;; If the remaining size is too small even for the
+          ;; `sml/full-mode-string', get rid of the last string.
+          ;; (This won't work perfectly if the last string is
+          ;; smaller then `sml/full-mode-string', but that should be
+          ;; rare.)
+          (while (< size (length sml/full-mode-string)) (setq out (cdr out)))
+          (add-to-list 'out propertized-full-mode-string t)
+          (decf size (length sml/full-mode-string))
+          (return))
+        ;; If it fits or we're not shortenning, append the next one.
+        (decf size (length name))
+        (add-to-list 'out (propertize name
+                                      'help-echo helpString
+                                      'mouse-face 'mode-line-highlight
+                                      'face 'sml/folder
+                                      'local-map mode-line-minor-mode-keymap))))
+    ;; Fill with spaces, unless size is negative.
+    (append out (list (propertize (make-string (max 0 size) ?\ )
+                                  'help-echo helpString
+                                  'face 'sml/folder)))))
   
 (defun sml/propertize-prefix (prefix)
   "Set the color of the prefix according to its contents."
