@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.6.3
+;; Version: 1.7
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -139,10 +139,10 @@
 
 ;;; Change Log:
 
-;; 1.6.3 - 20121114 - Fixed some modes not showing in the minor mode list - Thanks Constantin.
-;; 1.6.3 - 20121114 - Fixed infinite loop.  - Thanks Constantin.
-;; 1.6.3 - 20121114 - Fixed for dired-mode.
-;; 1.6.3 - 20121114 - Added parent customize groups.
+;; 1.7 - 20121114 - Fixed some modes not showing in the minor mode list - Thanks Constantin.
+;; 1.7 - 20121114 - Fixed infinite loop.  - Thanks Constantin.
+;; 1.7 - 20121114 - Fixed for dired-mode.
+;; 1.7 - 20121114 - Added parent customize groups.
 ;; 1.6.2 - 20120713 - Fixed mode shortenning.
 ;; 1.6.1 - 20120712 - NEW FEATURE: Modes list now fully supports clicking.
 ;; 1.6.1 - 20120712 - NEW FEATURE: `sml/version' constant.
@@ -158,7 +158,7 @@
 
 (eval-when-compile (require 'cl))
 
-(defconst sml/version "1.6.3" "Version of the smart-mode-line.el package.")
+(defconst sml/version "1.7" "Version of the smart-mode-line.el package.")
 
 (defun sml/customize ()
   "Open the customization menu the `smart-mode-line' group."
