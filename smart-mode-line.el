@@ -169,14 +169,16 @@
   (customize-group 'smart-mode-line-faces t))
 
 (defgroup smart-mode-line '()
-  "Customization group for the `smart-mode-line.el' package.")
+  "Customization group for the `smart-mode-line.el' package."
+    :group 'convenience)
 
 (defgroup smart-mode-line-faces '()
   "Font (face) colors for the `smart-mode-line.el' package.
 
 You can fully customize any of the fonts to match the color you
 want. You can also set properties like bold with ':weight bold'."
-  :group 'smart-mode-line)
+  :group 'smart-mode-line
+  :group 'faces)
 
 (defcustom sml/show-client nil
   "Whether to show an \"@\" for emacsclient frames."
