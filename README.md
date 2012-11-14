@@ -52,7 +52,7 @@ smart truncation. Its main features are:
     what's in there. If you feel anything is missing send me
     an e-mail.
 	
- 5. **Compatible with `battery-display-mode` **:
+ 5. **Compatible with `battery-display-mode`**:
 	Just turn the mode on to have the battery level
 	displayed. sml uses a very short syntax for the
 	battery. Only the battery level is displayed (with no %

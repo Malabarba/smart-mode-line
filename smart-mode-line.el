@@ -141,6 +141,8 @@
 
 ;; 1.6.3 - 20121114 - Fixed some modes not showing in the minor mode list - Thanks Constantin.
 ;; 1.6.3 - 20121114 - Fixed infinite loop.  - Thanks Constantin.
+;; 1.6.3 - 20121114 - Fixed for dired-mode.
+;; 1.6.3 - 20121114 - Added parent customize groups.
 ;; 1.6.2 - 20120713 - Fixed mode shortenning.
 ;; 1.6.1 - 20120712 - NEW FEATURE: Modes list now fully supports clicking.
 ;; 1.6.1 - 20120712 - NEW FEATURE: `sml/version' constant.
