@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.6.2
+;; Version: 1.6.3
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -139,6 +139,8 @@
 
 ;;; Change Log:
 
+;; 1.6.3 - 20121114 - Fixed some modes not showing in the minor mode list - Thanks Constantin.
+;; 1.6.3 - 20121114 - Fixed infinite loop.  - Thanks Constantin.
 ;; 1.6.2 - 20120713 - Fixed mode shortenning.
 ;; 1.6.1 - 20120712 - NEW FEATURE: Modes list now fully supports clicking.
 ;; 1.6.1 - 20120712 - NEW FEATURE: `sml/version' constant.
@@ -154,7 +156,7 @@
 
 (eval-when-compile (require 'cl))
 
-(defconst sml/version "1.6.2" "Version of the smart-mode-line.el package.")
+(defconst sml/version "1.6.3" "Version of the smart-mode-line.el package.")
 
 (defun sml/customize ()
   "Open the customization menu the `smart-mode-line' group."
@@ -504,21 +506,26 @@ syntax means the items should start with a space."
 (defun sml/extract-minor-modes (ml maxSize)
   "Extracts all rich strings necessary for the minor mode list."
   (let ((nameList (mode-list-to-string-list (reverse ml))))
-    
-    (let ((out nil)
+    (let* ((out nil)
           (size maxSize)
           (helpString (concat "Full list:\n  "
-                              (mapconcat 'identity nameList "\n  "))))
+                              (mapconcat 'identity nameList "\n  ")))
+          (propertized-full-mode-string (propertize sml/full-mode-string
+                                                    'help-echo helpString
+                                                    ;; 'mouse-face 'mode-line-highlight
+                                                    'face 'sml/folder)))
       (dolist (name nameList out)
         (unless (find name sml/hidden-modes :test #'equal)
           ;; If we're shortenning, check if it fits
           (when (and sml/shorten-modes (< size (length name)))
-            ;; (message "size is %s, length name is %s" size (length name))
+            ;; If the remaining size is too small even for the
+            ;; `sml/full-mode-string', get rid of the last string.
+            ;; (This won't work perfectly if the last string is
+            ;; smaller then `sml/full-mode-string', but that should be
+            ;; rare.)
             (while (< size (length sml/full-mode-string)) (setq out (cdr out)))
-            (add-to-list 'out (propertize sml/full-mode-string
-                                          'help-echo helpString
-                                          ;; 'mouse-face 'mode-line-highlight
-                                          'face 'sml/folder) t)
+            ;; full-mode-string could be preloaded with the properties
+            (add-to-list 'out propertized-full-mode-string t)
             (decf size (length sml/full-mode-string))
             (return))
           ;; If it fits or we're not shortenning, append the next one.
