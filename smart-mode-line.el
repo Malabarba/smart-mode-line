@@ -231,6 +231,11 @@ for the syntax."
   :type 'string
   :group 'smart-mode-line)
 
+(defcustom sml/persp-selected-color "Green"
+  "Replace `persp-selected-color', otherwise it's unreadable."
+  :type 'string
+  :group 'smart-mode-line)
+
 (defun sml/set-shortener-func (sym val)
   "Configure `sml/shortener-func' according to `sml/shorten-directory'."
   (set-default sym val)
@@ -471,7 +476,8 @@ Otherwise, setup the mode-line."
        global-mode-string))
 
     ;; Perspective support
-    (eval-after-load "perspective" '(set-face-foreground 'persp-selected-face "Green"))))
+    (eval-after-load "perspective"
+      '(set-face-foreground 'persp-selected-face sml/persp-selected-color))))
 
 (defun sml/check-hidden-modes ()
   "Checks if `sml/hidden-modes' is using the new syntax. New
