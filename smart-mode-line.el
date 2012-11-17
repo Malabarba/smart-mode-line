@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.7
+;; Version: 1.7.1
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -139,6 +139,7 @@
 
 ;;; Change Log:
 
+;; 1.7.1 - 20121117 - Perspective support.
 ;; 1.7 - 20121114 - Fixed some modes not showing in the minor mode list - Thanks Constantin.
 ;; 1.7 - 20121114 - Fixed infinite loop.  - Thanks Constantin.
 ;; 1.7 - 20121114 - Fixed for dired-mode.
@@ -158,7 +159,7 @@
 
 (eval-when-compile (require 'cl))
 
-(defconst sml/version "1.7" "Version of the smart-mode-line.el package.")
+(defconst sml/version "1.7.1" "Version of the smart-mode-line.el package.")
 
 (defun sml/customize ()
   "Open the customization menu the `smart-mode-line' group."
