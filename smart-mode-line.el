@@ -368,6 +368,7 @@ name."
   "String that's appended to the minor-mode list when it's full."
   :type 'string
   :group 'smart-mode-line)
+
 ;;;###autoload
 (defun sml/setup (&optional arg)
   "Setup the mode-line, or revert it.
@@ -379,7 +380,7 @@ Otherwise, setup the mode-line."
       (sml/revert)
     (if sml/show-warning (sml/check-hidden-modes))
     (sml/set-face-color nil nil)
-    (setq battery-mode-line-format " %p")
+    (setq battery-mode-line-format sml/battery-format)
     (setq-default
      mode-line-format
      '(
@@ -466,14 +467,18 @@ Otherwise, setup the mode-line."
                   (propertize (format-time-string sml/time-format)
                               'face 'sml/time
                               'help-echo (concat (format-time-string "%c;")
-                                                 (emacs-uptime "\nUptime: %hh")))))))))
+                                                 (emacs-uptime "\nUptime: %hh")))))
+       global-mode-string))
+
+    ;; Perspective support
+    (eval-after-load "perspective" '(set-face-foreground 'persp-selected-face "Green"))))
 
 (defun sml/check-hidden-modes ()
   "Checks if `sml/hidden-modes' is using the new syntax. New
 syntax means the items should start with a space."
   (dolist (cur sml/hidden-modes)
     (unless (eq ?\  (string-to-char cur))
-      (warn "[sml]Strings in `sml/hidden-modes' should start with a space (\" \").\nTo stop showing this message, edit `sml/show-warning.'")
+      (warn "[sml]Strings in `sml/hidden-modes' should start with a space (\" \").\nTo stop showing this message, toggle `sml/show-warning.'")
       (return)))) 
 
 (defun sml/mode-list-to-string-list (ml) ;;Credits to Constantin
@@ -856,8 +861,6 @@ regexp in `sml/prefix-regexp'."
      ))
   ""
   :group 'smart-mode-line-faces)
-
-
 
 
 
