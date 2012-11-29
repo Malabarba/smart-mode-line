@@ -541,7 +541,7 @@ return a sensible list of strings."
           ;; (This won't work perfectly if the last string is
           ;; smaller then `sml/full-mode-string', but that should be
           ;; rare.)
-          (while (< size (length sml/full-mode-string)) (setq out (cdr out)))
+          (when (< size (length sml/full-mode-string)) (setq out (cdr out)))
           (add-to-list 'out propertized-full-mode-string t)
           (decf size (length sml/full-mode-string))
           (return))
