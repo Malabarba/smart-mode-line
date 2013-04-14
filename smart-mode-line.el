@@ -389,8 +389,9 @@ Otherwise, setup the mode-line."
     (setq battery-mode-line-format sml/battery-format)
     (setq-default
      mode-line-format
-     '(
+     '( ;; This is used for some error that I've never seen happen.
        (:propertize "%e" face sml/warning)
+       
        ;; emacsclient
        (:eval (if sml/show-client (if (frame-parameter nil 'client)
                                       (propertize "@"
@@ -456,6 +457,7 @@ Otherwise, setup the mode-line."
                           'face        'sml/modes
                           'local-map   mode-line-major-mode-keymap
                           'help-echo   sml/major-help-echo))
+       
        ;; The mode line process, doesn't get counted into the width
        ;; limit. The only mode I know that uses this is Term.
        (:propertize ("" mode-line-process)
@@ -463,19 +465,44 @@ Otherwise, setup the mode-line."
                     'face       'sml/modes
                     'help-echo	sml/major-help-echo)
 
+       ;; Minor modes list
        (:eval (sml/extract-minor-modes minor-mode-alist sml/mode-width))
-
+       
+       ;; Battery
        (:propertize battery-mode-line-string
                     face sml/battery)
+       
+       ;; Extra strings. I know that at least perpective.el uses this
+       global-mode-string
+
+       ;; Space filler for right indenting
        
        ;; add the time, with the date and the emacs uptime in the tooltip
        (:eval (if sml/show-time
                   (propertize (format-time-string sml/time-format)
                               'face 'sml/time
                               'help-echo (concat (format-time-string "%c;")
-                                                 (emacs-uptime "\nUptime: %hh")))))
-       global-mode-string))
+                                                 (emacs-uptime "\nUptime: %hh")))))))
 
+    ;; This is a simplified version of the actual mode-line. Is
+    ;; supposed to have the same width but none of the fancy faces and
+    ;; WITHOUT the right indentation. It is used for width calculation
+    ;; by the indentation function.
+    (setq sml/simplified-mode-line
+          '("%e" (:eval (if sml/show-client (if (frame-parameter nil 'client) "@" " ")))
+            sml/col-number-format sml/numbers-separator sml/line-number-format
+            (:eval (cond ((not (verify-visited-file-modtime)) "M") (buffer-read-only "R") ((buffer-modified-p) "×") (t " ")))
+            (:eval
+             (let* ((prefix (sml/get-prefix (sml/replacer (abbreviate-file-name (sml/get-directory)))))
+                    (bufname (buffer-name)) (dirsize (max 4 (- (abs sml/name-width) (length prefix) (length bufname))))
+                    (dirstring (funcall sml/shortener-func (sml/get-directory) dirsize)))
+               (concat prefix dirstring bufname (make-string (max 0 (- dirsize (length dirstring))) ?\ ))))
+            mode-name ("" mode-line-process)
+            (:eval (sml/extract-minor-modes minor-mode-alist sml/mode-width))
+            battery-mode-line-string
+            global-mode-string
+            (:eval (if sml/show-time (format-time-string sml/time-format)))))
+    
     ;; Perspective support
     (eval-after-load "perspective"
       '(set-face-foreground 'persp-selected-face sml/persp-selected-color))))
