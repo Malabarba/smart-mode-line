@@ -84,7 +84,7 @@
 
 ;;	`sml/name-width' and `sml/mode-width'
 ;;		Customize these according to the width of your Emacs
-;;		frame.  I set them to 40 and 30 respectively, and the
+;;		frame.  I set them to 40 and 'full respectively, and the
 ;;		mode-line fits perfectly when the frame is split in two even
 ;;		on my laptop's small 17" monitor.
 
@@ -139,6 +139,7 @@
 
 ;;; Change Log:
 
+;; 1.8 - 20130414 - sml/mode-width can now be 'full.
 ;; 1.7.1 - 20121117 - Perspective support.
 ;; 1.7 - 20121114 - Fixed some modes not showing in the minor mode list - Thanks Constantin.
 ;; 1.7 - 20121114 - Fixed infinite loop.  - Thanks Constantin.
@@ -223,10 +224,14 @@ Empty it to hide the number."
   :group 'smart-mode-line)
 
 (defcustom sml/extra-filler 4
-  "The number of extra filling chars to use. This is necessary
-because the mode-line width (which we need but don't have acess
-to) is larger than the frame-width (which we have access to).
-Decrease this if right indentation seems to be going too far."
+  "The number of extra filling chars to use. It comes into play when `sml/mode-width' is set to 'full.
+
+This is necessary because the mode-line width (which we need but
+don't have acess to) is larger than the window-width (which we
+have access to).
+
+Decrease this if right indentation seems to be going too far (or
+if you just want to fine-tune it)."
   :type 'integer
   :group 'smart-mode-line)
 
@@ -495,26 +500,22 @@ Otherwise, setup the mode-line."
        
        ;; Extra strings. I know that at least perpective.el uses this
        global-mode-string
-
-       ;; ;; Space filler for right indenting
-
-       ;; (:eval (sml/fill-space))
-                                                                                                                                                                               
+       
        ;; add the time, with the date and the emacs uptime in the tooltip
        (:eval (if sml/show-time
                   (propertize (format-time-string sml/time-format)
                               'face 'sml/time
                               'help-echo (concat (format-time-string "%c;")
                                                  (emacs-uptime "\nUptime: %hh")))))))
-
-    ;; This is a simplified version of the actual mode-line. Is
+    
+    ;; This is a simplified version of the actual mode-line. It's
     ;; supposed to have the same width but none of the fancy faces and
     ;; WITHOUT the right indentation. It is used for width calculation
     ;; by the indentation function.
     (setq sml/simplified-mode-line
-          '("%e" (:eval (if sml/show-client (if (frame-parameter nil 'client) "@" " ")))
-            sml/col-number-format sml/numbers-separator sml/line-number-format
-            (:eval (cond ((not (verify-visited-file-modtime)) "M") (buffer-read-only "R") ((buffer-modified-p) "×") (t " ")))
+          '("%e" (:eval (if sml/show-client "-"))
+            (:eval (concat sml/col-number-format sml/numbers-separator sml/line-number-format))
+            "-";Modified state
             (:eval
              (let* ((prefix (sml/get-prefix (sml/replacer (abbreviate-file-name (sml/get-directory)))))
                     (bufname (buffer-name)) (dirsize (max 4 (- (abs sml/name-width) (length prefix) (length bufname))))

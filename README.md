@@ -72,7 +72,7 @@ most important ones.
 
  2. `sml/name-width` and `sml/mode-width`  
   Customize these according to the width of your emacs
-  frame. I set them to 40 and 30 respectively, and the
+  frame. I set them to 40 and 'full respectively, and the
   mode-line fits perfectly when the frame is split in two even
   on my laptop's small 17" monitor.
 
