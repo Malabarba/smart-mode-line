@@ -384,7 +384,7 @@ Otherwise, setup the mode-line."
   (interactive)
   (if (and (integerp arg) (< arg 1))
       (sml/revert)
-    (if sml/show-warning (sml/check-hidden-modes))
+    (when sml/show-warning (sml/check-hidden-modes))
     (sml/set-face-color nil nil)
     (setq battery-mode-line-format sml/battery-format)
     (setq-default
@@ -476,6 +476,7 @@ Otherwise, setup the mode-line."
        global-mode-string
 
        ;; Space filler for right indenting
+       (:eval (sml/fill-space))
        
        ;; add the time, with the date and the emacs uptime in the tooltip
        (:eval (if sml/show-time
@@ -506,6 +507,13 @@ Otherwise, setup the mode-line."
     ;; Perspective support
     (eval-after-load "perspective"
       '(set-face-foreground 'persp-selected-face sml/persp-selected-color))))
+
+(defun sml/fill-space ()
+  "Return a string of whitespaces, necessary for right indenting."
+  (interactive)
+  (let ((size (- (frame-width)
+                 (length (format-mode-line sml/simplified-mode-line)))))
+    (make-string (max 0 size) ?\ ))) 
 
 (defun sml/check-hidden-modes ()
   "Checks if `sml/hidden-modes' is using the new syntax. New
