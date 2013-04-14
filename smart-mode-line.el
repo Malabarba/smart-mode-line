@@ -217,6 +217,19 @@ Empty it to hide the number."
   :type 'string
   :group 'smart-mode-line)
 
+(defcustom sml/fill-char ?\ 
+  "The char to be used for filling."
+  :type 'char
+  :group 'smart-mode-line)
+
+(defcustom sml/extra-filler 4
+  "The number of extra filling chars to use. This is necessary
+because the mode-line width (which we need but don't have acess
+to) is larger than the frame-width (which we have access to).
+Decrease this if right indentation seems to be going too far."
+  :type 'integer
+  :group 'smart-mode-line)
+
 (defcustom sml/time-format " %H:%M"
   "Format used to display the time in the mode-line.
 
@@ -286,7 +299,7 @@ setting the variable with `setq'."
   (setq sml/shorten-modes (if val (car val)
                             (not sml/shorten-modes))))
 
-(defcustom sml/shorten-modes t
+(defcustom sml/shorten-modes nil
   "Should modes list be shortened to fit width?
 
 When the modes list is longer than `sml/mode-width':
@@ -345,12 +358,20 @@ Otherwise, this is both the minimum and maximum width."
   :type 'integer
   :group 'smart-mode-line)
 
-(defcustom sml/mode-width 30
-  "Maximum and minimum size of the modes list in the mode-line.
+(defcustom sml/mode-width 'full
+  "Integer or symbol representing the maximum and/or minimum size
+of the modes list in the mode-line.
+
+If it is an integer, then the modes list width is that many
+characters.
+
+If it is the symbol `full', then the mode-list fills all the
+empty space is available in the mode-line (this has the effect of
+indenting right anything after the mode-list).
 
 If `sml/shorten-modes' is nil, this is the minimum width.
 Otherwise, this is both the minimum and maximum width."
-  :type 'integer
+  :type '(choice integer symbol)
   :group 'smart-mode-line)
 
 (defcustom sml/modified-time-string "Modified on %T %Y-%m-%d."
@@ -475,9 +496,10 @@ Otherwise, setup the mode-line."
        ;; Extra strings. I know that at least perpective.el uses this
        global-mode-string
 
-       ;; Space filler for right indenting
-       (:eval (sml/fill-space))
-       
+       ;; ;; Space filler for right indenting
+
+       ;; (:eval (sml/fill-space))
+                                                                                                                                                                               
        ;; add the time, with the date and the emacs uptime in the tooltip
        (:eval (if sml/show-time
                   (propertize (format-time-string sml/time-format)
@@ -499,7 +521,8 @@ Otherwise, setup the mode-line."
                     (dirstring (funcall sml/shortener-func (sml/get-directory) dirsize)))
                (concat prefix dirstring bufname (make-string (max 0 (- dirsize (length dirstring))) ?\ ))))
             mode-name ("" mode-line-process)
-            (:eval (sml/extract-minor-modes minor-mode-alist sml/mode-width))
+            ;; This line is the only different one.
+            (:eval (sml/simplified-extract-minor-modes minor-mode-alist sml/mode-width))
             battery-mode-line-string
             global-mode-string
             (:eval (if sml/show-time (format-time-string sml/time-format)))))
@@ -508,12 +531,25 @@ Otherwise, setup the mode-line."
     (eval-after-load "perspective"
       '(set-face-foreground 'persp-selected-face sml/persp-selected-color))))
 
-(defun sml/fill-space ()
-  "Return a string of whitespaces, necessary for right indenting."
-  (interactive)
-  (let ((size (- (frame-width)
-                 (length (format-mode-line sml/simplified-mode-line)))))
-    (make-string (max 0 size) ?\ ))) 
+(defun sml/simplified-extract-minor-modes (ml maxSize)
+  "Simplified version of `sml/extract-minor-modes'. Used for width calculation."
+  (if (and (integerp maxSize) sml/shorten-modes)
+      (make-string (max 0 maxSize) ?\ )
+    (if (equal maxSize 'full) 
+        ""
+      (let* ((nameList (sml/mode-list-to-string-list (reverse ml)))
+             (out nil))
+        (dolist (name nameList out)
+          (unless (find name sml/hidden-modes :test #'equal)
+            ;; Append the next one.
+            (add-to-list 'out name)))))))
+
+(defun sml/fill-width-available ()
+  "Return the size available for filling."
+  (max 0
+       (+ sml/extra-filler
+          (- (window-width)
+             (length (format-mode-line sml/simplified-mode-line))))))
 
 (defun sml/check-hidden-modes ()
   "Checks if `sml/hidden-modes' is using the new syntax. New
@@ -560,7 +596,8 @@ return a sensible list of strings."
   "Extracts all rich strings necessary for the minor mode list."
   (let* ((nameList (sml/mode-list-to-string-list (reverse ml)))
          (out nil)
-         (size maxSize)
+         (size (if (equal maxSize 'full) (sml/fill-width-available)
+                   maxSize))
          (helpString (concat "Full list:\n  "
                              (mapconcat 'identity nameList "\n  ")))
          (propertized-full-mode-string (propertize sml/full-mode-string
