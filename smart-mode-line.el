@@ -160,7 +160,7 @@
 
 (eval-when-compile (require 'cl))
 
-(defconst sml/version "1.7.1" "Version of the smart-mode-line.el package.")
+(defconst sml/version "1.8" "Version of the smart-mode-line.el package.")
 
 (defun sml/customize ()
   "Open the customization menu the `smart-mode-line' group."
