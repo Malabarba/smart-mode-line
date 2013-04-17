@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.7.1
+;; Version: 1.8.1
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -24,7 +24,7 @@
 ;;	Make sure "smart-mode-line.el" is in your load path, then place
 ;; 	this code in your .emacs file:
 ;;		(require 'smart-mode-line)
-;; 		(sml/setup)
+;; 		(add-hook 'after-init-hook 'sml/setup)
 
 ;; DESCRIPTION
 
@@ -76,6 +76,11 @@
 ;; 	All variables can be edited by running `sml/customize', and the
 ;; 	documentations are mostly self explanatory, I list here only the
 ;; 	most important ones.
+
+;;      *Note:* We use an `after-init-hook` in the installation because we
+;;      need sml/setup to override the theme's colors for the mode-line. See
+;;      the documentattion on the `sml/override-theme` variable for more
+;;      information.
 
 ;; 	`sml/shorten-directory' and `sml/shorten-modes'
 ;; 		Setting both of these to t garantees a fixed width mode-line
@@ -139,6 +144,8 @@
 
 ;;; Change Log:
 
+;; 1.8.1 - 20130417 - sml/override-theme variable.
+;; 1.8.1 - 20130417 - Changed install instruction to override theme settings.
 ;; 1.8 - 20130414 - sml/mode-width can now be 'full.
 ;; 1.7.1 - 20121117 - Perspective support.
 ;; 1.7 - 20121114 - Fixed some modes not showing in the minor mode list - Thanks Constantin.
@@ -160,7 +167,7 @@
 
 (eval-when-compile (require 'cl))
 
-(defconst sml/version "1.8" "Version of the smart-mode-line.el package.")
+(defconst sml/version "1.8.1" "Version of the smart-mode-line.el package.")
 
 (defun sml/customize ()
   "Open the customization menu the `smart-mode-line' group."
@@ -180,9 +187,25 @@
   "Font (face) colors for the `smart-mode-line.el' package.
 
 You can fully customize any of the fonts to match the color you
-want. You can also set properties like bold with ':weight bold'."
+want. You can also set properties like bold with ':weight bold'.
+
+Note that, by default, smart-mode-line overrides your theme's
+settings for the background and foreground color of the modeline
+face. We need to override, otherwise some elements become
+unreadable on lighter themes. If you'd rather configure these
+unreadable colors yourself and keep your theme's settings, just
+set `sml/override-theme' to nil."
   :group 'smart-mode-line
   :group 'faces)
+
+(defcustom sml/override-theme t
+  "For any value other than nil, sml will override your theme's foreground and background colors for the modeline. 
+
+Even if this is nil many modeline elements use sml's custom
+colors. This variable only defines whether we change the
+`modeline' and `modeline-inactive' faces."
+  :type 'boolean
+  :group 'smart-mode-line)
 
 (defcustom sml/show-client nil
   "Whether to show an \"@\" for emacsclient frames."
@@ -410,8 +433,10 @@ Otherwise, setup the mode-line."
   (interactive)
   (if (and (integerp arg) (< arg 1))
       (sml/revert)
+    ;; We this to make the mode-line readable in lighter backgrounds
+    (when sml/override-theme (sml/set-face-color nil nil))
+    ;; This is a warning for people not to use the old syntax. Should probably remove this eventually.
     (when sml/show-warning (sml/check-hidden-modes))
-    (sml/set-face-color nil nil)
     (setq battery-mode-line-format sml/battery-format)
     (setq-default
      mode-line-format

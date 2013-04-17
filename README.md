@@ -10,8 +10,8 @@ Usage:
 Make sure **"smart-mode-line.el"** is in your load path, then place
 this code in your .emacs file:
 
-    (require 'smart-mode-line)
-    (sml/setup)
+	(require 'smart-mode-line)
+    (add-hook 'after-init-hook 'sml/setup)
 
 Description
 ===
@@ -65,17 +65,22 @@ All variables can be edited by running `sml/customize`, and the
 documentations are mostly self explanatory, I list here only the
 most important ones.
 
+*Note:* We use an `after-init-hook` in the installation because we
+need sml/setup to override the theme's colors for the mode-line. See
+the documentattion on the `sml/override-theme` variable for more
+information.
+
  1. `sml/shorten-directory` and `sml/shorten-modes`  
   Setting both of these to t garantees a fixed width mode-line
   (directory name and modes list will be truncated to fit). To
   actually define the width, see below.
-
+  
  2. `sml/name-width` and `sml/mode-width`  
   Customize these according to the width of your emacs
   frame. I set them to 40 and 'full respectively, and the
   mode-line fits perfectly when the frame is split in two even
   on my laptop's small 17" monitor.
-
+  
  3. `sml/replacer-regexp-list`  
   This variable is a list of (REGEXP REPLACEMENT) that is used
   to parse the path. The replacements are applied
