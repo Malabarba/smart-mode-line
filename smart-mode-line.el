@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.8.1
+;; Version: 1.8.2
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -143,7 +143,9 @@
 ;; 
 
 ;;; Change Log:
-
+;; 1.8.2 - 20130418 - added empty anchors throughout the mode-line.
+;; 1.8.2 - 20130418 - evil-mode support.
+;; 1.8.1 - 20130417 - sml/bug-report function.
 ;; 1.8.1 - 20130417 - sml/override-theme variable.
 ;; 1.8.1 - 20130417 - Changed install instruction to override theme settings.
 ;; 1.8 - 20130414 - sml/mode-width can now be 'full.
@@ -167,7 +169,13 @@
 
 (eval-when-compile (require 'cl))
 
-(defconst sml/version "1.8.1" "Version of the smart-mode-line.el package.")
+(defconst sml/version "1.8.2" "Version of the smart-mode-line.el package.")
+
+(defun sml/bug-report ()
+  "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
+  (interactive)
+  (browse-url "https://github.com/Bruce-Connor/smart-mode-line/issues/new")
+  (message "Your sml/version is: %s, and your emacs version is: %s" sml/version emacs-version))
 
 (defun sml/customize ()
   "Open the customization menu the `smart-mode-line' group."
@@ -246,7 +254,7 @@ Empty it to hide the number."
   :type 'char
   :group 'smart-mode-line)
 
-(defcustom sml/extra-filler 4
+(defcustom sml/extra-filler 3
   "The number of extra filling chars to use. It comes into play when `sml/mode-width' is set to 'full.
 
 This is necessary because the mode-line width (which we need but
@@ -424,6 +432,12 @@ name."
   :type 'string
   :group 'smart-mode-line)
 
+(defconst sml/anchor-beginning "" "Anchor so that other packages can find specific positions in the mode-line.")
+(defconst sml/anchor-after-status "" "Anchor so that other packages can find specific positions in the mode-line.")
+(defconst sml/anchor-before-major-mode "" "Anchor so that other packages can find specific positions in the mode-line.")
+(defconst sml/anchor-after-minor-modes "" "Anchor so that other packages can find specific positions in the mode-line.")
+(defconst sml/simplified-mode-line-patchy-fix ""
+  "Fix for filling to work with packages that manually edit the mode-line.")
 ;;;###autoload
 (defun sml/setup (&optional arg)
   "Setup the mode-line, or revert it.
@@ -440,8 +454,10 @@ Otherwise, setup the mode-line."
     (setq battery-mode-line-format sml/battery-format)
     (setq-default
      mode-line-format
-     '( ;; This is used for some error that I've never seen happen.
+     '(
+       ;; This is used for some error that I've never seen happen.
        (:propertize "%e" face sml/warning)
+       sml/anchor-beginning
        
        ;; emacsclient
        (:eval (if sml/show-client (if (frame-parameter nil 'client)
@@ -460,19 +476,17 @@ Otherwise, setup the mode-line."
        (:eval (propertize sml/line-number-format
                           'face 'sml/line-number
                           'help-echo (format-mode-line "Buffer size:\n\t%IB")))
-
+       
        ;; Modified status
        (:eval
         (cond ((not (verify-visited-file-modtime))
                (propertize "M"
                            'face 'sml/outside-modified
                            'help-echo "Modified outside Emacs!\nRevert first!"))
-
               (buffer-read-only
                (propertize "R"
                            'face 'sml/read-only
                            'help-echo "Read-Only Buffer"))
-              
               ((buffer-modified-p)
                (propertize "×"
                            'face 'sml/modified
@@ -481,12 +495,12 @@ Otherwise, setup the mode-line."
                                            sml/modified-time-string
                                            (nth 5 (file-attributes (buffer-file-name))))
                                         "Buffer Modified")))
-              
               (t
                (propertize " "
                            'face 'sml/not-modified
                            'help-echo "Buffer Not Modified"))))
-
+       sml/anchor-after-status
+       
        ;; Full path to buffer/file name
        (:eval
         (let* ((prefix (sml/get-prefix (sml/replacer (abbreviate-file-name (sml/get-directory)))))
@@ -495,13 +509,14 @@ Otherwise, setup the mode-line."
                ;; 			   "" (buffer-name))
                (dirsize (max 4 (- (abs sml/name-width) (length prefix) (length bufname))))
                (dirstring (funcall sml/shortener-func (sml/get-directory) dirsize)))
-
+          
           (propertize (concat (sml/propertize-prefix prefix)
                               (propertize dirstring 'face 'sml/folder)
                               (propertize bufname 'face 'sml/filename)
                               (make-string (max 0 (- dirsize (length dirstring))) ?\ ))
                       'help-echo (buffer-file-name))))
        
+       sml/anchor-before-major-mode
        ;; The modes list 
        (:eval (propertize (format-mode-line mode-name)
                           'mouse-face  'mode-line-highlight
@@ -515,9 +530,10 @@ Otherwise, setup the mode-line."
                     'mouse-face 'mode-line-highlight
                     'face       'sml/modes
                     'help-echo	sml/major-help-echo)
-
+       
        ;; Minor modes list
        (:eval (sml/extract-minor-modes minor-mode-alist sml/mode-width))
+       sml/anchor-after-minor-modes
        
        ;; Battery
        (:propertize battery-mode-line-string
@@ -540,7 +556,7 @@ Otherwise, setup the mode-line."
     (setq sml/simplified-mode-line
           '("%e" (:eval (if sml/show-client "-"))
             (:eval (concat sml/col-number-format sml/numbers-separator sml/line-number-format))
-            "-";Modified state
+            "-"                         ;Modified state
             (:eval
              (let* ((prefix (sml/get-prefix (sml/replacer (abbreviate-file-name (sml/get-directory)))))
                     (bufname (buffer-name)) (dirsize (max 4 (- (abs sml/name-width) (length prefix) (length bufname))))
@@ -551,11 +567,15 @@ Otherwise, setup the mode-line."
             (:eval (sml/simplified-extract-minor-modes minor-mode-alist sml/mode-width))
             battery-mode-line-string
             global-mode-string
-            (:eval (if sml/show-time (format-time-string sml/time-format)))))
+            (:eval (if sml/show-time (format-time-string sml/time-format)))
+            sml/simplified-mode-line-patchy-fix))
     
     ;; Perspective support
     (eval-after-load "perspective"
-      '(set-face-foreground 'persp-selected-face sml/persp-selected-color))))
+      '(set-face-foreground 'persp-selected-face sml/persp-selected-color))
+        ;; Perspective support
+    (eval-after-load "evil-core"
+      '(sml/fix-evil-mode))))
 
 (defun sml/simplified-extract-minor-modes (ml maxSize)
   "Simplified version of `sml/extract-minor-modes'. Used for width calculation."
@@ -764,6 +784,17 @@ regexp in `sml/prefix-regexp'."
           (setq output (concat ".../" output)))
         output
         ))))
+
+(defun sml/fix-evil-mode ()
+  "Fix for the way evil-mode implements their 'before and 'after positions."
+  (setq sml/simplified-mode-line-patchy-fix " <E> ")
+  (if (eq evil-mode-line-format 'before)
+      (setq evil-mode-line-format '(before . sml/anchor-beginning))
+    (if (eq evil-mode-line-format 'after)
+        (setq evil-mode-line-format '(after . sml/anchor-after-minor-modes))))
+  ;; (when (eq sml/mode-width 'full)
+  ;; (warn "Setting `sml/mode-width' to full does not work well with evil-mode automatically. You need to either set "))
+  )
 
 ;; Color definitions
 
