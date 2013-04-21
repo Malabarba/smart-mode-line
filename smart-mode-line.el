@@ -143,6 +143,7 @@
 ;; 
 
 ;;; Change Log:
+;; 1.8.3 - 20130421 - Fixed frist line of docs.
 ;; 1.8.2 - 20130418 - added empty anchors throughout the mode-line.
 ;; 1.8.2 - 20130418 - evil-mode support.
 ;; 1.8.1 - 20130417 - sml/bug-report function.
@@ -395,8 +396,7 @@ Otherwise, this is both the minimum and maximum width."
   :group 'smart-mode-line)
 
 (defcustom sml/mode-width 'full
-  "Integer or symbol representing the maximum and/or minimum size
-of the modes list in the mode-line.
+  "Integer or symbol representing the maximum and/or minimum size of the modes list in the mode-line.
 
 If it is an integer, then the modes list width is that many
 characters.
@@ -443,7 +443,11 @@ name."
   "Setup the mode-line, or revert it.
 
 If argument is a non-positive integer, revert any changes made.
-Otherwise, setup the mode-line."
+Otherwise, setup the mode-line.
+
+This should be called after any themes have been applied, which
+is why it is better to add as an `after-init-hook' than to be
+called straight from your init file."
   (interactive)
   (if (and (integerp arg) (< arg 1))
       (sml/revert)
@@ -598,16 +602,16 @@ Otherwise, setup the mode-line."
              (length (format-mode-line sml/simplified-mode-line))))))
 
 (defun sml/check-hidden-modes ()
-  "Checks if `sml/hidden-modes' is using the new syntax. New
-syntax means the items should start with a space."
+  "Checks if `sml/hidden-modes' is using the new syntax. 
+
+New syntax means the items should start with a space."
   (dolist (cur sml/hidden-modes)
     (unless (eq ?\  (string-to-char cur))
       (warn "[sml]Strings in `sml/hidden-modes' should start with a space (\" \").\nTo stop showing this message, toggle `sml/show-warning.'")
       (return)))) 
 
 (defun sml/mode-list-to-string-list (ml) ;;Credits to Constantin
-  "Try to read the mode-list (which contains almost anything) and
-return a sensible list of strings."     
+  "Try to read the mode-list (which contains almost anything) and return a sensible list of strings."     
   (case (type-of ml)
     ('string (list ml))
     ('symbol
@@ -782,8 +786,7 @@ regexp in `sml/prefix-regexp'."
         ;; If we had to shorten, prepend .../
         (when path
           (setq output (concat ".../" output)))
-        output
-        ))))
+        output))))
 
 (defun sml/fix-evil-mode ()
   "Fix for the way evil-mode implements their 'before and 'after positions."
