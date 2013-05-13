@@ -143,7 +143,9 @@
 ;; 
 
 ;;; Change Log:
-;; 1.8.3 - 20130421 - Fixed frist line of docs.
+;; 1.9 - 20130513 - Now uses file name instead of buffer-name by default, controled by `sml/show-file-name'.
+;; 1.9 - 20130513 - When showing buffer name, can strip the <N> part by setting `sml/show-trailing-N'.
+;; 1.8.3 - 20130421 - Fixed first line of docs.
 ;; 1.8.2 - 20130418 - added empty anchors throughout the mode-line.
 ;; 1.8.2 - 20130418 - evil-mode support.
 ;; 1.8.1 - 20130417 - sml/bug-report function.
@@ -230,6 +232,16 @@ colors. This variable only defines whether we change the
   "Whether to show the battery percentage at the end of the mode-line."
   :type 'boolean
   :group 'smart-mode-line)
+
+(defcustom sml/show-trailing-N t
+  "Whether the \"<N>\" suffix in buffer names should be displayed in the mode-line."
+  :type 'boolean
+   :group 'smart-mode-line)
+
+(defcustom sml/show-file-name t
+  "Unless nil: show file name instead of buffer name on the mode-line."
+  :type 'boolean
+   :group 'smart-mode-line)
 
 (defcustom sml/line-number-format "%3l"
   "Format used to display line number.
@@ -508,7 +520,7 @@ called straight from your init file."
        ;; Full path to buffer/file name
        (:eval
         (let* ((prefix (sml/get-prefix (sml/replacer (abbreviate-file-name (sml/get-directory)))))
-               (bufname (buffer-name))
+               (bufname (sml/buffer-name))
                ;; (if (and (buffer-file-name) (file-directory-p (buffer-file-name)))
                ;; 			   "" (buffer-name))
                (dirsize (max 4 (- (abs sml/name-width) (length prefix) (length bufname))))
@@ -563,7 +575,8 @@ called straight from your init file."
             "-"                         ;Modified state
             (:eval
              (let* ((prefix (sml/get-prefix (sml/replacer (abbreviate-file-name (sml/get-directory)))))
-                    (bufname (buffer-name)) (dirsize (max 4 (- (abs sml/name-width) (length prefix) (length bufname))))
+                    (bufname (sml/buffer-name))
+                    (dirsize (max 4 (- (abs sml/name-width) (length prefix) (length bufname))))
                     (dirstring (funcall sml/shortener-func (sml/get-directory) dirsize)))
                (concat prefix dirstring bufname (make-string (max 0 (- dirsize (length dirstring))) ?\ ))))
             mode-name ("" mode-line-process)
@@ -580,6 +593,17 @@ called straight from your init file."
         ;; Perspective support
     (eval-after-load "evil-core"
       '(sml/fix-evil-mode))))
+
+(defun sml/buffer-name ()
+  "Uses `sml/show-file-name' to decide between buffer name or file name to show on the mode-line.
+
+Unless `sml/strip-N' is nil, prevents the \"<N>\" (used in
+duplicated buffer names) from being displayed."
+  (if (and sml/show-file-name (buffer-file-name))
+      (file-name-nondirectory (buffer-file-name))
+    (if sml/show-trailing-N
+        (buffer-name)
+      (replace-regexp-in-string "<[0-9]+>$" "" (buffer-name)))))
 
 (defun sml/simplified-extract-minor-modes (ml maxSize)
   "Simplified version of `sml/extract-minor-modes'. Used for width calculation."
