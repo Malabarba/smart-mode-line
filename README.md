@@ -4,6 +4,7 @@ smart-mode-line
 A fixed width smart mode line for Emacs.
 
 ![Example](http://bruce-connor.github.com/control-pianobar/sml/screenshot.png)
+![Example](http://bruce-connor.github.com/control-pianobar/sml/sml-small.png)
 
 Usage:
 ===
