@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.9
+;; Version: 1.10
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -143,6 +143,7 @@
 ;; 
 
 ;;; Change Log:
+;; 1.10 - 20130524 - Fix for buffer name with '%'.
 ;; 1.9 - 20130513 - Now uses file name instead of buffer-name by default, controled by `sml/show-file-name'.
 ;; 1.9 - 20130513 - When showing buffer name, can strip the <N> part by setting `sml/show-trailing-N'.
 ;; 1.8.3 - 20130421 - Fixed first line of docs.
@@ -172,7 +173,7 @@
 
 (eval-when-compile (require 'cl))
 
-(defconst sml/version "1.9" "Version of the smart-mode-line.el package.")
+(defconst sml/version "1.10" "Version of the smart-mode-line.el package.")
 
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
@@ -519,18 +520,18 @@ called straight from your init file."
        
        ;; Full path to buffer/file name
        (:eval
-        (let* ((prefix (sml/get-prefix (sml/replacer (abbreviate-file-name (sml/get-directory)))))
-               (bufname (sml/buffer-name))
-               ;; (if (and (buffer-file-name) (file-directory-p (buffer-file-name)))
-               ;; 			   "" (buffer-name))
-               (dirsize (max 4 (- (abs sml/name-width) (length prefix) (length bufname))))
-               (dirstring (funcall sml/shortener-func (sml/get-directory) dirsize)))
-          
-          (propertize (concat (sml/propertize-prefix prefix)
-                              (propertize dirstring 'face 'sml/folder)
-                              (propertize bufname 'face 'sml/filename)
-                              (make-string (max 0 (- dirsize (length dirstring))) ?\ ))
-                      'help-echo (buffer-file-name))))
+         (let* ((prefix (sml/get-prefix (sml/replacer (abbreviate-file-name (sml/get-directory)))))
+                (bufname (sml/buffer-name))
+                ;; (if (and (buffer-file-name) (file-directory-p (buffer-file-name)))
+                ;; 			   "" (buffer-name))
+                (dirsize (max 4 (- (abs sml/name-width) (length prefix) (length bufname))))
+                (dirstring (funcall sml/shortener-func (sml/get-directory) dirsize)))
+           
+           (propertize (concat (sml/propertize-prefix (replace-regexp-in-string "%" "%%" prefix))
+                               (propertize (replace-regexp-in-string "%" "%%" dirstring) 'face 'sml/folder)
+                               (propertize (replace-regexp-in-string "%" "%%" bufname) 'face 'sml/filename)
+                               (make-string (max 0 (- dirsize (length dirstring))) ?\ ))
+                       'help-echo (or (buffer-file-name) (buffer-name)))))
        
        sml/anchor-before-major-mode
        ;; The modes list 
