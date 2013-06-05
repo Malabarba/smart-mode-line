@@ -612,20 +612,20 @@ called straight from your init file."
     
     ;; Mew support
     (eval-after-load "mew-net"
-      '(defun mew-biff-bark (n)
-         (cond ((= n 0)                 ;Remove the color if mail has been read.
-                (setq mew-biff-string nil)
-                (set-face-attribute 'mode-line nil :background sml/active-background-color))
-               (t                       ;Apply color if there's mail.
-                (set-face-attribute 'mode-line nil :background sml/new-mail-background-color)
-                (if (and mew-use-biff-bell (eq mew-biff-string nil)) (beep))
-                (setq mew-biff-string (format sml/mew-biff-format n))))))))
+      '(defadvice mew-biff-bark (around sml/mew-biff-bark-advice (n) activate)
+         "Advice used to customize mew-biff-bark to fit sml's style."
+         ad-do-it
+         ;; Remove the color if mail has been read.
+         (if (= n 0) (set-face-attribute 'mode-line nil :background sml/active-background-color)
+           ;; Apply color if there's mail.
+           (set-face-attribute 'mode-line nil :background sml/new-mail-background-color)
+           (setq mew-biff-string (format sml/mew-biff-format n)))))))
 
 (defcustom sml/mew-biff-format "%2d"
   "Format used for new-mail notifications if you use mew with biff."
   :type 'string
   :group 'smart-mode-line
-  :package-version '(smart-mode-line . "??"))
+  :package-version '(smart-mode-line . "1.11"))
 
 (defun sml/buffer-name ()
   "Uses `sml/show-file-name' to decide between buffer name or file name to show on the mode-line.
