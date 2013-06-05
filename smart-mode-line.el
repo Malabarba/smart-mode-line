@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.10
+;; Version: 1.11
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -143,6 +143,7 @@
 ;; 
 
 ;;; Change Log:
+;; 1.11 - 20130605 - Added biff support.
 ;; 1.10 - 20130524 - Fix for buffer name with '%'.
 ;; 1.9 - 20130513 - Now uses file name instead of buffer-name by default, controled by `sml/show-file-name'.
 ;; 1.9 - 20130513 - When showing buffer name, can strip the <N> part by setting `sml/show-trailing-N'.
@@ -173,7 +174,9 @@
 
 (eval-when-compile (require 'cl))
 
-(defconst sml/version "1.10" "Version of the smart-mode-line.el package.")
+(defconst sml/version "1.11" "Version of the smart-mode-line.el package.")
+
+(defconst sml/version-int 11 "Version of the smart-mode-line.el package, as an integer.")
 
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
@@ -445,12 +448,23 @@ name."
   :type 'string
   :group 'smart-mode-line)
 
+(defcustom sml/new-mail-background-color "#110000"
+  "When new mail arrives, mode-line background will be tinted this color.
+
+Only works with mew-biff. Right now it stays colored until you
+read the mail, so this color should probably be something sutil.
+Might implement a quick flash eventually."
+  :type 'color
+  :group 'smart-mode-line
+  :package-version '(smart-mode-line . "1.11"))
+
 (defconst sml/anchor-beginning "" "Anchor so that other packages can find specific positions in the mode-line.")
 (defconst sml/anchor-after-status "" "Anchor so that other packages can find specific positions in the mode-line.")
 (defconst sml/anchor-before-major-mode "" "Anchor so that other packages can find specific positions in the mode-line.")
 (defconst sml/anchor-after-minor-modes "" "Anchor so that other packages can find specific positions in the mode-line.")
 (defconst sml/simplified-mode-line-patchy-fix ""
   "Fix for filling to work with packages that manually edit the mode-line.")
+
 ;;;###autoload
 (defun sml/setup (&optional arg)
   "Setup the mode-line, or revert it.
@@ -496,26 +510,26 @@ called straight from your init file."
        
        ;; Modified status
        (:eval
-        (cond ((not (verify-visited-file-modtime))
-               (propertize "M"
-                           'face 'sml/outside-modified
-                           'help-echo "Modified outside Emacs!\nRevert first!"))
-              (buffer-read-only
-               (propertize "R"
-                           'face 'sml/read-only
-                           'help-echo "Read-Only Buffer"))
-              ((buffer-modified-p)
-               (propertize "×"
-                           'face 'sml/modified
-                           'help-echo (if (buffer-file-name)
-                                          (format-time-string
-                                           sml/modified-time-string
-                                           (nth 5 (file-attributes (buffer-file-name))))
-                                        "Buffer Modified")))
-              (t
-               (propertize " "
-                           'face 'sml/not-modified
-                           'help-echo "Buffer Not Modified"))))
+         (cond ((not (verify-visited-file-modtime))
+                (propertize "M"
+                            'face 'sml/outside-modified
+                            'help-echo "Modified outside Emacs!\nRevert first!"))
+               (buffer-read-only
+                (propertize "R"
+                            'face 'sml/read-only
+                            'help-echo "Read-Only Buffer"))
+               ((buffer-modified-p)
+                (propertize "×"
+                            'face 'sml/modified
+                            'help-echo (if (buffer-file-name)
+                                           (format-time-string
+                                            sml/modified-time-string
+                                            (nth 5 (file-attributes (buffer-file-name))))
+                                         "Buffer Modified")))
+               (t
+                (propertize " "
+                            'face 'sml/not-modified
+                            'help-echo "Buffer Not Modified"))))
        sml/anchor-after-status
        
        ;; Full path to buffer/file name
@@ -524,7 +538,7 @@ called straight from your init file."
                 (bufname (sml/buffer-name))
                 ;; (if (and (buffer-file-name) (file-directory-p (buffer-file-name)))
                 ;; 			   "" (buffer-name))
-                (dirsize (max 4 (- (abs sml/name-width) (length prefix) (length bufname))))
+                (dirsize (max 0 (- (abs sml/name-width) (length prefix) (length bufname))))
                 (dirstring (funcall sml/shortener-func (sml/get-directory) dirsize)))
            
            (propertize (concat (sml/propertize-prefix (replace-regexp-in-string "%" "%%" prefix))
@@ -575,11 +589,11 @@ called straight from your init file."
             (:eval (concat sml/col-number-format sml/numbers-separator sml/line-number-format))
             "-"                         ;Modified state
             (:eval
-             (let* ((prefix (sml/get-prefix (sml/replacer (abbreviate-file-name (sml/get-directory)))))
-                    (bufname (sml/buffer-name))
-                    (dirsize (max 4 (- (abs sml/name-width) (length prefix) (length bufname))))
-                    (dirstring (funcall sml/shortener-func (sml/get-directory) dirsize)))
-               (concat prefix dirstring bufname (make-string (max 0 (- dirsize (length dirstring))) ?\ ))))
+              (let* ((prefix (sml/get-prefix (sml/replacer (abbreviate-file-name (sml/get-directory)))))
+                     (bufname (sml/buffer-name))
+                     (dirsize (max 4 (- (abs sml/name-width) (length prefix) (length bufname))))
+                     (dirstring (funcall sml/shortener-func (sml/get-directory) dirsize)))
+                (concat prefix dirstring bufname (make-string (max 0 (- dirsize (length dirstring))) ?\ ))))
             mode-name ("" mode-line-process)
             ;; This line is the only different one.
             (:eval (sml/simplified-extract-minor-modes minor-mode-alist sml/mode-width))
@@ -591,9 +605,27 @@ called straight from your init file."
     ;; Perspective support
     (eval-after-load "perspective"
       '(set-face-foreground 'persp-selected-face sml/persp-selected-color))
-        ;; Perspective support
+    
+    ;; evil support
     (eval-after-load "evil-core"
-      '(sml/fix-evil-mode))))
+      '(sml/fix-evil-mode))
+    
+    ;; Mew support
+    (eval-after-load "mew-net"
+      '(defun mew-biff-bark (n)
+         (cond ((= n 0)                 ;Remove the color if mail has been read.
+                (setq mew-biff-string nil)
+                (set-face-attribute 'mode-line nil :background sml/active-background-color))
+               (t                       ;Apply color if there's mail.
+                (set-face-attribute 'mode-line nil :background sml/new-mail-background-color)
+                (if (and mew-use-biff-bell (eq mew-biff-string nil)) (beep))
+                (setq mew-biff-string (format sml/mew-biff-format n))))))))
+
+(defcustom sml/mew-biff-format "%2d"
+  "Format used for new-mail notifications if you use mew with biff."
+  :type 'string
+  :group 'smart-mode-line
+  :package-version '(smart-mode-line . "??"))
 
 (defun sml/buffer-name ()
   "Uses `sml/show-file-name' to decide between buffer name or file name to show on the mode-line.
@@ -615,7 +647,7 @@ duplicated buffer names) from being displayed."
       (let* ((nameList (sml/mode-list-to-string-list (reverse ml)))
              (out nil))
         (dolist (name nameList out)
-          (unless (find name sml/hidden-modes :test #'equal)
+          (unless (member name sml/hidden-modes) ; :test #'equal
             ;; Append the next one.
             (add-to-list 'out name)))))))
 
@@ -680,7 +712,7 @@ New syntax means the items should start with a space."
                                                    ;; 'mouse-face 'mode-line-highlight
                                                    'face 'sml/folder)))
     (dolist (name nameList out)
-      (unless (find name sml/hidden-modes :test #'equal)
+      (unless (member name sml/hidden-modes) ; :test #'equal
         ;; If we're shortenning, check if it fits
         (when (and sml/shorten-modes (< size (length name)))
           ;; If the remaining size is too small even for the
@@ -708,7 +740,7 @@ New syntax means the items should start with a space."
   "Set the color of the prefix according to its contents."
   (let ((out prefix))
     (dolist (pair sml/prefix-face-list)
-      (if (search (car pair) prefix)
+      (if (string-match (car pair) prefix)
 	(return (propertize prefix 'face (car (cdr pair))))))))
 
 (defun sml/trim-modes (major minor)
@@ -732,13 +764,13 @@ New syntax means the items should start with a space."
 (defun sml/get-directory ()
   "Decide if we want directory shown. If so, return it."
   (cond ((buffer-file-name) default-directory)
-        ((search "Dired" mode-name :start1)
+        ((and (listp mode-name) (string-match "Dired" (car mode-name)))
          (replace-regexp-in-string "/[^/]*/$" "/" default-directory))
         (t "")))
 
 (defun sml/set-battery-font ()
   "Set `sml/battery' face depending on battery state."
-  (let ((data (and battery-status-function (funcall battery-status-function))))
+  (let ((data (and (boundp battery-status-function) battery-status-function (funcall battery-status-function))))
     (if  (string-equal "AC" (cdr (assoc 76 data)))
         (copy-face 'sml/charging 'sml/battery)
       (copy-face 'sml/discharging 'sml/battery))))
@@ -771,7 +803,7 @@ Used by `sml/strip-prefix' and `sml/get-prefix'."
   (let ((left "^\\(")
         (right (if getter "\\|\\).*" "\\)")))
     (if (stringp sml/prefix-regexp) 
-        (if (search "\\(" sml/prefix-regexp) 
+        (if (string-match "\\(" sml/prefix-regexp) 
             sml/prefix-regexp
           (concat left sml/prefix-regexp right)) 
       (concat left (mapconcat 'identity sml/prefix-regexp "\\|") right))))
@@ -846,7 +878,6 @@ regexp in `sml/prefix-regexp'."
   :set 'sml/set-face-color
   :initialize 'set-default)
 
-
 (defcustom sml/inactive-foreground-color "gray60" "Foreground mode-line color for the inactive frame."
   :type 'color :group 'smart-mode-line-faces
   :set 'sml/set-face-color
@@ -920,8 +951,6 @@ regexp in `sml/prefix-regexp'."
   ""
   :group 'smart-mode-line-faces)
 
-
-
 (defface sml/outside-modified
   '((t
      :inherit sml/global
@@ -930,9 +959,6 @@ regexp in `sml/prefix-regexp'."
      ))
   ""
   :group 'smart-mode-line-faces)
-
-
-
 
 (defface sml/modified
   '((t
@@ -943,8 +969,6 @@ regexp in `sml/prefix-regexp'."
   ""
   :group 'smart-mode-line-faces)
 
-
-
 (defface sml/prefix
   '((t
      :inherit sml/global
@@ -954,16 +978,12 @@ regexp in `sml/prefix-regexp'."
   ""
   :group 'smart-mode-line-faces)
 
-
-
 (defface sml/sudo
   '((t
      :inherit sml/warning
      ))
   ""
   :group 'smart-mode-line-faces)
-
-
 
 (defface sml/git
   '((t
