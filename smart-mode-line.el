@@ -1,4 +1,86 @@
-ion.
+;;; smart-mode-line.el --- A color coded smart mode-line.
+
+;; Copyright (C) 2012 Artur Malabarba <bruce.connor.am@gmail.com>
+
+;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
+;; URL: http://github.com/Bruce-Connor/smart-mode-line
+;; Version: 1.12
+;; Keywords: faces frames
+
+;;; Commentary:
+
+;; Smart Mode Line is a mode-line format that aims to be easy to
+;; read from small to large monitors by using a prefix feature and
+;; smart truncation.
+
+;; Your mode-line will be color coded, smartly truncated (if you
+;; want), easily customizable, and will have a few extra fancy
+;; features like file path prefixes and minor mode filtering.
+
+;;; Instructions:
+
+;; INSTALLATION
+
+;; Make sure "smart-mode-line.el" is in your load path, then place
+;; this code in your .emacs file:
+;; (require 'smart-mode-line)
+;; (add-hook 'after-init-hook 'sml/setup)
+
+;; DESCRIPTION
+
+;; Its main features are:
+
+;; 1) Color coded:
+;; Highlights the most important information for you
+;; (buffer name, modified state, line number). Don't
+;; like the colors? See item 4)!
+
+;; 2) Fixed width (if you want):
+;; Lets you set a maxium width for the path name and mode
+;; names, and truncated intelligently (truncates the
+;; directory, not the buffer name).
+
+;; 3) Fancy features:
+;; Prefix feature saves a LOT of space. e.g. "~/.emacs.d/"
+;; is translated to ":ED:" in the path (open a file inside
+;; this folder to see it in action). Long path names you
+;; are commmonly working on are displayed as short
+;; abbreviations. Set your own prefixes to make best use
+;; of it (by configuring `sml/replacer-regexp-list'). Mousing
+;; over the abbreviated path will show you the full
+;; path. See below for examples.
+
+;; Hidden-modes feature saves even more space. Select
+;; which minor modes you don't want to see listed by
+;; customizing the `sml/hidden-modes' variable. This will
+;; filter out the modes you don't care about and unclutter
+;; the modes list (mousing over the modes list still shows
+;; the full list).
+
+;; 4) Very easy to configure:
+;; All fonts are in the `smart-mode-line-faces'
+;; customization group, and all other options are in
+;; `smart-mode-line'. Just run `sml/customize' and see
+;; what's in there. If you feel anything is missing send me
+;; an e-mail.
+
+;; 5) Compatible with `battery-display-mode':
+;; Just turn the mode on to have the battery level
+;; displayed. sml uses a very short syntax for the
+;; battery. Only the battery level is displayed (with no %
+;; symbol), and green/red font means charging/discharging
+;; respectively.
+
+;; Variables
+;;
+;; All variables can be edited by running `sml/customize', and the
+;; documentations are mostly self explanatory, I list here only the
+;; most important ones.
+
+;; *Note:* We use an `after-init-hook` in the installation because we
+;; need sml/setup to override the theme's colors for the mode-line. See
+;; the documentattion on the `sml/override-theme` variable for more
+;; information.
 
 ;; 	`sml/shorten-directory' and `sml/shorten-modes'
 ;; 		Setting both of these to t garantees a fixed width mode-line
@@ -61,6 +143,7 @@ ion.
 ;; 
 
 ;;; Change Log:
+;; 1.12 - 20130606 - Gigantic typo fix. Sorry about that.
 ;; 1.11 - 20130605 - Added biff support.
 ;; 1.10 - 20130524 - Fix for buffer name with '%'.
 ;; 1.9 - 20130513 - Now uses file name instead of buffer-name by default, controled by `sml/show-file-name'.
@@ -92,9 +175,9 @@ ion.
 
 (eval-when-compile (require 'cl))
 
-(defconst sml/version "1.11" "Version of the smart-mode-line.el package.")
+(defconst sml/version "1.12" "Version of the smart-mode-line.el package.")
 
-(defconst sml/version-int 11 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version-int 12 "Version of the smart-mode-line.el package, as an integer.")
 
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
@@ -971,9 +1054,6 @@ regexp in `sml/prefix-regexp'."
      ))
   ""
   :group 'smart-mode-line-faces)
-
-
-
 
 ;; Backup the original configs, just in case.
 (defconst sml/format-backup mode-line-format
