@@ -319,12 +319,6 @@ for the syntax."
   :type 'string
   :group 'smart-mode-line)
 
-(defun sml/set-shortener-func (sym val)
-  "Configure `sml/shortener-func' according to `sml/shorten-directory'."
-  (set-default sym val)
-  (if val (setq sml/shortener-func 'sml/do-shorten-directory)
-    (setq sml/shortener-func 'sml/not-shorten-directory)))
-
 (defvar sml/shortener-func 'sml/do-shorten-directory
   "Function used to shorten the directory name.
 
@@ -333,6 +327,23 @@ string to be shortened and the maximum size. This is set
 automatically when `sml/shorten-directory' is changed via the
 customization menu or via the `sml/toggle-shorten-directory'
 function (which are the only ways you should change it).")
+
+(defun sml/set-shortener-func (sym val)
+  "Configure `sml/shortener-func' according to `sml/shorten-directory'."
+  (set-default sym val)
+  (if val (setq sml/shortener-func 'sml/do-shorten-directory)
+    (setq sml/shortener-func 'sml/not-shorten-directory)))
+
+(defcustom sml/shorten-directory t
+  "Should directory name be shortened to fit width?
+
+When the buffer+directory name is longer than
+`sml/name-width':
+	if nil the rest of the mode-line is pushed right;
+	otherwise the directory name is shortened to fit."
+  :type 'boolean
+  :group 'smart-mode-line
+  :set 'sml/set-shortener-func)
 
 (defun sml/toggle-shorten-directory (&rest val)
   "Toggle the variable `sml/shorten-directory'.
@@ -346,16 +357,14 @@ variable with `setq' will NOT work and should be avoided."
                           (if val (car val)
                             (not sml/shorten-directory))))
 
-(defcustom sml/shorten-directory t
-  "Should directory name be shortened to fit width?
+(defcustom sml/shorten-modes nil
+  "Should modes list be shortened to fit width?
 
-When the buffer+directory name is longer than
-`sml/name-width':
+When the modes list is longer than `sml/mode-width':
 	if nil the rest of the mode-line is pushed right;
-	otherwise the directory name is shortened to fit."
+	otherwise the list is shortened to fit."
   :type 'boolean
-  :group 'smart-mode-line
-  :set 'sml/set-shortener-func)
+  :group 'smart-mode-line)
 
 (defun sml/toggle-shorten-modes (&rest val)
   "Toggle the variable `sml/shorten-modes'.
@@ -367,15 +376,6 @@ setting the variable with `setq'."
   (interactive)
   (setq sml/shorten-modes (if val (car val)
                             (not sml/shorten-modes))))
-
-(defcustom sml/shorten-modes nil
-  "Should modes list be shortened to fit width?
-
-When the modes list is longer than `sml/mode-width':
-	if nil the rest of the mode-line is pushed right;
-	otherwise the list is shortened to fit."
-  :type 'boolean
-  :group 'smart-mode-line)
 
 (defcustom sml/hidden-modes '(" hl-p")
   "List of minor modes you want to hide, or empty.
