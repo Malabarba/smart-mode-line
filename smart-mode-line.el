@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.13
+;; Version: 1.14
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -143,6 +143,7 @@
 ;; 
 
 ;;; Change Log:
+;; 1.14 - 20130625 - Slightly reduced the default value of extra-filler.
 ;; 1.13 - 20130610 - removed 'cl requirement.
 ;; 1.13 - 20130610 - Advice to mew-biff-clear.
 ;; 1.12 - 20130606 - Gigantic typo fix. Sorry about that.
@@ -177,9 +178,9 @@
 
 ;; (eval-when-compile (require 'cl))
 
-(defconst sml/version "1.13" "Version of the smart-mode-line.el package.")
+(defconst sml/version "1.14" "Version of the smart-mode-line.el package.")
 
-(defconst sml/version-int 13 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version-int 14 "Version of the smart-mode-line.el package, as an integer.")
 
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
@@ -287,7 +288,7 @@ Empty it to hide the number."
   :type 'char
   :group 'smart-mode-line)
 
-(defcustom sml/extra-filler 3
+(defcustom sml/extra-filler 2
   "The number of extra filling chars to use. It comes into play when `sml/mode-width' is set to 'full.
 
 This is necessary because the mode-line width (which we need but
