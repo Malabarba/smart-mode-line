@@ -609,42 +609,42 @@ called straight from your init file."
        
        ;; Modified status
        (:eval
-         (cond ((not (verify-visited-file-modtime))
-                (propertize "M"
-                            'face 'sml/outside-modified
-                            'help-echo "Modified outside Emacs!\nRevert first!"))
-               (buffer-read-only
-                (propertize "R"
-                            'face 'sml/read-only
-                            'help-echo "Read-Only Buffer"))
-               ((buffer-modified-p)
-                (propertize "×"
-                            'face 'sml/modified
-                            'help-echo (if (buffer-file-name)
-                                           (format-time-string
-                                            sml/modified-time-string
-                                            (nth 5 (file-attributes (buffer-file-name))))
-                                         "Buffer Modified")))
-               (t
-                (propertize " "
-                            'face 'sml/not-modified
-                            'help-echo "Buffer Not Modified"))))
+        (cond ((not (verify-visited-file-modtime))
+               (propertize "M"
+                           'face 'sml/outside-modified
+                           'help-echo "Modified outside Emacs!\nRevert first!"))
+              (buffer-read-only
+               (propertize "R"
+                           'face 'sml/read-only
+                           'help-echo "Read-Only Buffer"))
+              ((buffer-modified-p)
+               (propertize "×"
+                           'face 'sml/modified
+                           'help-echo (if (buffer-file-name)
+                                          (format-time-string
+                                           sml/modified-time-string
+                                           (nth 5 (file-attributes (buffer-file-name))))
+                                        "Buffer Modified")))
+              (t
+               (propertize " "
+                           'face 'sml/not-modified
+                           'help-echo "Buffer Not Modified"))))
        sml/anchor-after-status
        
        ;; Full path to buffer/file name
        (:eval
-         (let* ((prefix (sml/get-prefix (sml/replacer (abbreviate-file-name (sml/get-directory)))))
-                (bufname (sml/buffer-name))
-                ;; (if (and (buffer-file-name) (file-directory-p (buffer-file-name)))
-                ;; 			   "" (buffer-name))
-                (dirsize (max 0 (- (abs sml/name-width) (length prefix) (length bufname))))
-                (dirstring (funcall sml/shortener-func (sml/get-directory) dirsize)))
-           
-           (propertize (concat (sml/propertize-prefix (replace-regexp-in-string "%" "%%" prefix))
-                               (propertize (replace-regexp-in-string "%" "%%" dirstring) 'face 'sml/folder)
-                               (propertize (replace-regexp-in-string "%" "%%" bufname) 'face 'sml/filename)
-                               (make-string (max 0 (- dirsize (length dirstring))) ?\ ))
-                       'help-echo (or (buffer-file-name) (buffer-name)))))
+        (let* ((prefix (sml/get-prefix (sml/replacer (abbreviate-file-name (sml/get-directory)))))
+               (bufname (sml/buffer-name))
+               ;; (if (and (buffer-file-name) (file-directory-p (buffer-file-name)))
+               ;; 			   "" (buffer-name))
+               (dirsize (max 0 (- (abs sml/name-width) (length prefix) (length bufname))))
+               (dirstring (funcall sml/shortener-func (sml/get-directory) dirsize)))
+          
+          (propertize (concat (sml/propertize-prefix (replace-regexp-in-string "%" "%%" prefix))
+                              (propertize (replace-regexp-in-string "%" "%%" dirstring) 'face 'sml/folder)
+                              (propertize (replace-regexp-in-string "%" "%%" bufname) 'face 'sml/filename)
+                              (make-string (max 0 (- dirsize (length dirstring))) ?\ ))
+                      'help-echo (or (buffer-file-name) (buffer-name)))))
        
        sml/anchor-before-major-mode
        
@@ -689,18 +689,23 @@ called straight from your init file."
             (:eval (concat sml/col-number-format sml/numbers-separator sml/line-number-format))
             "-"                         ;Modified state
             (:eval
-              (let* ((prefix (sml/get-prefix (sml/replacer (abbreviate-file-name (sml/get-directory)))))
-                     (bufname (sml/buffer-name))
-                     (dirsize (max 4 (- (abs sml/name-width) (length prefix) (length bufname))))
-                     (dirstring (funcall sml/shortener-func (sml/get-directory) dirsize)))
-                (concat prefix dirstring bufname (make-string (max 0 (- dirsize (length dirstring))) ?\ ))))
+             (let* ((prefix (sml/get-prefix (sml/replacer (abbreviate-file-name (sml/get-directory)))))
+                    (bufname (sml/buffer-name))
+                    (dirsize (max 4 (- (abs sml/name-width) (length prefix) (length bufname))))
+                    (dirstring (funcall sml/shortener-func (sml/get-directory) dirsize)))
+               (concat prefix dirstring bufname (make-string (max 0 (- dirsize (length dirstring))) ?\ ))))
             mode-name ("" mode-line-process)
             ;; This line is the only different one.
             (:eval (sml/simplified-extract-minor-modes minor-mode-alist sml/mode-width))
             battery-mode-line-string
             global-mode-string
             (:eval (if sml/show-time (format-time-string sml/time-format)))
-            sml/simplified-mode-line-patchy-fix))
+            sml/simplified-mode-line-patchy-fix
+            sml/anchor-beginning
+            sml/anchor-after-status
+            sml/anchor-before-major-mode
+            sml/anchor-after-minor-modes
+            ))
     
     ;; Perspective support
     (eval-after-load "perspective"
@@ -716,18 +721,18 @@ called straight from your init file."
          "Advice used to customize mew-biff-bark to fit sml's style."
          ad-do-it
          (when sml/mew-support
-          ;; Remove the color
-          (set-face-attribute 'mode-line nil :background sml/active-background-color))))
+           ;; Remove the color
+           (set-face-attribute 'mode-line nil :background sml/active-background-color))))
     (eval-after-load "mew-net"
       '(defadvice mew-biff-bark (around sml/mew-biff-bark-advice (n) activate)
          "Advice used to customize mew-biff-bark to fit sml's style."
          ad-do-it
          (when sml/mew-support
-          ;; Remove the color if mail has been read.
-          (if (= n 0) (set-face-attribute 'mode-line nil :background sml/active-background-color)
-            ;; Apply color if there's mail.
-            (set-face-attribute 'mode-line nil :background sml/new-mail-background-color)
-            (setq mew-biff-string (format sml/mew-biff-format n))))))
+           ;; Remove the color if mail has been read.
+           (if (= n 0) (set-face-attribute 'mode-line nil :background sml/active-background-color)
+             ;; Apply color if there's mail.
+             (set-face-attribute 'mode-line nil :background sml/new-mail-background-color)
+             (setq mew-biff-string (format sml/mew-biff-format n))))))
 
     ;; sml-modeline support
     (eval-after-load "sml-modeline"
@@ -736,7 +741,7 @@ called straight from your init file."
 (defun sml/sml-modeline-support ()
   "Create a variable regarding `sml-modeline-mode' and insert `sml-modeline-create' in one of the anchors."
   ;; Define the variable which specifies the position
-  (defcustom sml/sml-modeline-position 'sml/anchor-before-major-mode
+  (defcustom sml/sml-modeline-position 'sml/anchor-after-minor-modes
     "In which anchor should sml-modeline be inserted?
 
 Value must be a symbol, the name of the anchor. Possible anchors are:
