@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.14
+;; Version: 1.15
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -143,6 +143,7 @@
 ;; 
 
 ;;; Change Log:
+;; 1.15 - 20130706 - Implemented sml-modeline support.
 ;; 1.14 - 20130625 - Slightly reduced the default value of extra-filler.
 ;; 1.13 - 20130610 - removed 'cl requirement.
 ;; 1.13 - 20130610 - Advice to mew-biff-clear.
@@ -178,9 +179,9 @@
 
 ;; (eval-when-compile (require 'cl))
 
-(defconst sml/version "1.14" "Version of the smart-mode-line.el package.")
+(defconst sml/version "1.15" "Version of the smart-mode-line.el package.")
 
-(defconst sml/version-int 14 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version-int 15 "Version of the smart-mode-line.el package, as an integer.")
 
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
@@ -556,10 +557,10 @@ Might implement a quick flash eventually."
   "" :group 'smart-mode-line-faces)
 
 ;; Anchors
-(defconst sml/anchor-beginning "" "Anchor so that other packages can find specific positions in the mode-line.")
-(defconst sml/anchor-after-status "" "Anchor so that other packages can find specific positions in the mode-line.")
-(defconst sml/anchor-before-major-mode "" "Anchor so that other packages can find specific positions in the mode-line.")
-(defconst sml/anchor-after-minor-modes "" "Anchor so that other packages can find specific positions in the mode-line.")
+(defconst sml/anchor-beginning '() "Anchor so that other packages can find specific positions in the mode-line.")
+(defconst sml/anchor-after-status '() "Anchor so that other packages can find specific positions in the mode-line.")
+(defconst sml/anchor-before-major-mode '() "Anchor so that other packages can find specific positions in the mode-line.")
+(defconst sml/anchor-after-minor-modes '() "Anchor so that other packages can find specific positions in the mode-line.")
 (defconst sml/simplified-mode-line-patchy-fix ""
   "Fix for filling to work with packages that manually edit the mode-line.")
 
@@ -646,6 +647,7 @@ called straight from your init file."
                        'help-echo (or (buffer-file-name) (buffer-name)))))
        
        sml/anchor-before-major-mode
+       
        ;; The modes list 
        (:eval (propertize (format-mode-line mode-name)
                           'mouse-face  'mode-line-highlight
@@ -725,7 +727,38 @@ called straight from your init file."
           (if (= n 0) (set-face-attribute 'mode-line nil :background sml/active-background-color)
             ;; Apply color if there's mail.
             (set-face-attribute 'mode-line nil :background sml/new-mail-background-color)
-            (setq mew-biff-string (format sml/mew-biff-format n))))))))
+            (setq mew-biff-string (format sml/mew-biff-format n))))))
+
+    ;; sml-modeline support
+    (eval-after-load "sml-modeline"
+      '(sml/sml-modeline-support))))
+
+(defun sml/sml-modeline-support ()
+  "Create a variable regarding `sml-modeline-mode' and insert `sml-modeline-create' in one of the anchors."
+  ;; Define the variable which specifies the position
+  (defcustom sml/sml-modeline-position 'sml/anchor-before-major-mode
+    "In which anchor should sml-modeline be inserted?
+
+Value must be a symbol, the name of the anchor. Possible anchors are:
+`sml/anchor-beginning'
+`sml/anchor-after-status'
+`sml/anchor-before-major-mode'
+`sml/anchor-after-minor-modes'"
+    :type 'symbol
+    :group 'smart-mode-line
+    :package-version '(smart-mode-line . "1.14"))
+  ;; If the mode is already activated, insert the creator
+  (when sml-modeline-mode
+    (add-to-list sml/sml-modeline-position '(:eval (sml-modeline-create))))
+  ;; Remove and insert the creator when the mode is toggled
+  (defadvice sml-modeline-mode (after sml/after-sml-modeline-mode-advice () activate)
+    "Insert and remove `sml-modeline-create' from the anchor specified in `sml/sml-modeline-position'."
+    (if sml-modeline-mode
+        (add-to-list sml/sml-modeline-position '(:eval (sml-modeline-create)))
+      (setq sml/anchor-beginning (delete '(:eval (sml-modeline-create)) sml/anchor-beginning))
+      (setq sml/anchor-after-status (delete '(:eval (sml-modeline-create)) sml/anchor-after-status))
+      (setq sml/anchor-before-major-mode (delete '(:eval (sml-modeline-create)) sml/anchor-before-major-mode))
+      (setq sml/anchor-after-minor-modes (delete '(:eval (sml-modeline-create)) sml/anchor-after-minor-modes)))))
 
 (defun sml/buffer-name ()
   "Uses `sml/show-file-name' to decide between buffer name or file name to show on the mode-line.
