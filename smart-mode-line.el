@@ -143,6 +143,7 @@
 ;; 
 
 ;;; Change Log:
+;; 1.16 - 20130708 - Changed implementation of battery display.
 ;; 1.16 - 20130708 - Fixed battery-display.
 ;; 1.15 - 20130706 - Implemented sml-modeline support.
 ;; 1.14 - 20130625 - Slightly reduced the default value of extra-filler.
@@ -585,7 +586,7 @@ called straight from your init file."
     (setq battery-mode-line-format sml/battery-format)
     (setq-default
      mode-line-format
-     '(
+     `(
        ;; This is used for some error that I've never seen happen.
        (:propertize "%e" face sml/warning)
        sml/anchor-beginning
@@ -667,12 +668,11 @@ called straight from your init file."
        (:eval (sml/extract-minor-modes minor-mode-alist sml/mode-width))
        sml/anchor-after-minor-modes
        
-       ;; Battery
-       (:propertize battery-mode-line-string
-                    face sml/battery)
+       ;; ;; Battery
+       ;; (:propertize battery-mode-line-string face sml/battery)
        
        ;; Extra strings. I know that at least perpective, mew, and battery use this
-       (:eval (delq battery-mode-line-string (eval global-mode-string)))
+       global-mode-string
        
        ;; add the time, with the date and the emacs uptime in the tooltip
        (:eval (if sml/show-time
@@ -704,6 +704,15 @@ called straight from your init file."
             sml/simplified-mode-line-patchy-fix
             sml/anchor-beginning sml/anchor-after-status
             sml/anchor-before-major-mode sml/anchor-after-minor-modes))
+    
+    ;; Battery support
+    (eval-after-load 'battery
+      '(defadvice battery-update (after sml/after-battery-update-advice () activate)
+         "Change battery color."
+         (when battery-mode-line-string
+           (setq battery-mode-line-string
+                 (propertize battery-mode-line-string
+                             'face 'sml/battery)))))
     
     ;; Perspective support
     (eval-after-load "perspective"
