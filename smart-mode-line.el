@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.15
+;; Version: 1.16
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -143,6 +143,7 @@
 ;; 
 
 ;;; Change Log:
+;; 1.16 - 20130708 - Fixed battery-display.
 ;; 1.15 - 20130706 - Implemented sml-modeline support.
 ;; 1.14 - 20130625 - Slightly reduced the default value of extra-filler.
 ;; 1.13 - 20130610 - removed 'cl requirement.
@@ -179,9 +180,9 @@
 
 ;; (eval-when-compile (require 'cl))
 
-(defconst sml/version "1.15" "Version of the smart-mode-line.el package.")
+(defconst sml/version "1.16" "Version of the smart-mode-line.el package.")
 
-(defconst sml/version-int 15 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version-int 16 "Version of the smart-mode-line.el package, as an integer.")
 
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
@@ -670,8 +671,8 @@ called straight from your init file."
        (:propertize battery-mode-line-string
                     face sml/battery)
        
-       ;; Extra strings. I know that at least perpective.el uses this
-       global-mode-string
+       ;; Extra strings. I know that at least perpective, mew, and battery use this
+       (:eval (delq battery-mode-line-string (eval global-mode-string)))
        
        ;; add the time, with the date and the emacs uptime in the tooltip
        (:eval (if sml/show-time
@@ -697,15 +698,12 @@ called straight from your init file."
             mode-name ("" mode-line-process)
             ;; This line is the only different one.
             (:eval (sml/simplified-extract-minor-modes minor-mode-alist sml/mode-width))
-            battery-mode-line-string
+            ;; battery-mode-line-string ; this is already contained in the global-mode-string
             global-mode-string
             (:eval (if sml/show-time (format-time-string sml/time-format)))
             sml/simplified-mode-line-patchy-fix
-            sml/anchor-beginning
-            sml/anchor-after-status
-            sml/anchor-before-major-mode
-            sml/anchor-after-minor-modes
-            ))
+            sml/anchor-beginning sml/anchor-after-status
+            sml/anchor-before-major-mode sml/anchor-after-minor-modes))
     
     ;; Perspective support
     (eval-after-load "perspective"
