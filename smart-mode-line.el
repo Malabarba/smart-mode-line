@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.16
+;; Version: 1.17
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -143,6 +143,7 @@
 ;; 
 
 ;;; Change Log:
+;; 1.17 - 20130710 - Fallback 'modified' string.
 ;; 1.16 - 20130708 - Changed implementation of battery display.
 ;; 1.16 - 20130708 - Fixed battery-display.
 ;; 1.15 - 20130706 - Implemented sml-modeline support.
@@ -181,9 +182,9 @@
 
 ;; (eval-when-compile (require 'cl))
 
-(defconst sml/version "1.16" "Version of the smart-mode-line.el package.")
+(defconst sml/version "1.17" "Version of the smart-mode-line.el package.")
 
-(defconst sml/version-int 16 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version-int 17 "Version of the smart-mode-line.el package, as an integer.")
 
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
@@ -478,6 +479,11 @@ Might implement a quick flash eventually."
   :group 'smart-mode-line
   :package-version '(smart-mode-line . "1.11"))
 
+(defcustom sml/modified-char (char-to-string (if (char-displayable-p ?×) ?× ?*))
+  "String that indicates if buffer is modified. Should be one SINGLE char."
+  :type 'string
+  :group 'smart-mode-line
+  :package-version '(smart-mode-line . "1.16"))
 
 ;; Color definitions
 (defcustom sml/active-foreground-color "gray60"
@@ -620,7 +626,7 @@ called straight from your init file."
                            'face 'sml/read-only
                            'help-echo "Read-Only Buffer"))
               ((buffer-modified-p)
-               (propertize "×"
+               (propertize sml/modified-char
                            'face 'sml/modified
                            'help-echo (if (buffer-file-name)
                                           (format-time-string
