@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.17
+;; Version: 1.18
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -143,6 +143,9 @@
 ;; 
 
 ;;; Change Log:
+;; 1.18 - 20130712 - mew variables only get created if mew is loaded.
+;; 1.18 - 20130712 - Reformulated the simplified mode-line.
+;; 1.18 - 20130712 - Added number of lines to mouse tooltip of position.
 ;; 1.17 - 20130710 - Fallback 'modified' string.
 ;; 1.16 - 20130708 - Changed implementation of battery display.
 ;; 1.16 - 20130708 - Fixed battery-display.
@@ -182,9 +185,9 @@
 
 ;; (eval-when-compile (require 'cl))
 
-(defconst sml/version "1.17" "Version of the smart-mode-line.el package.")
+(defconst sml/version "1.18" "Version of the smart-mode-line.el package.")
 
-(defconst sml/version-int 17 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version-int 18 "Version of the smart-mode-line.el package, as an integer.")
 
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
@@ -260,13 +263,6 @@ colors. This variable only defines whether we change the
   "Unless nil: show file name instead of buffer name on the mode-line."
   :type 'boolean
    :group 'smart-mode-line)
-
-
-(defcustom sml/mew-biff-format "%2d"
-  "Format used for new-mail notifications if you use mew with biff."
-  :type 'string
-  :group 'smart-mode-line
-  :package-version '(smart-mode-line . "1.11"))
 
 (defcustom sml/line-number-format "%3l"
   "Format used to display line number.
@@ -469,16 +465,6 @@ name."
   :type 'string
   :group 'smart-mode-line)
 
-(defcustom sml/new-mail-background-color "#110000"
-  "When new mail arrives, mode-line background will be tinted this color.
-
-Only works with mew-biff. Right now it stays colored until you
-read the mail, so this color should probably be something sutil.
-Might implement a quick flash eventually."
-  :type 'color
-  :group 'smart-mode-line
-  :package-version '(smart-mode-line . "1.11"))
-
 (defcustom sml/modified-char (char-to-string (if (char-displayable-p ?×) ?× ?*))
   "String that indicates if buffer is modified. Should be one SINGLE char."
   :type 'string
@@ -572,6 +558,109 @@ Might implement a quick flash eventually."
 (defconst sml/simplified-mode-line-patchy-fix ""
   "Fix for filling to work with packages that manually edit the mode-line.")
 
+(defcustom sml/mode-line-format
+  '(;; This is used for some error that I've never seen happen.
+    (:propertize "%e" face sml/warning)
+
+    ;; Anchor
+    sml/anchor-beginning
+    
+    ;; emacsclient
+    (:eval (if sml/show-client (if (frame-parameter nil 'client)
+                                   (propertize "@"
+                                               'face 'sml/client
+                                               'help-echo "emacsclient frame")
+                                 " ")))
+    
+    ;; Position
+    (:eval
+     (propertize (concat (propertize sml/col-number-format  'face 'sml/col-number)
+                         (propertize sml/numbers-separator  'face 'sml/numbers-separator)
+                         (propertize sml/line-number-format 'face 'sml/line-number))
+                 'help-echo (format-mode-line
+                             (format "Buffer size:\n\t%%IB\nNumber of Lines:\n\t%s"
+                                     (line-number-at-pos (point-max))))))
+    
+    ;; Modified status
+    (:eval
+     (cond ((not (verify-visited-file-modtime))
+            (propertize "M"
+                        'face 'sml/outside-modified
+                        'help-echo "Modified outside Emacs!\nRevert first!"))
+           (buffer-read-only
+            (propertize "R"
+                        'face 'sml/read-only
+                        'help-echo "Read-Only Buffer"))
+           ((buffer-modified-p)
+            (propertize sml/modified-char
+                        'face 'sml/modified
+                        'help-echo (if (buffer-file-name)
+                                       (format-time-string
+                                        sml/modified-time-string
+                                        (nth 5 (file-attributes (buffer-file-name))))
+                                     "Buffer Modified")))
+           (t
+            (propertize " "
+                        'face 'sml/not-modified
+                        'help-echo "Buffer Not Modified"))))
+    ;; Anchor
+    sml/anchor-after-status
+    
+    ;; Full path to buffer/file name
+    (:eval
+     (let* ((prefix (sml/get-prefix (sml/replacer (abbreviate-file-name (sml/get-directory)))))
+            (bufname (sml/buffer-name))
+            ;; (if (and (buffer-file-name) (file-directory-p (buffer-file-name)))
+            ;; 			   "" (buffer-name))
+            (dirsize (max 0 (- (abs sml/name-width) (length prefix) (length bufname))))
+            (dirstring (funcall sml/shortener-func (sml/get-directory) dirsize)))
+       
+       (propertize (concat (sml/propertize-prefix (replace-regexp-in-string "%" "%%" prefix))
+                           (propertize (replace-regexp-in-string "%" "%%" dirstring) 'face 'sml/folder)
+                           (propertize (replace-regexp-in-string "%" "%%" bufname) 'face 'sml/filename)
+                           (make-string (max 0 (- dirsize (length dirstring))) ?\ ))
+                   'help-echo (or (buffer-file-name) (buffer-name)))))
+    
+    ;; Anchor
+    sml/anchor-before-major-mode
+    
+    ;; The modes list 
+    (:eval (propertize (format-mode-line mode-name)
+                       'mouse-face  'mode-line-highlight
+                       'face        'sml/modes
+                       'local-map   mode-line-major-mode-keymap
+                       'help-echo   sml/major-help-echo))
+    
+    ;; The mode line process, doesn't get counted into the width
+    ;; limit. The only mode I know that uses this is Term.
+    (:propertize ("" mode-line-process)
+                 'mouse-face 'mode-line-highlight
+                 'face       'sml/modes
+                 'help-echo	sml/major-help-echo)
+    
+    ;; Minor modes list
+    (:eval (sml/extract-minor-modes minor-mode-alist sml/mode-width))
+
+    ;; Anchor
+    sml/anchor-after-minor-modes
+    
+    ;; ;; Battery
+    ;; (:propertize battery-mode-line-string face sml/battery)
+    
+    ;; Extra strings. I know that at least perpective, mew, and battery use this
+    global-mode-string
+    
+    ;; add the time, with the date and the emacs uptime in the tooltip
+    (:eval (if sml/show-time
+               (propertize (format-time-string sml/time-format)
+                           'face 'sml/time
+                           'help-echo (concat (format-time-string "%c;")
+                                              (emacs-uptime "\nUptime: %hh"))))))
+  "Mode-line format to be applied when you activate `sml/setup'."
+  :type 'list
+  :group 'smart-mode-line
+  :package-version '(smart-mode-line . "1.18"))
+
 ;;;###autoload
 (defun sml/setup (&optional arg)
   "Setup the mode-line, or revert it.
@@ -590,126 +679,9 @@ called straight from your init file."
     ;; This is a warning for people not to use the old syntax. Should probably remove this eventually.
     (when sml/show-warning (sml/check-hidden-modes))
     (setq battery-mode-line-format sml/battery-format)
-    (setq-default
-     mode-line-format
-     `(
-       ;; This is used for some error that I've never seen happen.
-       (:propertize "%e" face sml/warning)
-       sml/anchor-beginning
-       
-       ;; emacsclient
-       (:eval (if sml/show-client (if (frame-parameter nil 'client)
-                                      (propertize "@"
-                                                  'face 'sml/client
-                                                  'help-echo "emacsclient frame")
-                                    " ")))
-       
-       ;; Position
-       (:eval (propertize sml/col-number-format
-                          'face 'sml/col-number
-                          'help-echo (format-mode-line "Buffer size:\n\t%IB")))
-       (:eval (propertize sml/numbers-separator
-                          'face 'sml/numbers-separator
-                          'help-echo (format-mode-line "Buffer size:\n\t%IB")))
-       (:eval (propertize sml/line-number-format
-                          'face 'sml/line-number
-                          'help-echo (format-mode-line "Buffer size:\n\t%IB")))
-       
-       ;; Modified status
-       (:eval
-        (cond ((not (verify-visited-file-modtime))
-               (propertize "M"
-                           'face 'sml/outside-modified
-                           'help-echo "Modified outside Emacs!\nRevert first!"))
-              (buffer-read-only
-               (propertize "R"
-                           'face 'sml/read-only
-                           'help-echo "Read-Only Buffer"))
-              ((buffer-modified-p)
-               (propertize sml/modified-char
-                           'face 'sml/modified
-                           'help-echo (if (buffer-file-name)
-                                          (format-time-string
-                                           sml/modified-time-string
-                                           (nth 5 (file-attributes (buffer-file-name))))
-                                        "Buffer Modified")))
-              (t
-               (propertize " "
-                           'face 'sml/not-modified
-                           'help-echo "Buffer Not Modified"))))
-       sml/anchor-after-status
-       
-       ;; Full path to buffer/file name
-       (:eval
-        (let* ((prefix (sml/get-prefix (sml/replacer (abbreviate-file-name (sml/get-directory)))))
-               (bufname (sml/buffer-name))
-               ;; (if (and (buffer-file-name) (file-directory-p (buffer-file-name)))
-               ;; 			   "" (buffer-name))
-               (dirsize (max 0 (- (abs sml/name-width) (length prefix) (length bufname))))
-               (dirstring (funcall sml/shortener-func (sml/get-directory) dirsize)))
-          
-          (propertize (concat (sml/propertize-prefix (replace-regexp-in-string "%" "%%" prefix))
-                              (propertize (replace-regexp-in-string "%" "%%" dirstring) 'face 'sml/folder)
-                              (propertize (replace-regexp-in-string "%" "%%" bufname) 'face 'sml/filename)
-                              (make-string (max 0 (- dirsize (length dirstring))) ?\ ))
-                      'help-echo (or (buffer-file-name) (buffer-name)))))
-       
-       sml/anchor-before-major-mode
-       
-       ;; The modes list 
-       (:eval (propertize (format-mode-line mode-name)
-                          'mouse-face  'mode-line-highlight
-                          'face        'sml/modes
-                          'local-map   mode-line-major-mode-keymap
-                          'help-echo   sml/major-help-echo))
-       
-       ;; The mode line process, doesn't get counted into the width
-       ;; limit. The only mode I know that uses this is Term.
-       (:propertize ("" mode-line-process)
-                    'mouse-face 'mode-line-highlight
-                    'face       'sml/modes
-                    'help-echo	sml/major-help-echo)
-       
-       ;; Minor modes list
-       (:eval (sml/extract-minor-modes minor-mode-alist sml/mode-width))
-       sml/anchor-after-minor-modes
-       
-       ;; ;; Battery
-       ;; (:propertize battery-mode-line-string face sml/battery)
-       
-       ;; Extra strings. I know that at least perpective, mew, and battery use this
-       global-mode-string
-       
-       ;; add the time, with the date and the emacs uptime in the tooltip
-       (:eval (if sml/show-time
-                  (propertize (format-time-string sml/time-format)
-                              'face 'sml/time
-                              'help-echo (concat (format-time-string "%c;")
-                                                 (emacs-uptime "\nUptime: %hh")))))))
-    
-    ;; This is a simplified version of the actual mode-line. It's
-    ;; supposed to have the same width but none of the fancy faces and
-    ;; WITHOUT the right indentation. It is used for width calculation
-    ;; by the indentation function.
-    (setq sml/simplified-mode-line
-          '("%e" (:eval (if sml/show-client "-"))
-            (:eval (concat sml/col-number-format sml/numbers-separator sml/line-number-format))
-            "-"                         ;Modified state
-            (:eval
-             (let* ((prefix (sml/get-prefix (sml/replacer (abbreviate-file-name (sml/get-directory)))))
-                    (bufname (sml/buffer-name))
-                    (dirsize (max 4 (- (abs sml/name-width) (length prefix) (length bufname))))
-                    (dirstring (funcall sml/shortener-func (sml/get-directory) dirsize)))
-               (concat prefix dirstring bufname (make-string (max 0 (- dirsize (length dirstring))) ?\ ))))
-            mode-name ("" mode-line-process)
-            ;; This line is the only different one.
-            (:eval (sml/simplified-extract-minor-modes minor-mode-alist sml/mode-width))
-            ;; battery-mode-line-string ; this is already contained in the global-mode-string
-            global-mode-string
-            (:eval (if sml/show-time (format-time-string sml/time-format)))
-            sml/simplified-mode-line-patchy-fix
-            sml/anchor-beginning sml/anchor-after-status
-            sml/anchor-before-major-mode sml/anchor-after-minor-modes))
+
+    ;; Set the mode-line
+    (setq-default mode-line-format sml/mode-line-format)
     
     ;; Battery support
     (eval-after-load 'battery
@@ -730,22 +702,36 @@ called straight from your init file."
     
     ;; Mew support
     (eval-after-load "mew-net"
-      '(defadvice mew-biff-clear (around sml/mew-biff-clear-advice activate)
-         "Advice used to customize mew-biff-bark to fit sml's style."
-         ad-do-it
-         (when sml/mew-support
-           ;; Remove the color
-           (set-face-attribute 'mode-line nil :background sml/active-background-color))))
-    (eval-after-load "mew-net"
-      '(defadvice mew-biff-bark (around sml/mew-biff-bark-advice (n) activate)
-         "Advice used to customize mew-biff-bark to fit sml's style."
-         ad-do-it
-         (when sml/mew-support
-           ;; Remove the color if mail has been read.
-           (if (= n 0) (set-face-attribute 'mode-line nil :background sml/active-background-color)
-             ;; Apply color if there's mail.
-             (set-face-attribute 'mode-line nil :background sml/new-mail-background-color)
-             (setq mew-biff-string (format sml/mew-biff-format n))))))
+      '(progn
+         (defcustom sml/new-mail-background-color "#110000"
+           "When new mail arrives, mode-line background will be tinted this color.
+
+Only works with mew-biff. Right now it stays colored until you
+read the mail, so this color should probably be something sutil.
+Might implement a quick flash eventually."
+           :type 'color
+           :group 'smart-mode-line
+           :package-version '(smart-mode-line . "1.11"))
+         (defcustom sml/mew-biff-format "%2d"
+           "Format used for new-mail notifications if you use mew with biff."
+           :type 'string
+           :group 'smart-mode-line
+           :package-version '(smart-mode-line . "1.11"))
+         (defadvice mew-biff-clear (around sml/mew-biff-clear-advice activate)
+          "Advice used to customize mew-biff-bark to fit sml's style."
+          ad-do-it
+          (when sml/mew-support
+            ;; Remove the color
+            (set-face-attribute 'mode-line nil :background sml/active-background-color)))
+         (defadvice mew-biff-bark (around sml/mew-biff-bark-advice (n) activate)
+           "Advice used to customize mew-biff-bark to fit sml's style."
+           ad-do-it
+           (when sml/mew-support
+             ;; Remove the color if mail has been read.
+             (if (= n 0) (set-face-attribute 'mode-line nil :background sml/active-background-color)
+               ;; Apply color if there's mail.
+               (set-face-attribute 'mode-line nil :background sml/new-mail-background-color)
+               (setq mew-biff-string (format sml/mew-biff-format n)))))))
 
     ;; sml-modeline support
     (eval-after-load "sml-modeline"
@@ -807,7 +793,8 @@ duplicated buffer names) from being displayed."
   (max 0
        (+ sml/extra-filler
           (- (window-width)
-             (length (format-mode-line sml/simplified-mode-line))))))
+             (cl-flet ((sml/extract-minor-modes (x y) (sml/simplified-extract-minor-modes x y)))
+               (length (format-mode-line sml/simplified-mode-line)))))))
 
 (defun sml/check-hidden-modes ()
   "Checks if `sml/hidden-modes' is using the new syntax. 
@@ -860,7 +847,6 @@ New syntax means the items should start with a space."
                              (mapconcat 'identity nameList "\n  ")))
          (propertized-full-mode-string (propertize sml/full-mode-string
                                                    'help-echo helpString
-                                                   ;; 'mouse-face 'mode-line-highlight
                                                    'face 'sml/folder)))
     (dolist (name nameList out)
       (unless (member name sml/hidden-modes) ; :test #'equal
