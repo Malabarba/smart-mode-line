@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.20
+;; Version: 1.21
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -143,6 +143,9 @@
 ;; 
 
 ;;; Change Log:
+;; 1.21 - 20130714 - Encoding description.
+;; 1.21 - 20130714 - Reestructured some of the present functions.
+;; 1.21 - 20130714 - New position indicator.
 ;; 1.20 - 20130714 - vc-mode support.
 ;; 1.19 - 20130714 - Reorganized groups.
 ;; 1.18 - 20130712 - mew variables only get created if mew is loaded.
@@ -187,9 +190,9 @@
 
 ;; (eval-when-compile (require 'cl))
 
-(defconst sml/version "1.20" "Version of the smart-mode-line.el package.")
+(defconst sml/version "1.21" "Version of the smart-mode-line.el package.")
 
-(defconst sml/version-int 20 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version-int 21 "Version of the smart-mode-line.el package, as an integer.")
 
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
@@ -211,13 +214,19 @@
   "Customization group for the `smart-mode-line.el' package."
   :group 'convenience)
 
-(defgroup smart-mode-line-mode-line '()
-  "Group for editing the mode-line created by `sml/setup'."
+;; (defgroup smart-mode-line-mode-line '()
+;;   "Group for editing the mode-line created by `sml/setup'."
+;;   :group 'smart-mode-line)
+(defgroup smart-mode-line-position '()
+  "Group for editing the major/minor mode list."
   :group 'smart-mode-line)
 (defgroup smart-mode-line-path&prefix '()
   "Group for editing the path, buffer-name, and prefix."
   :group 'smart-mode-line)
 (defgroup smart-mode-line-mode-list '()
+  "Group for editing the major/minor mode list."
+  :group 'smart-mode-line)
+(defgroup smart-mode-line-others '()
   "Group for editing the major/minor mode list."
   :group 'smart-mode-line)
 
@@ -236,6 +245,22 @@ set `sml/override-theme' to nil."
   :group 'smart-mode-line
   :group 'faces)
 
+
+(defvar sml/shortener-func 'sml/do-shorten-directory
+  "Function used to shorten the directory name.
+
+Value is a funcallable symbol that takes two arguments: the
+string to be shortened and the maximum size. This is set
+automatically when `sml/shorten-directory' is changed via the
+customization menu or via the `sml/toggle-shorten-directory'
+function (which are the only ways you should change it).")
+
+(defun sml/set-shortener-func (sym val)
+  "Configure `sml/shortener-func' according to `sml/shorten-directory'."
+  (set-default sym val)
+  (if val (setq sml/shortener-func 'sml/do-shorten-directory)
+    (setq sml/shortener-func 'sml/not-shorten-directory)))
+
 (defcustom sml/override-theme t
   "For any value other than nil, sml will override your theme's foreground and background colors for the modeline. 
 
@@ -243,15 +268,15 @@ Even if this is nil many modeline elements use sml's custom
 colors. This variable only defines whether we change the
 `modeline' and `modeline-inactive' faces."
   :type 'boolean
-  :group 'smart-mode-line)
+  :group 'smart-mode-line-faces)
 
 (defcustom sml/mew-support t
   "Whether to flash the mode-line when mew detects new mail."
   :type 'boolean
-  :group 'smart-mode-line
+  :group 'smart-mode-line-others
   :package-version '(smart-mode-line . "1.11"))
 
-(defcustom sml/size-indication-format "%p"
+(defcustom sml/position-percentage-format " %p"
   "Format used to display line number.
 
 Empty it to hide the number."
@@ -280,12 +305,12 @@ Empty it to hide the number."
 (defcustom sml/show-client nil
   "Whether to show an \"@\" for emacsclient frames."
   :type 'boolean
-  :group 'smart-mode-line)
+  :group 'smart-mode-line-others)
 
 (defcustom sml/modified-char (char-to-string (if (char-displayable-p ?×) ?× ?*))
   "String that indicates if buffer is modified. Should be one SINGLE char."
   :type 'string
-  :group 'smart-mode-line
+  :group 'smart-mode-line-others
   :package-version '(smart-mode-line . "1.16"))
 
 (defcustom sml/show-trailing-N t
@@ -406,7 +431,7 @@ Otherwise, this is both the minimum and maximum width."
   :type 'string
   :group 'smart-mode-line-mode-list)
 
-(defcustom sml/shorten-modes nil
+(defcustom sml/shorten-modes t
   "Should modes list be shortened to fit width?
 
 When the modes list is longer than `sml/mode-width':
@@ -418,7 +443,7 @@ When the modes list is longer than `sml/mode-width':
 (defcustom sml/show-battery t
   "Whether to show the battery percentage at the end of the mode-line."
   :type 'boolean
-  :group 'smart-mode-line)
+  :group 'smart-mode-line-others)
 
 (defcustom sml/battery-format " %p"
   "Format used to display the battery in the mode-line.
@@ -426,39 +451,24 @@ When the modes list is longer than `sml/mode-width':
 Only relevant if using `display-battery-mode'. See that function
 for the syntax."
   :type 'string
-  :group 'smart-mode-line)
+  :group 'smart-mode-line-others)
 
 (defcustom sml/time-format " %H:%M"
   "Format used to display the time in the mode-line.
 
 Only relevant if `sml/show-time' is not nil."
   :type 'string
-  :group 'smart-mode-line)
+  :group 'smart-mode-line-others)
 
 (defcustom sml/show-time nil
   "Whether to show the time at the end of the mode-line."
   :type 'boolean
-  :group 'smart-mode-line)
+  :group 'smart-mode-line-others)
 
 (defcustom sml/persp-selected-color "Green"
   "Replace `persp-selected-color', otherwise it's unreadable."
   :type 'string
-  :group 'smart-mode-line)
-
-(defvar sml/shortener-func 'sml/do-shorten-directory
-  "Function used to shorten the directory name.
-
-Value is a funcallable symbol that takes two arguments: the
-string to be shortened and the maximum size. This is set
-automatically when `sml/shorten-directory' is changed via the
-customization menu or via the `sml/toggle-shorten-directory'
-function (which are the only ways you should change it).")
-
-(defun sml/set-shortener-func (sym val)
-  "Configure `sml/shortener-func' according to `sml/shorten-directory'."
-  (set-default sym val)
-  (if val (setq sml/shortener-func 'sml/do-shorten-directory)
-    (setq sml/shortener-func 'sml/not-shorten-directory)))
+  :group 'smart-mode-line-others)
 
 (defcustom sml/modified-time-string "Modified on %T %Y-%m-%d."
   "String format used for displaying the modified time.
@@ -467,7 +477,7 @@ This is shown in the tooltip when hovering over the \"modified
 file\" character (which is usually a * right before the file
 name."
   :type 'string
-  :group 'smart-mode-line)
+  :group 'smart-mode-line-others)
 
 (defconst sml/major-help-echo
   "Mouse-1: mode menu.\nMouse-2: mode help.\nMouse-3: toggle minor modes.")
@@ -477,7 +487,7 @@ name."
   :type 'boolean
   :group 'smart-mode-line)
 
-(defcustom sml/extra-filler 2
+(defcustom sml/extra-filler 0
   "The number of extra filling chars to use. It comes into play when `sml/mode-width' is set to 'full.
 
 This is necessary because the mode-line width (which we need but
@@ -487,7 +497,7 @@ have access to).
 Decrease this if right indentation seems to be going too far (or
 if you just want to fine-tune it)."
   :type 'integer
-  :group 'smart-mode-line)
+  :group 'smart-mode-line-mode-list)
 
 ;; Color definitions
 (defcustom sml/active-foreground-color "gray60"
@@ -521,11 +531,14 @@ if you just want to fine-tune it)."
                               :foreground "white"
                               :weight bold))
   "" :group 'smart-mode-line-faces)
+(defface sml/position-percentage '((t :inherit sml/filename
+                              :weight normal))
+  "" :group 'smart-mode-line-faces)
 (defface sml/col-number '((t :inherit sml/global))
   "" :group 'smart-mode-line-faces)
 (defface sml/numbers-separator '((t :inherit sml/global))
   "" :group 'smart-mode-line-faces)
-(defface sml/client '((t :inherit sml/global))
+(defface sml/client '((t :inherit sml/prefix))
   "" :group 'smart-mode-line-faces)
 (defface sml/not-modified '((t :inherit sml/global))
   "" :group 'smart-mode-line-faces)
@@ -549,7 +562,7 @@ if you just want to fine-tune it)."
 (defface sml/git '((t :foreground "DeepSkyBlue"
                       :inherit sml/prefix))
   "" :group 'smart-mode-line-faces)
-(defface sml/vc '((t :inherit sml/git))
+(defface sml/mule-info '((t :inherit sml/prefix))
   "" :group 'smart-mode-line-faces)
 (defface sml/folder '((t :inherit sml/global
                          ))
@@ -561,13 +574,17 @@ if you just want to fine-tune it)."
 (defface sml/modes '((t :inherit sml/global
                         :foreground "White"))
   "" :group 'smart-mode-line-faces)
+(defface sml/process '((t :inherit sml/prefix))
+  "" :group 'smart-mode-line-faces)
+(defface sml/vc '((t :inherit sml/git))
+  "" :group 'smart-mode-line-faces)
 (defface sml/charging '((t :inherit sml/global 
                            :foreground "green"))
   "" :group 'smart-mode-line-faces)
 (defface sml/discharging '((t :inherit sml/global 
                               :foreground "red"))
   "" :group 'smart-mode-line-faces)
-(defface sml/time '((t :inherit sml/filename))
+(defface sml/time '((t :inherit sml/modes))
   "" :group 'smart-mode-line-faces)
 
 ;; Anchors
@@ -578,43 +595,66 @@ if you just want to fine-tune it)."
 (defconst sml/simplified-mode-line-patchy-fix ""
   "Fix for filling to work with packages that manually edit the mode-line.")
 
+(defcustom sml/show-encoding nil
+  "Whether to display the buffer encoding in the mode-line."
+  :type 'boolean
+  :group 'smart-mode-line-others
+  :package-version '(smart-mode-line . "1.20"))
+
+(defcustom sml/outside-modified-char "M"
+  "Char to display if buffer needs to be reverted."
+  :type 'string
+  :group 'smart-mode-line-others
+  :package-version '(smart-mode-line . "1.20"))
+
+(defcustom sml/mule-info "%z"
+  "Multilingual information. Set this to nil to hide it."
+  :type '(choice string (const :tag "Don't display." nil))
+  :group 'smart-mode-line-others
+  :package-version '(smart-mode-line . "1.20"))
+
+(defcustom sml/read-only-char "R"
+  "Displayed when buffer is readonly."
+  :type 'string
+  :group 'smart-mode-line-others
+  :package-version '(smart-mode-line . "1.20"))
+
 (defcustom sml/mode-line-format
-  '(;; This is used for some error that I've never seen happen.
+  `(;; This is used for some error that I've never seen happen.
     (:propertize "%e" face sml/warning)
 
     ;; Anchor
     sml/anchor-beginning
     
     ;; emacsclient
-    (:eval (if sml/show-client (if (frame-parameter nil 'client)
-                                   (propertize "@"
-                                               'face 'sml/client
-                                               'help-echo "emacsclient frame")
-                                 " ")))
+    (sml/show-client
+     (:eval (if (frame-parameter nil 'client)
+                ,(propertize "@" 'face 'sml/client 'help-echo "emacsclient frame")
+              " ")))
     
     ;; Position
     (:eval
-     (let ((hText (format-mode-line
-                   (format "Buffer size:\n\t%%IB\nNumber of Lines:\n\t%s"
-                           (line-number-at-pos (point-max))))))
-       (concat (propertize sml/col-number-format  'face 'sml/col-number
-                           'help hText)
-               (propertize sml/numbers-separator  'face 'sml/numbers-separator
-                           'help hText)
-               (propertize (if size-indication-mode sml/size-indication-format sml/line-number-format)
-                           'face 'sml/line-number
-                           'help hText))))
+     (let ((hText (format-mode-line (format "Buffer size:\n\t%%IB\nNumber of Lines:\n\t%s\nCurrent Line:\n\t%%l"
+                                            (line-number-at-pos (point-max))))))
+       `((column-number-mode ,(propertize sml/col-number-format  'face 'sml/col-number        'help-echo hText))
+         (column-number-mode ,(propertize sml/numbers-separator  'face 'sml/numbers-separator 'help-echo hText))
+         (line-number-mode   ,(propertize sml/line-number-format 'face 'sml/line-number       'help-echo hText)))))
+    
+    ;; Encoding. should we do eol format here? (it's displayed by %Z, but very spacious)
+    ("" ,(propertize sml/mule-info
+                     'face 'sml/mule-info
+                     'help-echo 'mode-line-mule-info-help-echo
+                     'mouse-face 'mode-line-highlight
+                     'local-map mode-line-coding-system-map)) 
     
     ;; Modified status
     (:eval
      (cond ((not (verify-visited-file-modtime))
-            (propertize "M"
-                        'face 'sml/outside-modified
-                        'help-echo "Modified outside Emacs!\nRevert first!"))
-           (buffer-read-only
-            (propertize "R"
-                        'face 'sml/read-only
-                        'help-echo "Read-Only Buffer"))
+            ,(propertize sml/outside-modified-char 'face 'sml/outside-modified
+                         'help-echo "Modified outside Emacs!\nRevert first!"))
+           (buffer-read-only ,(propertize sml/read-only-char
+                                          'face 'sml/read-only
+                                          'help-echo "Read-Only Buffer"))
            ((buffer-modified-p)
             (propertize sml/modified-char
                         'face 'sml/modified
@@ -624,10 +664,9 @@ if you just want to fine-tune it)."
                                         (nth 5 (file-attributes (buffer-file-name))))
                                      "Buffer Modified")
                         'local-map '(keymap (mode-line keymap (mouse-1 . save-buffer)))))
-           (t
-            (propertize " "
-                        'face 'sml/not-modified
-                        'help-echo "Buffer Not Modified"))))
+           (t " ")))
+
+    
     ;; Anchor
     sml/anchor-after-status
     
@@ -649,10 +688,15 @@ if you just want to fine-tune it)."
                    'mouse-face 'mode-line-highlight
                    'local-map   mode-line-buffer-identification-keymap)))
     
+    (-4 ,(propertize sml/position-percentage-format 'face 'sml/position-percentage 'help-echo
+                     (format-mode-line (format "Buffer size:\n\t%%IB\nNumber of Lines:\n\t%s\nCurrent Line:\n\t%%l"
+                                               (line-number-at-pos (point-max))))))
+    
     ;; Anchor
     sml/anchor-before-major-mode
     
-    ;; The modes list 
+    " "
+    ;; The modes list
     (:eval (propertize (format-mode-line mode-name)
                        'mouse-face  'mode-line-highlight
                        'face        'sml/modes
@@ -664,10 +708,8 @@ if you just want to fine-tune it)."
     
     ;; The mode line process, doesn't get counted into the width
     ;; limit. The only mode I know that uses this is Term.
-    (:propertize ("" mode-line-process)
-                 'mouse-face 'mode-line-highlight
-                 'face       'sml/modes
-                 'help-echo	sml/major-help-echo)
+    (:eval (propertize (format-mode-line mode-line-process) ;("" mode-line-process)
+                       'face       'sml/process))
     
     ;; Minor modes list
     (:eval (sml/extract-minor-modes minor-mode-alist sml/mode-width))
@@ -675,21 +717,18 @@ if you just want to fine-tune it)."
     ;; Anchor
     sml/anchor-after-minor-modes
     
-    ;; ;; Battery
-    ;; (:propertize battery-mode-line-string face sml/battery)
-    
-    ;; Extra strings. I know that at least perpective, mew, and battery use this
-    global-mode-string
+    ;; Extra strings. I know that at least perpective, mew, and battery use this ;; global-mode-string
+    mode-line-misc-info
     
     ;; add the time, with the date and the emacs uptime in the tooltip
-    (:eval (if sml/show-time
-               (propertize (format-time-string sml/time-format)
-                           'face 'sml/time
-                           'help-echo (concat (format-time-string "%c;")
-                                              (emacs-uptime "\nUptime: %hh"))))))
+    (sml/show-time
+     (:eval (propertize (format-time-string sml/time-format)
+                        'face 'sml/time
+                        'help-echo (concat (format-time-string "%c;")
+                                           (emacs-uptime "\nUptime: %hh"))))))
   "Mode-line format to be applied when you activate `sml/setup'."
   :type 'list
-  :group 'smart-mode-line-mode-line
+  :group 'smart-mode-line;-mode-line
   :package-version '(smart-mode-line . "1.18"))
 
 ;;;###autoload
@@ -703,6 +742,7 @@ This should be called after any themes have been applied, which
 is why it is better to add as an `after-init-hook' than to be
 called straight from your init file."
   (interactive)
+  (setq sml/simplified nil)
   (if (and (integerp arg) (< arg 1))
       (sml/revert)
     ;; We this to make the mode-line readable in lighter backgrounds
@@ -771,7 +811,11 @@ Might implement a quick flash eventually."
 
     ;; sml-modeline support
     (eval-after-load "sml-modeline"
-      '(sml/sml-modeline-support))))
+      '(sml/sml-modeline-support))
+
+    ;; sml-modeline support
+    (eval-after-load "nyan-mode"
+      '(sml/nyan-support))))
 
 (defun sml/sml-modeline-support ()
   "Create a variable regarding `sml-modeline-mode' and insert `sml-modeline-create' in one of the anchors."
@@ -800,6 +844,33 @@ Value must be a symbol, the name of the anchor. Possible anchors are:
       (setq sml/anchor-before-major-mode (delete '(:eval (sml-modeline-create)) sml/anchor-before-major-mode))
       (setq sml/anchor-after-minor-modes (delete '(:eval (sml-modeline-create)) sml/anchor-after-minor-modes)))))
 
+(defun sml/nyan-support ()
+  "Create a variable regarding `nyan-mode' and insert `nyan-create' in one of the anchors."
+  ;; Define the variable which specifies the position
+  (defcustom sml/nyan-position 'sml/anchor-before-major-mode
+    "In which anchor should nyan be inserted?
+
+Value must be a symbol, the name of the anchor. Possible anchors are:
+`sml/anchor-beginning'
+`sml/anchor-after-status'
+`sml/anchor-before-major-mode'
+`sml/anchor-after-minor-modes'"
+    :type 'symbol
+    :group 'smart-mode-line
+    :package-version '(smart-mode-line . "1.14"))
+  ;; If the mode is already activated, insert the creator
+  (when nyan-mode
+    (add-to-list sml/nyan-position '(:eval (nyan-create))))
+  ;; Remove and insert the creator when the mode is toggled
+  (defadvice nyan-mode (after sml/after-nyan-mode-advice () activate)
+    "Insert and remove `nyan-create' from the anchor specified in `sml/nyan-position'."
+    (if nyan-mode
+        (add-to-list sml/nyan-position '(:eval (nyan-create)))
+      (setq sml/anchor-beginning (delete '(:eval (nyan-create)) sml/anchor-beginning))
+      (setq sml/anchor-after-status (delete '(:eval (nyan-create)) sml/anchor-after-status))
+      (setq sml/anchor-before-major-mode (delete '(:eval (nyan-create)) sml/anchor-before-major-mode))
+      (setq sml/anchor-after-minor-modes (delete '(:eval (nyan-create)) sml/anchor-after-minor-modes)))))
+
 (defun sml/buffer-name ()
   "Uses `sml/show-file-name' to decide between buffer name or file name to show on the mode-line.
 
@@ -827,10 +898,10 @@ duplicated buffer names) from being displayed."
 (defun sml/fill-width-available ()
   "Return the size available for filling."
   (max 0
-       (+ sml/extra-filler
+       (+ sml/extra-filler 
           (- (window-width)
-             (cl-flet ((sml/extract-minor-modes (x y) (sml/simplified-extract-minor-modes x y)))
-               (length (format-mode-line sml/simplified-mode-line)))))))
+             (let ((sml/simplified t))
+               (length (format-mode-line mode-line-format)))))))
 
 (defun sml/check-hidden-modes ()
   "Checks if `sml/hidden-modes' is using the new syntax. 
@@ -875,39 +946,41 @@ New syntax means the items should start with a space."
 
 (defun sml/extract-minor-modes (ml maxSize)
   "Extracts all rich strings necessary for the minor mode list."
-  (let* ((nameList (sml/mode-list-to-string-list (reverse ml)))
-         (out nil)
-         (size (if (equal maxSize 'full) (sml/fill-width-available)
-                 maxSize))
-         (helpString (concat "Full list:\n  "
-                             (mapconcat 'identity nameList "\n  ")))
-         (propertized-full-mode-string (propertize sml/full-mode-string
-                                                   'help-echo helpString
-                                                   'face 'sml/folder)))
-    (dolist (name nameList out)
-      (unless (member name sml/hidden-modes) ; :test #'equal
-        ;; If we're shortenning, check if it fits
-        (when (and sml/shorten-modes (< size (length name)))
-          ;; If the remaining size is too small even for the
-          ;; `sml/full-mode-string', get rid of the last string.
-          ;; (This won't work perfectly if the last string is
-          ;; smaller then `sml/full-mode-string', but that should be
-          ;; rare.)
-          (when (< size (length sml/full-mode-string)) (setq out (cdr out)))
-          (add-to-list 'out propertized-full-mode-string t)
-          (decf size (length sml/full-mode-string))
-          (return))
-        ;; If it fits or we're not shortenning, append the next one.
-        (decf size (length name))
-        (add-to-list 'out (propertize name
-                                      'help-echo helpString
-                                      'mouse-face 'mode-line-highlight
-                                      'face 'sml/folder
-                                      'local-map mode-line-minor-mode-keymap))))
-    ;; Fill with spaces, unless size is negative.
-    (append out (list (propertize (make-string (max 0 size) ?\ )
-                                  'help-echo helpString
-                                  'face 'sml/folder)))))
+  (if sml/simplified
+      (sml/simplified-extract-minor-modes ml maxSize)
+   (let* ((nameList (sml/mode-list-to-string-list (reverse ml)))
+          (out nil)
+          (size (if (equal maxSize 'full) (sml/fill-width-available)
+                  maxSize))
+          (helpString (concat "Full list:\n  "
+                              (mapconcat 'identity nameList "\n  ")))
+          (propertized-full-mode-string (propertize sml/full-mode-string
+                                                    'help-echo helpString
+                                                    'face 'sml/folder)))
+     (dolist (name nameList out)
+       (unless (member name sml/hidden-modes) ; :test #'equal
+         ;; If we're shortenning, check if it fits
+         (when (and sml/shorten-modes (< size (length name)))
+           ;; If the remaining size is too small even for the
+           ;; `sml/full-mode-string', get rid of the last string.
+           ;; (This won't work perfectly if the last string is
+           ;; smaller then `sml/full-mode-string', but that should be
+           ;; rare.)
+           (when (< size (length sml/full-mode-string)) (setq out (cdr out)))
+           (add-to-list 'out propertized-full-mode-string t)
+           (decf size (length sml/full-mode-string))
+           (return))
+         ;; If it fits or we're not shortenning, append the next one.
+         (decf size (length name))
+         (add-to-list 'out (propertize name
+                                       'help-echo helpString
+                                       'mouse-face 'mode-line-highlight
+                                       'face 'sml/folder
+                                       'local-map mode-line-minor-mode-keymap))))
+     ;; Fill with spaces, unless size is negative.
+     (append out (list (propertize (make-string (max 0 size) ?\ )
+                                   'help-echo helpString
+                                   'face 'sml/folder))))))
 
 (defun sml/propertize-prefix (prefix)
   "Set the color of the prefix according to its contents."
@@ -1020,7 +1093,7 @@ regexp in `sml/prefix-regexp'."
 
 (defun sml/fix-evil-mode ()
   "Fix for the way evil-mode implements their 'before and 'after positions."
-  (setq sml/simplified-mode-line-patchy-fix " <E> ")
+  ;; (setq sml/simplified-mode-line-patchy-fix " <E> ")
   (if (eq evil-mode-line-format 'before)
       (setq evil-mode-line-format '(before . sml/anchor-beginning))
     (if (eq evil-mode-line-format 'after)
