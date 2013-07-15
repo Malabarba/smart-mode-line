@@ -123,10 +123,10 @@
 ;;	(add-to-list 'sml/replacer-regexp-list '("^~/Documents/Work/"			":Work:))
 ;;
 ;;	;; Added in the right order, they even work sequentially:
-;;	(add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/"				":DB:"))
 ;;	(add-to-list 'sml/replacer-regexp-list '("^:DB:Documents"			":DDocs:"))
-;;	(add-to-list 'sml/replacer-regexp-list '("^~/Git-Projects/"			":Git:"))
+;;	(add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/"				":DB:"))
 ;;	(add-to-list 'sml/replacer-regexp-list '("^:Git:\\(.*\\)/src/main/java/"	":G/\\1/SMJ:"))
+;;	(add-to-list 'sml/replacer-regexp-list '("^~/Git-Projects/"			":Git:"))
 
 ;;; License:
 ;;
@@ -336,8 +336,8 @@ just set this to \"\" to save an extra charof space."
   '(("^~/\\.emacs\\.d/" ":ED:")
     ("^/sudo:.*:" ":SU:")
     ("^~/Documents/" ":Doc:")
-    ("^:\\([^:]*\\):Documents/" ":\\1/Doc:")
     ("^~/Dropbox/" ":DB:")
+    ("^:\\([^:]*\\):Documento?s/" ":\\1/Doc:")
     ("^~/[Gg]it/" ":Git:")
     ("^~/[Gg]it[Hh]ub/" ":Git:")
     ("^~/[Gg]it-?[Pp]rojects/" ":Git:"))
@@ -355,8 +355,7 @@ default as an example, as an exception \"~/\" is also a prefix).
 
 Replacement doesn't stop on first match, so you can have stacking replacements:
 
-    (add-to-list 'sml/replacer-regexp-list '(\"^~/Dropbox/\"    \":DB:\"))
-    (add-to-list 'sml/replacer-regexp-list '(\"^:DB:Documents\" \":DDocs:\"))
+    (add-to-list 'sml/replacer-regexp-list '(\"^:DB:Org/\" \":Org:\"))
 
 You can also set custom colors (faces) for these prefixes, just
 set `sml/prefix-face-list' accordingly."
