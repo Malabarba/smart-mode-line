@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.21
+;; Version: 1.22
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -144,6 +144,9 @@
 ;; 
 
 ;;; Change Log:
+;; 1.22 - 20130715 - sml/vc-mode-show-backend implemented.
+;; 1.22 - 20130715 - move mew-support variable.
+;; 1.22 - 20130715 - Changed default value of sml/replacer-regexp-list.
 ;; 1.21 - 20130714 - Encoding description.
 ;; 1.21 - 20130714 - Reestructured some of the present functions.
 ;; 1.21 - 20130714 - New position indicator.
@@ -191,9 +194,9 @@
 
 ;; (eval-when-compile (require 'cl))
 
-(defconst sml/version "1.21" "Version of the smart-mode-line.el package.")
+(defconst sml/version "1.22" "Version of the smart-mode-line.el package.")
 
-(defconst sml/version-int 21 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version-int 22 "Version of the smart-mode-line.el package, as an integer.")
 
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
@@ -214,7 +217,6 @@
 (defgroup smart-mode-line '()
   "Customization group for the `smart-mode-line.el' package."
   :group 'convenience)
-
 ;; (defgroup smart-mode-line-mode-line '()
 ;;   "Group for editing the mode-line created by `sml/setup'."
 ;;   :group 'smart-mode-line)
@@ -269,16 +271,11 @@ Even if this is nil many modeline elements use sml's custom
 colors. This variable only defines whether we change the
 `modeline' and `modeline-inactive' faces."
   :type 'boolean
-  :group 'smart-mode-line-faces)
-
-(defcustom sml/mew-support t
-  "Whether to flash the mode-line when mew detects new mail."
-  :type 'boolean
-  :group 'smart-mode-line-others
-  :package-version '(smart-mode-line . "1.11"))
+  :group 'smart-mode-line-faces
+  :group 'smart-mode-line)
 
 (defcustom sml/position-percentage-format " %p"
-  "Format used to display line number.
+  "Format used to display position in the buffer.
 
 Empty it to hide the number."
   :type 'string
@@ -287,19 +284,22 @@ Empty it to hide the number."
 (defcustom sml/line-number-format "%3l"
   "Format used to display line number.
 
-Empty it to hide the number."
+Empty it or disable `line-number-mode' to hide the number."
   :type 'string
   :group 'smart-mode-line-position)
 
 (defcustom sml/col-number-format "%2c"
   "Format used to display column number.
 
-Empty it to hide the number."
+Empty it or disable `column-number-mode' to hide the number."
   :type 'string
   :group 'smart-mode-line-position)
 
 (defcustom sml/numbers-separator ":"
-  "Separator between line and column number."
+  "Separator between line and column number.
+
+Since we use different faces for line and column number, you can
+just set this to \"\" to save an extra charof space."
   :type 'string
   :group 'smart-mode-line-position)
 
@@ -329,19 +329,37 @@ Empty it to hide the number."
   :type 'char
   :group 'smart-mode-line-path&prefix)
 
-(defcustom sml/replacer-regexp-list '(("^~/\\.emacs\\.d/" ":ED:") ("^/sudo:.*:" ":SU:"))
-  "List of pairs of strings used by `sml/replacer'.
+(defcustom sml/replacer-regexp-list
+  '(("^~/\\.emacs\\.d/" ":ED:")
+    ("^/sudo:.*:" ":SU:")
+    ("^~/Documents/" ":Doc:")
+    ("^:\\([^:]*\\):Documents/" ":\\1/Doc:")
+    ("^~/Dropbox/" ":DB:")
+    ("^~/[Gg]it/" ":Git:")
+    ("^~/[Gg]it[Hh]ub/" ":Git:")
+    ("^~/[Gg]it-?[Pp]rojects/" ":Git:"))
+  "List of pairs of strings used (by `sml/replacer') to create prefixes.
 
 The first string of each pair is a regular expression, the second
-is a replacement. These replacements are sequentially called on
-the filename to replace portions of it. To be considered a prefix
-a string must start and end with \":\" (see the default as an
-example).
+is a replacement. These pairs are sequentially applied on the
+file path to replace portions of it, turning them into prefixes.
+For instance, \"~/.emacs.d/\" is replaced by \":ED:\", which is
+shorter but easily identified.
+
+The replacement strings can really be anything, but to be colored
+as a prefix a string must start and end with \":\" (see the
+default as an example, as an exception \"~/\" is also a prefix).
+
+Replacement doesn't stop on first match, so you can have stacking replacements:
+
+    (add-to-list 'sml/replacer-regexp-list '(\"^~/Dropbox/\"    \":DB:\"))
+    (add-to-list 'sml/replacer-regexp-list '(\"^:DB:Documents\" \":DDocs:\"))
 
 You can also set custom colors (faces) for these prefixes, just
 set `sml/prefix-face-list' accordingly."
   :type '(repeat (list regexp string))
-  :group 'smart-mode-line-path&prefix)
+  :group 'smart-mode-line-path&prefix
+  :package-version '(smart-mode-line . "1.22"))
 
 (defcustom sml/prefix-regexp '(":\\(.*:\\)" "~/")
   "List of Regexps used to identify prefixes.
@@ -355,7 +373,12 @@ parser applies that for you."
 (defcustom sml/prefix-face-list '((":SU:" sml/sudo)
                                   (":G" sml/git)
                                   ("" sml/prefix))
-  "List of (STRING FACE) pairs used by `sml/propertize-prefix'."
+  "List of (STRING FACE) pairs used by `sml/propertize-prefix'.
+
+After the file path is constructed, the prefix contained in it is
+colored according to this list. The elements are checked one by
+one and, if the prefix contains the STRING part of the pair, then
+FACE is applied to it (and checking stops there)."
   :type '(repeat (list string face))
   :group 'smart-mode-line-path&prefix)
 
@@ -440,11 +463,6 @@ When the modes list is longer than `sml/mode-width':
 	otherwise the list is shortened to fit."
   :type 'boolean
   :group 'smart-mode-line-mode-list)
-
-(defcustom sml/show-battery t
-  "Whether to show the battery percentage at the end of the mode-line."
-  :type 'boolean
-  :group 'smart-mode-line-others)
 
 (defcustom sml/battery-format " %p"
   "Format used to display the battery in the mode-line.
@@ -620,6 +638,15 @@ if you just want to fine-tune it)."
   :group 'smart-mode-line-others
   :package-version '(smart-mode-line . "1.20"))
 
+(defcustom sml/vc-mode-show-backend nil
+  "Whether to show or the backend in vc-mode's mode-line description.
+
+I think most people only use one backend, so this defaults to nil.
+ If you want it to show the backend, just set it to nil."
+  :type 'boolean
+  :group 'smart-mode-line-others    
+  :package-version '(smart-mode-line . "1.22"))
+
 (defcustom sml/mode-line-format
   `(;; This is used for some error that I've never seen happen.
     (:propertize "%e" face sml/warning)
@@ -638,7 +665,8 @@ if you just want to fine-tune it)."
      (let ((hText (format-mode-line (format "Buffer size:\n\t%%IB\nNumber of Lines:\n\t%s\nCurrent Line:\n\t%%l"
                                             (line-number-at-pos (point-max))))))
        `((column-number-mode ,(propertize sml/col-number-format  'face 'sml/col-number        'help-echo hText))
-         (column-number-mode ,(propertize sml/numbers-separator  'face 'sml/numbers-separator 'help-echo hText))
+         (column-number-mode
+          (line-number-mode  ,(propertize sml/numbers-separator  'face 'sml/numbers-separator 'help-echo hText)))
          (line-number-mode   ,(propertize sml/line-number-format 'face 'sml/line-number       'help-echo hText)))))
     
     ;; Encoding. should we do eol format here? (it's displayed by %Z, but very spacious)
@@ -771,7 +799,12 @@ called straight from your init file."
     ;; vc-mode
     (eval-after-load "vc-hooks"
       '(defadvice vc-mode-line (after sml/after-vc-mode-line-advice () activate)
-         "Color `vc-mode'." (when (stringp vc-mode) (setq vc-mode (propertize vc-mode 'face 'sml/vc)))))
+         "Color `vc-mode'."
+         (when (stringp vc-mode)
+           (setq vc-mode (propertize
+                          (if sml/vc-mode-show-backend vc-mode
+                            (replace-regexp-in-string "^ .*:" " " vc-mode))
+                          'face 'sml/vc)))))
     
     ;; evil support
     (eval-after-load "evil-core"
@@ -780,19 +813,22 @@ called straight from your init file."
     ;; Mew support
     (eval-after-load "mew-net"
       '(progn
+         (defgroup smart-mode-line-mew '() "Group for editing the mew-support variables." :group 'smart-mode-line)
+         (defcustom sml/mew-support t
+           "Whether to flash the mode-line when mew detects new mail."
+           :type 'boolean :group 'smart-mode-line-mew
+           :package-version '(smart-mode-line . "1.11"))
          (defcustom sml/new-mail-background-color "#110000"
            "When new mail arrives, mode-line background will be tinted this color.
 
 Only works with mew-biff. Right now it stays colored until you
 read the mail, so this color should probably be something sutil.
 Might implement a quick flash eventually."
-           :type 'color
-           :group 'smart-mode-line
+           :type 'color :group 'smart-mode-line-mew
            :package-version '(smart-mode-line . "1.11"))
          (defcustom sml/mew-biff-format "%2d"
            "Format used for new-mail notifications if you use mew with biff."
-           :type 'string
-           :group 'smart-mode-line
+           :type 'string :group 'smart-mode-line-mew
            :package-version '(smart-mode-line . "1.11"))
          (defadvice mew-biff-clear (around sml/mew-biff-clear-advice activate)
            "Advice used to customize mew-biff-bark to fit sml's style."
