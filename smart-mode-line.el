@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.23
+;; Version: 1.23.1
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -144,6 +144,7 @@
 ;; 
 
 ;;; Change Log:
+;; 1.23.1 - 20130715 - moved perspective variable to eval-after-load.
 ;; 1.23 - 20130715 - added an icon to mew-format.
 ;; 1.23 - 20130715 - obsolete sml/show-time.
 ;; 1.23 - 20130715 - fixed a bug which required emacs restart for changes to take effect.
@@ -197,9 +198,9 @@
 
 ;; (eval-when-compile (require 'cl))
 
-(defconst sml/version "1.23" "Version of the smart-mode-line.el package.")
+(defconst sml/version "1.23.1" "Version of the smart-mode-line.el package.")
 
-(defconst sml/version-int 23 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version-int 24 "Version of the smart-mode-line.el package, as an integer.")
 
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
@@ -489,11 +490,6 @@ for the syntax."
 ;;   "Whether to show the time at the end of the mode-line."
 ;;   :type 'boolean
 ;;   :group 'smart-mode-line-others)
-
-(defcustom sml/persp-selected-color "Green"
-  "Replace `persp-selected-color', otherwise it's unreadable."
-  :type 'string
-  :group 'smart-mode-line-others)
 
 (defcustom sml/modified-time-string "Modified on %T %Y-%m-%d."
   "String format used for displaying the modified time.
@@ -818,7 +814,12 @@ called straight from your init file."
     
     ;; Perspective support
     (eval-after-load "perspective"
-      '(set-face-foreground 'persp-selected-face sml/persp-selected-color))
+      '(progn
+         (defcustom sml/persp-selected-color "Green"
+           "Replace `persp-selected-color', otherwise it's unreadable."
+           :type 'string
+           :group 'smart-mode-line-others)
+         (set-face-foreground 'persp-selected-face sml/persp-selected-color)))
     
     ;; vc-mode
     (eval-after-load "vc-hooks"
