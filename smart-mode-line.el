@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.23.1
+;; Version: 1.23.2
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -144,6 +144,7 @@
 ;; 
 
 ;;; Change Log:
+;; 1.23.2 - 20130715 - Changed doc of sml/replacer-regexp-list.
 ;; 1.23.1 - 20130715 - moved perspective variable to eval-after-load.
 ;; 1.23 - 20130715 - added an icon to mew-format.
 ;; 1.23 - 20130715 - obsolete sml/show-time.
@@ -198,9 +199,9 @@
 
 ;; (eval-when-compile (require 'cl))
 
-(defconst sml/version "1.23.1" "Version of the smart-mode-line.el package.")
+(defconst sml/version "1.23.2" "Version of the smart-mode-line.el package.")
 
-(defconst sml/version-int 24 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version-int 25 "Version of the smart-mode-line.el package, as an integer.")
 
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
@@ -356,7 +357,10 @@ default as an example, as an exception \"~/\" is also a prefix).
 
 Replacement doesn't stop on first match, so you can have stacking replacements:
 
-    (add-to-list 'sml/replacer-regexp-list '(\"^:DB:Org/\" \":Org:\"))
+    (add-to-list 'sml/replacer-regexp-list '(\"^:DB:Org/\" \":Org:\") t)
+
+Remember that `add-to-list' adds items to the FRONT, and you'll
+usually want to add them to the back (thus the `t' at the end).
 
 You can also set custom colors (faces) for these prefixes, just
 set `sml/prefix-face-list' accordingly."
