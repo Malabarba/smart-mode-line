@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.22
+;; Version: 1.23
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -144,6 +144,9 @@
 ;; 
 
 ;;; Change Log:
+;; 1.23 - 20130715 - added an icon to mew-format.
+;; 1.23 - 20130715 - obsolete sml/show-time.
+;; 1.23 - 20130715 - fixed a bug which required emacs restart for changes to take effect.
 ;; 1.22 - 20130715 - sml/vc-mode-show-backend implemented.
 ;; 1.22 - 20130715 - move mew-support variable.
 ;; 1.22 - 20130715 - Changed default value of sml/replacer-regexp-list.
@@ -194,9 +197,9 @@
 
 ;; (eval-when-compile (require 'cl))
 
-(defconst sml/version "1.22" "Version of the smart-mode-line.el package.")
+(defconst sml/version "1.23" "Version of the smart-mode-line.el package.")
 
-(defconst sml/version-int 22 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version-int 23 "Version of the smart-mode-line.el package, as an integer.")
 
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
@@ -472,17 +475,21 @@ for the syntax."
   :type 'string
   :group 'smart-mode-line-others)
 
-(defcustom sml/time-format " %H:%M"
-  "Format used to display the time in the mode-line.
+(defvaralias 'sml/time-format 'display-time-format
+  "This variable is now obsolete. Use the standard `display-time-format'.")
+;; (defcustom sml/time-format " %H:%M"
+;;   "Format used to display the time in the mode-line.
 
-Only relevant if `sml/show-time' is not nil."
-  :type 'string
-  :group 'smart-mode-line-others)
+;; Only relevant if `sml/show-time' is not nil."
+;;   :type 'string
+;;   :group 'smart-mode-line-others)
 
-(defcustom sml/show-time nil
-  "Whether to show the time at the end of the mode-line."
-  :type 'boolean
-  :group 'smart-mode-line-others)
+(defvaralias 'sml/show-time 'display-time-mode
+  "This variable is now obsolete. Use the standard `display-time-mode'.")
+;; (defcustom sml/show-time nil
+;;   "Whether to show the time at the end of the mode-line."
+;;   :type 'boolean
+;;   :group 'smart-mode-line-others)
 
 (defcustom sml/persp-selected-color "Green"
   "Replace `persp-selected-color', otherwise it's unreadable."
@@ -628,11 +635,12 @@ if you just want to fine-tune it)."
   :group 'smart-mode-line-others
   :package-version '(smart-mode-line . "1.20"))
 
-(defcustom sml/mule-info "%z"
+(defvaralias 'sml/encoding-format 'sml/mule-info)
+(defcustom sml/mule-info " %z"
   "Multilingual information. Set this to nil to hide it."
   :type '(choice string (const :tag "Don't display." nil))
   :group 'smart-mode-line-others
-  :package-version '(smart-mode-line . "1.20"))
+  :package-version '(smart-mode-line . "1.22"))
 
 (defcustom sml/read-only-char "R"
   "Displayed when buffer is readonly."
@@ -666,26 +674,27 @@ I think most people only use one backend, so this defaults to nil.
     (:eval
      (let ((hText (format-mode-line (format "Buffer size:\n\t%%IB\nNumber of Lines:\n\t%s\nCurrent Line:\n\t%%l"
                                             (line-number-at-pos (point-max))))))
-       `((column-number-mode ,(propertize sml/col-number-format  'face 'sml/col-number        'help-echo hText))
+       `((column-number-mode (:eval (propertize sml/col-number-format  'face 'sml/col-number        'help-echo ,hText)))
          (column-number-mode
-          (line-number-mode  ,(propertize sml/numbers-separator  'face 'sml/numbers-separator 'help-echo hText)))
-         (line-number-mode   ,(propertize sml/line-number-format 'face 'sml/line-number       'help-echo hText)))))
+          (line-number-mode  (:eval (propertize sml/numbers-separator  'face 'sml/numbers-separator 'help-echo ,hText))))
+         (line-number-mode   (:eval (propertize sml/line-number-format 'face 'sml/line-number       'help-echo ,hText))))))
     
     ;; Encoding. should we do eol format here? (it's displayed by %Z, but very spacious)
-    ("" ,(propertize sml/mule-info
-                     'face 'sml/mule-info
-                     'help-echo 'mode-line-mule-info-help-echo
-                     'mouse-face 'mode-line-highlight
-                     'local-map mode-line-coding-system-map)) 
+    (sml/show-encoding
+     (:eval (propertize sml/mule-info
+                        'face 'sml/mule-info
+                        'help-echo 'mode-line-mule-info-help-echo
+                        'mouse-face 'mode-line-highlight
+                        'local-map mode-line-coding-system-map))) 
     
     ;; Modified status
     (:eval
      (cond ((not (verify-visited-file-modtime))
-            ,(propertize sml/outside-modified-char 'face 'sml/outside-modified
-                         'help-echo "Modified outside Emacs!\nRevert first!"))
-           (buffer-read-only ,(propertize sml/read-only-char
-                                          'face 'sml/read-only
-                                          'help-echo "Read-Only Buffer"))
+            (propertize sml/outside-modified-char 'face 'sml/outside-modified
+                        'help-echo "Modified outside Emacs!\nRevert first!"))
+           (buffer-read-only (propertize sml/read-only-char
+                                         'face 'sml/read-only
+                                         'help-echo "Read-Only Buffer"))
            ((buffer-modified-p)
             (propertize sml/modified-char
                         'face 'sml/modified
@@ -719,9 +728,9 @@ I think most people only use one backend, so this defaults to nil.
                    'mouse-face 'mode-line-highlight
                    'local-map   mode-line-buffer-identification-keymap)))
     
-    (-4 ,(propertize sml/position-percentage-format 'face 'sml/position-percentage 'help-echo
-                     (format-mode-line (format "Buffer size:\n\t%%IB\nNumber of Lines:\n\t%s\nCurrent Line:\n\t%%l"
-                                               (line-number-at-pos (point-max))))))
+    (-4 (:eval (propertize sml/position-percentage-format 'face 'sml/position-percentage 'help-echo
+                           (format-mode-line (format "Buffer size:\n\t%%IB\nNumber of Lines:\n\t%s\nCurrent Line:\n\t%%l"
+                                                     (line-number-at-pos (point-max)))))))
     
     ;; Anchor
     sml/anchor-before-major-mode
@@ -748,15 +757,16 @@ I think most people only use one backend, so this defaults to nil.
     ;; Anchor
     sml/anchor-after-minor-modes
     
-    ;; Extra strings. I know that at least perpective, mew, and battery use this ;; global-mode-string
+    ;; Extra strings. I know that at least perpective, mew, and battery use this ;; global-mode-string 
     mode-line-misc-info
     
     ;; add the time, with the date and the emacs uptime in the tooltip
-    (sml/show-time
-     (:eval (propertize (format-time-string sml/time-format)
-                        'face 'sml/time
-                        'help-echo (concat (format-time-string "%c;")
-                                           (emacs-uptime "\nUptime: %hh"))))))
+    ;; (sml/show-time
+    ;;  (:eval (propertize (format-time-string sml/time-format)
+    ;;                     'face 'sml/time
+    ;;                     'help-echo (concat (format-time-string "%c;")
+    ;;                                        (emacs-uptime "\nUptime: %hh")))))
+    )
   "Mode-line format to be applied when you activate `sml/setup'."
   :type 'list
   :group 'smart-mode-line;-mode-line
@@ -792,6 +802,12 @@ called straight from your init file."
     ;;;; because the package would manually edit the mode-line (and
     ;;;; thus be invisible to us).
     
+    ;; Display time
+    (add-hook 'display-time-hook
+              (lambda () (when (stringp display-time-string)
+                           (setq display-time-string
+                                 (propertize display-time-string
+                                             'face 'sml/time)))))
     ;; Battery support
     (eval-after-load 'battery
       '(defadvice battery-update (after sml/after-battery-update-advice () activate)
@@ -837,13 +853,13 @@ read the mail, so this color should probably be something sutil.
 Might implement a quick flash eventually."
            :type 'color :group 'smart-mode-line-mew
            :package-version '(smart-mode-line . "1.11"))
-         (defcustom sml/mew-biff-format "%2d"
+         (defcustom sml/mew-biff-format (concat "%2d" (if (char-displayable-p ?✉) "✉" "M"))
            "Format used for new-mail notifications if you use mew with biff."
            :type 'string :group 'smart-mode-line-mew
            :package-version '(smart-mode-line . "1.11"))
          (defadvice mew-biff-clear (around sml/mew-biff-clear-advice activate)
            "Advice used to customize mew-biff-bark to fit sml's style."
-           ad-do-it
+           ad-do-it 
            (when sml/mew-support
              ;; Remove the color
              (set-face-attribute 'mode-line nil :background sml/active-background-color)))
@@ -853,7 +869,7 @@ Might implement a quick flash eventually."
            (when sml/mew-support
              ;; Remove the color if mail has been read.
              (if (= n 0) (set-face-attribute 'mode-line nil :background sml/active-background-color)
-               ;; Apply color if there's mail.
+               ;; Apply color if there's mail. (mew-biff-bark 100)
                (set-face-attribute 'mode-line nil :background sml/new-mail-background-color)
                (setq mew-biff-string (format sml/mew-biff-format n)))))))
 
