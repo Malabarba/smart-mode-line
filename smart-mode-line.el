@@ -20,26 +20,27 @@
 ;;; Instructions:
 
 ;; INSTALLATION
-
+;;
 ;; Make sure "smart-mode-line.el" is in your load path, then place
 ;; this code in your .emacs file:
-;; (require 'smart-mode-line)
-;; (add-hook 'after-init-hook 'sml/setup)
+;;     (require 'smart-mode-line)
+;;     (if after-init-time (sml/setup)
+;;       (add-hook 'after-init-hook 'sml/setup))
 
 ;; DESCRIPTION
-
+;;
 ;; Its main features are:
-
+;;
 ;; 1) Color coded:
 ;; Highlights the most important information for you
 ;; (buffer name, modified state, line number). Don't
 ;; like the colors? See item 4)!
-
+;;
 ;; 2) Fixed width (if you want):
 ;; Lets you set a maxium width for the path name and mode
 ;; names, and truncated intelligently (truncates the
 ;; directory, not the buffer name).
-
+;;
 ;; 3) Fancy features:
 ;; Prefix feature saves a LOT of space. e.g. "~/.emacs.d/"
 ;; is translated to ":ED:" in the path (open a file inside
@@ -49,21 +50,21 @@
 ;; of it (by configuring `sml/replacer-regexp-list'). Mousing
 ;; over the abbreviated path will show you the full
 ;; path. See below for examples.
-
+;;
 ;; Hidden-modes feature saves even more space. Select
 ;; which minor modes you don't want to see listed by
 ;; customizing the `sml/hidden-modes' variable. This will
 ;; filter out the modes you don't care about and unclutter
 ;; the modes list (mousing over the modes list still shows
 ;; the full list).
-
+;;
 ;; 4) Very easy to configure:
 ;; All fonts are in the `smart-mode-line-faces'
 ;; customization group, and all other options are in
 ;; `smart-mode-line'. Just run `sml/customize' and see
 ;; what's in there. If you feel anything is missing send me
 ;; an e-mail.
-
+;;
 ;; 5) Compatible with `battery-display-mode':
 ;; Just turn the mode on to have the battery level
 ;; displayed. sml uses a very short syntax for the
@@ -71,28 +72,28 @@
 ;; symbol), and green/red font means charging/discharging
 ;; respectively.
 
-;; Variables
+;; VARIABLES
 ;;
 ;; All variables can be edited by running `sml/customize', and the
 ;; documentations are mostly self explanatory, I list here only the
 ;; most important ones.
-
+;;
 ;; *Note:* We use an `after-init-hook` in the installation because we
 ;; need sml/setup to override the theme's colors for the mode-line. See
 ;; the documentattion on the `sml/override-theme` variable for more
 ;; information.
-
+;;
 ;; 	`sml/shorten-directory' and `sml/shorten-modes'
 ;; 		Setting both of these to t garantees a fixed width mode-line
 ;; 		(directory name and modes list will be truncated to fit).  To
 ;; 		actually define the width, see below.
-
+;;
 ;;	`sml/name-width' and `sml/mode-width'
 ;;		Customize these according to the width of your Emacs
 ;;		frame.  I set them to 40 and 'full respectively, and the
 ;;		mode-line fits perfectly when the frame is split in two even
 ;;		on my laptop's small 17" monitor.
-
+;;
 ;; 	`sml/replacer-regexp-list'
 ;; 		This variable is a list of (REGEXP REPLACEMENT) that is used
 ;; 		to parse the path.  The replacements are applied
@@ -101,7 +102,7 @@
 ;; 		the form ":SOMETHING:", it is considered a prefix and get's
 ;; 		a different color (you can change what's considered a prefix
 ;; 		by customizing `sml/prefix-regexp').
-
+;;
 ;;		For example, if you do a lot of work on a folder called
 ;;		"~/Dropbox/Projects/In-Development/" almost half the
 ;;		mode-line would be occupied just by the folder name, which
@@ -115,7 +116,7 @@
 ;;		":InDev:", so the path shown in the mode-line will be
 ;;		":ProjDev:Source/" (saves a lot of space without hiding
 ;;		information).
-
+;;
 ;;		Here go some more useful examples:
 ;;
 ;; 	(add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/Projects/In-Development/"	":ProjDev:"))
@@ -128,7 +129,7 @@
 ;;	(add-to-list 'sml/replacer-regexp-list '("^:Git:\\(.*\\)/src/main/java/"	":G/\\1/SMJ:"))
 
 ;;; License:
-
+;;
 ;; This file is NOT part of GNU Emacs.
 ;;
 ;; This program is free software; you can redistribute it and/or

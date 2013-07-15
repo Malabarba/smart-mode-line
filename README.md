@@ -12,7 +12,8 @@ Make sure **"smart-mode-line.el"** is in your load path, then place
 this code in your .emacs file:
 
 	(require 'smart-mode-line)
-    (add-hook 'after-init-hook 'sml/setup)
+    (if after-init-time (sml/setup)
+      (add-hook 'after-init-hook 'sml/setup))
 
 Description
 ===
