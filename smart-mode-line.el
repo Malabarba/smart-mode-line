@@ -573,8 +573,7 @@ if you just want to fine-tune it)."
                            :weight bold))
   "" :group 'smart-mode-line-faces)
 (defface sml/prefix '((t :inherit sml/global
-                         :foreground "#bf6000"
-                         ))
+                         :foreground "#bf6000"))
   "" :group 'smart-mode-line-faces)
 (defface sml/sudo '((t :inherit sml/warning))
   "" :group 'smart-mode-line-faces)
@@ -596,6 +595,9 @@ if you just want to fine-tune it)."
 (defface sml/process '((t :inherit sml/prefix))
   "" :group 'smart-mode-line-faces)
 (defface sml/vc '((t :inherit sml/git))
+  "" :group 'smart-mode-line-faces)
+(defface sml/vc-edited '((t :inherit sml/vc
+                            :foreground "#bf6000"))
   "" :group 'smart-mode-line-faces)
 (defface sml/charging '((t :inherit sml/global 
                            :foreground "green"))
@@ -808,11 +810,12 @@ called straight from your init file."
       '(defadvice vc-mode-line (after sml/after-vc-mode-line-advice () activate)
          "Color `vc-mode'."
          (when (stringp vc-mode)
-           (setq vc-mode (propertize
-                          (if sml/vc-mode-show-backend vc-mode
-                            (replace-regexp-in-string
-                             (format "^ %s" (vc-backend buffer-file-name)) " " vc-mode))
-                          'face 'sml/vc)))))
+           (let ((noback (replace-regexp-in-string (format "^ %s" (vc-backend buffer-file-name)) " " vc-mode)))
+             (setq vc-mode
+                   (propertize (if sml/vc-mode-show-backend vc-mode noback)
+                               'face (cond ((string-match "^ -" noback)    'sml/vc)
+                                           ((string-match "^ [:@]" noback) 'sml/vc-edited)
+                                           ((string-match "^ [!\\?]" noback) 'sml/warning))))))))
     
     ;; evil support
     (eval-after-load "evil-core"
