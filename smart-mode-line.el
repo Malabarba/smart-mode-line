@@ -803,7 +803,8 @@ called straight from your init file."
          (when (stringp vc-mode)
            (setq vc-mode (propertize
                           (if sml/vc-mode-show-backend vc-mode
-                            (replace-regexp-in-string "^ .*:" " " vc-mode))
+                            (replace-regexp-in-string
+                             (format "^ %s" (vc-backend buffer-file-name)) " " vc-mode))
                           'face 'sml/vc)))))
     
     ;; evil support
