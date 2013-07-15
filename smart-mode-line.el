@@ -774,14 +774,21 @@ called straight from your init file."
   (setq sml/simplified nil)
   (if (and (integerp arg) (< arg 1))
       (sml/revert)
-    ;; We this to make the mode-line readable in lighter backgrounds
+    ;; We use this to make the mode-line readable in lighter backgrounds
     (when sml/override-theme (sml/set-face-color nil nil))
     ;; This is a warning for people not to use the old syntax. Should probably remove this eventually.
     (when sml/show-warning (sml/check-hidden-modes))
+
     (setq battery-mode-line-format sml/battery-format)
 
+    ;;; And this is where the magic happens.
     ;; Set the mode-line
     (setq-default mode-line-format sml/mode-line-format)
+
+    ;;;; And here comes support for a bunch of extra stuff. Some of
+    ;;;; these are just needed for coloring, and some are needed
+    ;;;; because the package would manually edit the mode-line (and
+    ;;;; thus be invisible to us).
     
     ;; Battery support
     (eval-after-load 'battery
@@ -795,7 +802,7 @@ called straight from your init file."
     ;; Perspective support
     (eval-after-load "perspective"
       '(set-face-foreground 'persp-selected-face sml/persp-selected-color))
-
+    
     ;; vc-mode
     (eval-after-load "vc-hooks"
       '(defadvice vc-mode-line (after sml/after-vc-mode-line-advice () activate)
