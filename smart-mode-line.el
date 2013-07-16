@@ -560,7 +560,7 @@ if you just want to fine-tune it)."
                          '((t :inherit sml/global
                               :foreground "#bf0000"
                               :weight bold))
-                       '((t :inherit font-lock-regexp-grouping-construct
+                       '((t :inherit font-lock-warning-face
                             :weight bold)))
   "" :group 'smart-mode-line-faces)
 (defface sml/line-number '((t :inherit sml/modes
