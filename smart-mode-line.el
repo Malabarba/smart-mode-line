@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.23.2
+;; Version: 1.24
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -144,6 +144,7 @@
 ;; 
 
 ;;; Change Log:
+;; 1.24 - 20130716 - sml/mule-info face changed to be less important.
 ;; 1.23.2 - 20130715 - Changed doc of sml/replacer-regexp-list.
 ;; 1.23.1 - 20130715 - moved perspective variable to eval-after-load.
 ;; 1.23 - 20130715 - added an icon to mew-format.
@@ -199,9 +200,9 @@
 
 ;; (eval-when-compile (require 'cl))
 
-(defconst sml/version "1.23.2" "Version of the smart-mode-line.el package.")
+(defconst sml/version "1.24" "Version of the smart-mode-line.el package.")
 
-(defconst sml/version-int 25 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version-int 26 "Version of the smart-mode-line.el package, as an integer.")
 
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
@@ -586,7 +587,7 @@ if you just want to fine-tune it)."
 (defface sml/git '((t :foreground "DeepSkyBlue"
                       :inherit sml/prefix))
   "" :group 'smart-mode-line-faces)
-(defface sml/mule-info '((t :inherit sml/prefix))
+(defface sml/mule-info '((t :inherit sml/global))
   "" :group 'smart-mode-line-faces)
 (defface sml/folder '((t :inherit sml/global
                          ))
