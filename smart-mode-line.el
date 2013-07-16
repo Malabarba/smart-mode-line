@@ -274,9 +274,15 @@ function (which are the only ways you should change it).")
 (defcustom sml/override-theme t
   "For any value other than nil, sml will override your theme's foreground and background colors for the modeline. 
 
-Even if this is nil many modeline elements use sml's custom
-colors. This variable only defines whether we change the
-`modeline' and `modeline-inactive' faces."
+If this is nil many modeline elements will use standard font-lock
+faces, in an attempt to still look nice. The result will vary
+depending on your theme, but that's what you're asking for if you
+set this to nil. ;-)
+
+You HAVE to set this BEFORE loading `smart-mode-line', otherwise
+it has no effect.
+
+Changing this only has effect after restarting emacs."
   :type 'boolean
   :group 'smart-mode-line-faces
   :group 'smart-mode-line)
