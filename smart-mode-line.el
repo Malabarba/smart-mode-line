@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.25
+;; Version: 1.26
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -144,6 +144,7 @@
 ;; 
 
 ;;; Change Log:
+;; 1.26 - 20130718 - Fix for % in the process string.
 ;; 1.25 - 20130716 - sml/override-theme also tries to set good colors for the text (not just the background).
 ;; 1.24 - 20130716 - sml/mule-info face changed to be less important.
 ;; 1.23.2 - 20130715 - Changed doc of sml/replacer-regexp-list.
@@ -201,9 +202,9 @@
 
 ;; (eval-when-compile (require 'cl))
 
-(defconst sml/version "1.25" "Version of the smart-mode-line.el package.")
+(defconst sml/version "1.26" "Version of the smart-mode-line.el package.")
 
-(defconst sml/version-int 27 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version-int 28 "Version of the smart-mode-line.el package, as an integer.")
 
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
@@ -761,8 +762,11 @@ I think most people only use one backend, so this defaults to nil.
     (vc-mode vc-mode)
     
     ;; The mode line process, doesn't get counted into the width
-    ;; limit. The only mode I know that uses this is Term.
-    (:eval (propertize (format-mode-line mode-line-process) ;("" mode-line-process)
+    ;; limit.
+    (:eval (propertize (format-mode-line
+                        (if (stringp mode-line-process)
+                            (replace-regexp-in-string "%" "%%%%" mode-line-process)
+                          mode-line-process)) ;("" mode-line-process)
                        'face       'sml/process))
     
     ;; Minor modes list
