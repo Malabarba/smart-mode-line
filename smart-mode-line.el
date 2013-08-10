@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.26
+;; Version: 1.27
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -144,6 +144,8 @@
 ;; 
 
 ;;; Change Log:
+;; 1.27 - 20130810 - Changed default value of sml/mode-width to a number. 'full didn't work for everyone.
+;; 1.27 - 20130810 - Doc bug.
 ;; 1.26 - 20130718 - Fix for % in the process string.
 ;; 1.25 - 20130716 - sml/override-theme also tries to set good colors for the text (not just the background).
 ;; 1.24 - 20130716 - sml/mule-info face changed to be less important.
@@ -202,9 +204,9 @@
 
 ;; (eval-when-compile (require 'cl))
 
-(defconst sml/version "1.26" "Version of the smart-mode-line.el package.")
+(defconst sml/version "1.27" "Version of the smart-mode-line.el package.")
 
-(defconst sml/version-int 28 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version-int 29 "Version of the smart-mode-line.el package, as an integer.")
 
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
@@ -451,7 +453,7 @@ Don't forget to start with a blank space."
   :type '(repeat string)
   :group 'smart-mode-line-mode-list)
 
-(defcustom sml/mode-width 'full
+(defcustom sml/mode-width 30
   "Integer or symbol representing the maximum and/or minimum size of the modes list in the mode-line.
 
 If it is an integer, then the modes list width is that many
@@ -667,7 +669,7 @@ if you just want to fine-tune it)."
   "Whether to show or the backend in vc-mode's mode-line description.
 
 I think most people only use one backend, so this defaults to nil.
- If you want it to show the backend, just set it to nil."
+If you want it to show the backend, just set it to t."
   :type 'boolean
   :group 'smart-mode-line-others    
   :package-version '(smart-mode-line . "1.22"))
@@ -771,7 +773,7 @@ I think most people only use one backend, so this defaults to nil.
     
     ;; Minor modes list
     (:eval (sml/extract-minor-modes minor-mode-alist sml/mode-width))
-
+    
     ;; Anchor
     sml/anchor-after-minor-modes
     
