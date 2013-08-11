@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.27
+;; Version: 1.28
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -144,6 +144,7 @@
 ;; 
 
 ;;; Change Log:
+;; 1.28 - 20130811 - Fixing erc notifications.
 ;; 1.27 - 20130810 - Changed default value of sml/mode-width to a number. 'full didn't work for everyone.
 ;; 1.27 - 20130810 - Doc bug.
 ;; 1.26 - 20130718 - Fix for % in the process string.
@@ -204,9 +205,9 @@
 
 ;; (eval-when-compile (require 'cl))
 
-(defconst sml/version "1.27" "Version of the smart-mode-line.el package.")
+(defconst sml/version "1.28" "Version of the smart-mode-line.el package.")
 
-(defconst sml/version-int 29 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version-int 30 "Version of the smart-mode-line.el package, as an integer.")
 
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
@@ -904,7 +905,11 @@ Might implement a quick flash eventually."
 
     ;; sml-modeline support
     (eval-after-load "nyan-mode"
-      '(sml/nyan-support))))
+      '(sml/nyan-support))
+
+    (unless (boundp erc-track-position-in-mode-line)
+      (when erc-track-position-in-mode-line
+       (setq erc-track-position-in-mode-line t)))))
 
 (defun sml/sml-modeline-support ()
   "Create a variable regarding `sml-modeline-mode' and insert `sml-modeline-create' in one of the anchors."
