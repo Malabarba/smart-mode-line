@@ -918,7 +918,7 @@ Might implement a quick flash eventually."
     (eval-after-load "nyan-mode"
       '(sml/nyan-support))
 
-    (unless (and (boundp erc-track-position-in-mode-line)
+    (unless (and (boundp 'erc-track-position-in-mode-line)
                  (null erc-track-position-in-mode-line))
       (setq erc-track-position-in-mode-line t))))
 
