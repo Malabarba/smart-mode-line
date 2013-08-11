@@ -648,6 +648,11 @@ if you just want to fine-tune it)."
   :group 'smart-mode-line-others
   :package-version '(smart-mode-line . "1.20"))
 
+(defcustom sml/show-eol nil
+  "Whether to display the buffer EOL in the mode-line."
+  :type 'boolean
+  :group 'smart-mode-line-others)
+
 (defcustom sml/outside-modified-char "M"
   "Char to display if buffer needs to be reverted."
   :type 'string
@@ -698,13 +703,18 @@ If you want it to show the backend, just set it to t."
           (line-number-mode  (:eval (propertize sml/numbers-separator  'face 'sml/numbers-separator 'help-echo ,hText))))
          (line-number-mode   (:eval (propertize sml/line-number-format 'face 'sml/line-number       'help-echo ,hText))))))
     
-    ;; Encoding. should we do eol format here? (it's displayed by %Z, but very spacious)
+    ;; Encoding
     (sml/show-encoding
      (:eval (propertize sml/mule-info
                         'face 'sml/mule-info
                         'help-echo 'mode-line-mule-info-help-echo
                         'mouse-face 'mode-line-highlight
                         'local-map mode-line-coding-system-map))) 
+
+    ;; EOL
+    (sml/show-eol
+     (:eval (propertize (mode-line-eol-desc)
+                        'face 'sml/mule-info)))
     
     ;; Modified status
     (:eval
