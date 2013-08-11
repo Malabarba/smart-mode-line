@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.28.1
+;; Version: 1.29
 ;; Keywords: faces frames
 
 ;;; Commentary:
@@ -144,6 +144,7 @@
 ;; 
 
 ;;; Change Log:
+;; 1.29 - 20130811 - Fixed lag with remote files.
 ;; 1.28.1 - 20130811 - Fix for the erc fix.
 ;; 1.28 - 20130811 - Fixing erc notifications.
 ;; 1.27 - 20130810 - Changed default value of sml/mode-width to a number. 'full didn't work for everyone.
@@ -206,9 +207,9 @@
 
 ;; (eval-when-compile (require 'cl))
 
-(defconst sml/version "1.28.1" "Version of the smart-mode-line.el package.")
+(defconst sml/version "1.29" "Version of the smart-mode-line.el package.")
 
-(defconst sml/version-int 31 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version-int 32 "Version of the smart-mode-line.el package, as an integer.")
 
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
@@ -718,22 +719,24 @@ If you want it to show the backend, just set it to t."
     
     ;; Modified status
     (:eval
-     (cond ((not (verify-visited-file-modtime))
-            (propertize sml/outside-modified-char 'face 'sml/outside-modified
-                        'help-echo "Modified outside Emacs!\nRevert first!"))
-           (buffer-read-only (propertize sml/read-only-char
-                                         'face 'sml/read-only
-                                         'help-echo "Read-Only Buffer"))
-           ((buffer-modified-p)
-            (propertize sml/modified-char
-                        'face 'sml/modified
-                        'help-echo (if (buffer-file-name)
-                                       (format-time-string
-                                        sml/modified-time-string
-                                        (nth 5 (file-attributes (buffer-file-name))))
-                                     "Buffer Modified")
-                        'local-map '(keymap (mode-line keymap (mouse-1 . save-buffer)))))
-           (t " ")))
+     (cond ;; ((file-remote-p (buffer-file-name)) "%1+")
+      ((not (or (file-remote-p buffer-file-name)
+                (verify-visited-file-modtime (current-buffer))))
+       (propertize sml/outside-modified-char 'face 'sml/outside-modified
+                   'help-echo "Modified outside Emacs!\nRevert first!"))
+      (buffer-read-only (propertize sml/read-only-char
+                                    'face 'sml/read-only
+                                    'help-echo "Read-Only Buffer"))
+      ((buffer-modified-p)
+       (propertize sml/modified-char
+                   'face 'sml/modified
+                   'help-echo (if (buffer-file-name)
+                                  (format-time-string
+                                   sml/modified-time-string
+                                   (nth 5 (file-attributes (buffer-file-name))))
+                                "Buffer Modified")
+                   'local-map '(keymap (mode-line keymap (mouse-1 . save-buffer)))))
+      (t " ")))
 
     
     ;; Anchor
