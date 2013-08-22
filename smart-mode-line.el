@@ -4,8 +4,10 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.29
+;; Version: 1.29.1
 ;; Keywords: faces frames
+;; Prefix: sml
+;; Separator: /
 
 ;;; Commentary:
 
@@ -144,6 +146,7 @@
 ;; 
 
 ;;; Change Log:
+;; 1.29.1 - 20130822 - Fix hang introduced with last update
 ;; 1.29 - 20130811 - Fixed lag with remote files.
 ;; 1.28.1 - 20130811 - Fix for the erc fix.
 ;; 1.28 - 20130811 - Fixing erc notifications.
@@ -720,7 +723,7 @@ If you want it to show the backend, just set it to t."
     ;; Modified status
     (:eval
      (cond ;; ((file-remote-p (buffer-file-name)) "%1+")
-      ((not (or (file-remote-p buffer-file-name)
+      ((not (or (and (buffer-file-name) (file-remote-p buffer-file-name))
                 (verify-visited-file-modtime (current-buffer))))
        (propertize sml/outside-modified-char 'face 'sml/outside-modified
                    'help-echo "Modified outside Emacs!\nRevert first!"))
