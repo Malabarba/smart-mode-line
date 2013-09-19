@@ -108,7 +108,7 @@ information.
 Here go some more useful examples:
 
     (add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/Projects/In-Development/" ":ProjDev:"))
-    (add-to-list 'sml/replacer-regexp-list '("^~/Documents/Work/" ":Work:))
+    (add-to-list 'sml/replacer-regexp-list '("^~/Documents/Work/" ":Work:"))
     
     ;; Added in the right order, they even work sequentially:
     (add-to-list 'sml/replacer-regexp-list '("^:DB:Documents" ":DDocs:"))
