@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.29.1
+;; Version: 1.29.2
 ;; Keywords: faces frames
 ;; Prefix: sml
 ;; Separator: /
@@ -146,6 +146,7 @@
 ;; 
 
 ;;; Change Log:
+;; 1.29.2 - 20131002 - Different default position-percentage face
 ;; 1.29.1 - 20130822 - Fix hang introduced with last update
 ;; 1.29 - 20130811 - Fixed lag with remote files.
 ;; 1.28.1 - 20130811 - Fix for the erc fix.
@@ -210,9 +211,9 @@
 
 ;; (eval-when-compile (require 'cl))
 
-(defconst sml/version "1.29" "Version of the smart-mode-line.el package.")
+(defconst sml/version "1.29.2" "Version of the smart-mode-line.el package.")
 
-(defconst sml/version-int 32 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version-int 33 "Version of the smart-mode-line.el package, as an integer.")
 
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
@@ -575,7 +576,7 @@ if you just want to fine-tune it)."
 (defface sml/line-number '((t :inherit sml/modes
                               :weight bold))
   "" :group 'smart-mode-line-faces)
-(defface sml/position-percentage '((t :inherit sml/filename
+(defface sml/position-percentage '((t :inherit sml/prefix
                                       :weight normal))
   "" :group 'smart-mode-line-faces)
 (defface sml/col-number '((t :inherit sml/global))
