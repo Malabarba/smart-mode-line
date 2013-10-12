@@ -447,7 +447,8 @@ customizing the variable with `customize-group'. Equivalent to
 setting the variable with `setq'."
   (interactive)
   (setq sml/shorten-modes (if val (car val)
-                            (not sml/shorten-modes))))
+                            (not sml/shorten-modes)))
+  (force-mode-line-update))
 
 (defcustom sml/hidden-modes '(" hl-p")
   "List of minor modes you want to hide, or empty.
@@ -477,6 +478,11 @@ Otherwise, this is both the minimum and maximum width."
 
 (defcustom sml/full-mode-string " +"
   "String that's appended to the minor-mode list when it's full."
+  :type 'string
+  :group 'smart-mode-line-mode-list)
+
+(defcustom sml/shorten-mode-string " -"
+  "String that's appended to the minor-mode list when all modes are displayed."
   :type 'string
   :group 'smart-mode-line-mode-list)
 
@@ -1066,9 +1072,17 @@ New syntax means the items should start with a space."
                   maxSize))
           (helpString (concat "Full list:\n  "
                               (mapconcat 'identity nameList "\n  ")))
+          (keymap '(keymap (mode-line keymap (mouse-1 . sml/toggle-shorten-modes))))
           (propertized-full-mode-string (propertize sml/full-mode-string
-                                                    'help-echo helpString
-                                                    'face 'sml/folder)))
+                                                    'help-echo "mouse-1: Show all modes"
+                                                    'face 'sml/folder
+                                                    'local-map keymap
+                                                    'mouse-face 'mode-line-highlight))
+          (propertized-shorten-mode-string (propertize sml/shorten-mode-string
+                                                       'help-echo "mouse-1: Shorten minor modes"
+                                                       'face 'sml/folder
+                                                       'local-map keymap
+                                                       'mouse-face 'mode-line-highlight)))
      (dolist (name nameList out)
        (unless (member name sml/hidden-modes) ; :test #'equal
          ;; If we're shortenning, check if it fits
@@ -1092,7 +1106,10 @@ New syntax means the items should start with a space."
      ;; Fill with spaces, unless size is negative.
      (append out (list (propertize (make-string (max 0 size) ?\ )
                                    'help-echo helpString
-                                   'face 'sml/folder))))))
+                                   'face 'sml/folder)))
+     (if sml/shorten-modes
+         out
+       (add-to-list 'out propertized-shorten-mode-string t)))))
 
 (defun sml/propertize-prefix (prefix)
   "Set the color of the prefix according to its contents."
