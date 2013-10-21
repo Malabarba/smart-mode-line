@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.30
+;; Version: 1.30.1
 ;; Keywords: faces frames
 ;; Prefix: sml
 ;; Separator: /
@@ -146,6 +146,7 @@
 ;; 
 
 ;;; Change Log:
+;; 1.30.1 - 20131021 - eval-when-compile cl
 ;; 1.30 - 20131013 - Click mode list to toggle minor-mode hiding.
 ;; 1.29.2 - 20131002 - Different default position-percentage face.
 ;; 1.29.1 - 20130822 - Fix hang introduced with last update.
@@ -210,11 +211,11 @@
 
 ;;; Code:
 
-;; (eval-when-compile (require 'cl))
+(eval-when-compile (require 'cl))
 
-(defconst sml/version "1.30" "Version of the smart-mode-line.el package.")
+(defconst sml/version "1.30.1" "Version of the smart-mode-line.el package.")
 
-(defconst sml/version-int 34 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version-int 35 "Version of the smart-mode-line.el package, as an integer.")
 
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
