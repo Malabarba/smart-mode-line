@@ -718,21 +718,28 @@ If you want it to show the backend, just set it to t."
     
     ;; Position
     (:eval
-     (let ((hText (format-mode-line (format "Buffer size:\n\t%%IB\nNumber of Lines:\n\t%s\nCurrent Line:\n\t%%l"
+     (let ((hText (format-mode-line (format "Buffer size:\n\t%%IB\n\
+Number of Lines:\n\t%s\n\
+Current Line:\n\t%%l\n\
+mouse-1: Display Line and Column Mode Menu"
                                             (line-number-at-pos (point-max))))))
-       `((size-indication-mode (:eval (propertize sml/size-indication-format  'face 'sml/col-number        'help-echo ,hText)))
-         (column-number-mode   (:eval (propertize sml/col-number-format       'face 'sml/col-number        'help-echo ,hText)))
-         (column-number-mode  
-          (line-number-mode    (:eval (propertize sml/numbers-separator       'face 'sml/numbers-separator 'help-echo ,hText))))
-         (line-number-mode     (:eval (propertize sml/line-number-format      'face 'sml/line-number       'help-echo ,hText))))))
+       `((size-indication-mode
+         ,,(macroexpand '(sml/propertize-position sml/size-indication-format 'sml/col-number hText)))
+        (column-number-mode
+         ,,(macroexpand '(sml/propertize-position sml/col-number-format 'sml/col-number hText)))
+        (column-number-mode  
+         (line-number-mode
+          ,,(macroexpand '(sml/propertize-position sml/numbers-separator 'sml/numbers-separator hText))))
+        (line-number-mode
+         ,,(macroexpand '(sml/propertize-position sml/line-number-format 'sml/line-number hText))))))
     
     ;; Encoding
     (sml/show-encoding
-     (:eval (propertize sml/mule-info
-                        'face 'sml/mule-info
-                        'help-echo 'mode-line-mule-info-help-echo
-                        'mouse-face 'mode-line-highlight
-                        'local-map mode-line-coding-system-map))) 
+     (:propertize sml/mule-info
+            face sml/mule-info
+            help-echo mode-line-mule-info-help-echo
+            mouse-face mode-line-highlight
+            local-map mode-line-coding-system-map)) 
 
     ;; EOL
     (sml/show-eol
@@ -793,6 +800,13 @@ If you want it to show the backend, just set it to t."
   :group 'smart-mode-line;-mode-line
   :package-version '(smart-mode-line . "1.18"))
 
+(defmacro sml/propertize-position (s face help)
+  "Propertize string S as a line/column number, using FACE and help-echo HELP."
+  `(propertize ,s
+               'face ,face
+               'help-echo ,help
+               'mouse-face 'mode-line-highlight
+               'local-map mode-line-column-line-number-mode-map))
 ;;;###autoload
 (defun sml/setup (&optional arg)
   "Setup the mode-line, or revert it.
@@ -829,7 +843,7 @@ called straight from your init file."
     ;; Remove elements we implement separately, and color the ones not removed.
     (sml/filter-mode-line-list 'mode-line-position)
     (sml/filter-mode-line-list 'mode-line-modes)
-        
+    
     ;;; And this is where the magic happens.
     ;; Set the mode-line
     (setq-default mode-line-format sml/mode-line-format)
@@ -840,11 +854,8 @@ called straight from your init file."
     ;;;; thus be invisible to us).
     
     ;; Display time
-    (add-hook 'display-time-hook
-              (lambda () (when (stringp display-time-string)
-                           (setq display-time-string
-                                 (propertize display-time-string
-                                             'face 'sml/time)))))
+    (add-hook 'display-time-hook 'sml/propertize-time-string)
+    
     ;; Battery support
     (eval-after-load 'battery
       '(defadvice battery-update (after sml/after-battery-update-advice () activate)
@@ -911,17 +922,16 @@ Might implement a quick flash eventually."
                (set-face-attribute 'mode-line nil :background sml/new-mail-background-color)
                (setq mew-biff-string (format sml/mew-biff-format n)))))))
 
-    ;; sml-modeline support
-    (eval-after-load "sml-modeline"
-      '(sml/sml-modeline-support))
-
-    ;; sml-modeline support
-    (eval-after-load "nyan-mode"
-      '(sml/nyan-support))
-
     (unless (and (boundp 'erc-track-position-in-mode-line)
                  (null erc-track-position-in-mode-line))
       (setq erc-track-position-in-mode-line t))))
+
+(defun sml/propertize-time-string ()
+  "Function to be added to `display-time-hook' to propertize the string."
+  (when (stringp display-time-string)
+    (setq display-time-string
+          (propertize display-time-string
+                      'face 'sml/time))))
 
 (defun sml/filter-mode-line-list (l)
   "Filter some elements of L and propertize the ones not filtered.
@@ -981,7 +991,10 @@ To be used in mapcar and accumulate results."
 
    ;; Color the position percentage
    ((sml/is-%p-p el)
-    `(:propertize ,el face sml/position-percentage))
+    `(:propertize ,el
+                  face sml/position-percentage
+                  help-echo "Buffer Relative Position\n\
+mouse-1: Display Line and Column Mode Menu"))
    (t el)))
 
 (defun sml/is-%p-p (x)
@@ -991,60 +1004,6 @@ To be used in mapcar and accumulate results."
                    (-filter 'stringp x)))
       (and (stringp x)
            (string-match ".*%p.*" x))))
-
-(defun sml/sml-modeline-support ()
-  "Create a variable regarding `sml-modeline-mode' and insert `sml-modeline-create' in one of the anchors."
-  ;; Define the variable which specifies the position
-  (defcustom sml/sml-modeline-position 'sml/anchor-after-minor-modes
-    "In which anchor should sml-modeline be inserted?
-
-Value must be a symbol, the name of the anchor. Possible anchors are:
-`sml/anchor-beginning'
-`sml/anchor-after-status'
-`sml/anchor-before-major-mode'
-`sml/anchor-after-minor-modes'"
-    :type 'symbol
-    :group 'smart-mode-line
-    :package-version '(smart-mode-line . "1.14"))
-  ;; If the mode is already activated, insert the creator
-  (when sml-modeline-mode
-    (add-to-list sml/sml-modeline-position '(:eval (sml-modeline-create))))
-  ;; Remove and insert the creator when the mode is toggled
-  (defadvice sml-modeline-mode (after sml/after-sml-modeline-mode-advice () activate)
-    "Insert and remove `sml-modeline-create' from the anchor specified in `sml/sml-modeline-position'."
-    (if sml-modeline-mode
-        (add-to-list sml/sml-modeline-position '(:eval (sml-modeline-create)))
-      (setq sml/anchor-beginning (delete '(:eval (sml-modeline-create)) sml/anchor-beginning))
-      (setq sml/anchor-after-status (delete '(:eval (sml-modeline-create)) sml/anchor-after-status))
-      (setq sml/anchor-before-major-mode (delete '(:eval (sml-modeline-create)) sml/anchor-before-major-mode))
-      (setq sml/anchor-after-minor-modes (delete '(:eval (sml-modeline-create)) sml/anchor-after-minor-modes)))))
-
-(defun sml/nyan-support ()
-  "Create a variable regarding `nyan-mode' and insert `nyan-create' in one of the anchors."
-  ;; Define the variable which specifies the position
-  (defcustom sml/nyan-position 'sml/anchor-before-major-mode
-    "In which anchor should nyan be inserted?
-
-Value must be a symbol, the name of the anchor. Possible anchors are:
-`sml/anchor-beginning'
-`sml/anchor-after-status'
-`sml/anchor-before-major-mode'
-`sml/anchor-after-minor-modes'"
-    :type 'symbol
-    :group 'smart-mode-line
-    :package-version '(smart-mode-line . "1.14"))
-  ;; If the mode is already activated, insert the creator
-  (when nyan-mode
-    (add-to-list sml/nyan-position '(:eval (nyan-create))))
-  ;; Remove and insert the creator when the mode is toggled
-  (defadvice nyan-mode (after sml/after-nyan-mode-advice () activate)
-    "Insert and remove `nyan-create' from the anchor specified in `sml/nyan-position'."
-    (if nyan-mode
-        (add-to-list sml/nyan-position '(:eval (nyan-create)))
-      (setq sml/anchor-beginning (delete '(:eval (nyan-create)) sml/anchor-beginning))
-      (setq sml/anchor-after-status (delete '(:eval (nyan-create)) sml/anchor-after-status))
-      (setq sml/anchor-before-major-mode (delete '(:eval (nyan-create)) sml/anchor-before-major-mode))
-      (setq sml/anchor-after-minor-modes (delete '(:eval (nyan-create)) sml/anchor-after-minor-modes)))))
 
 (defun sml/buffer-name ()
   "Uses `sml/show-file-name' to decide between buffer name or file name to show on the mode-line.
@@ -1296,10 +1255,6 @@ regexp in `sml/prefix-regexp'."
 (copy-face 'mode-line 'sml/active-backup)
 (copy-face 'mode-line-inactive 'sml/inactive-backup)
 
-
 (provide 'smart-mode-line)
-
-
-
 ;;; smart-mode-line.el ends here
 
