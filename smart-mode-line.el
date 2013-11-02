@@ -682,11 +682,11 @@ if you just want to fine-tune it)."
   :package-version '(smart-mode-line . "1.20"))
 
 (defvaralias 'sml/encoding-format 'sml/mule-info)
-(defcustom sml/mule-info " %z"
+(defcustom sml/mule-info "%z"
   "Multilingual information. Set this to nil to hide it."
   :type '(choice string (const :tag "Don't display." nil))
   :group 'smart-mode-line-others
-  :package-version '(smart-mode-line . "1.22"))
+  :package-version '(smart-mode-line . "2.0"))
 
 (defcustom sml/read-only-char "R"
   "Displayed when buffer is readonly."
@@ -710,11 +710,7 @@ If you want it to show the backend, just set it to t."
     ;; Anchor
     sml/anchor-beginning
     
-    ;; emacsclient
-    (sml/show-client
-     (:eval (if (frame-parameter nil 'client)
-                ,(propertize "@" 'face 'sml/client 'help-echo "emacsclient frame")
-              " ")))
+    mode-line-client    
     
     ;; Position
     (:eval
@@ -733,40 +729,11 @@ mouse-1: Display Line and Column Mode Menu"
         (line-number-mode
          ,,(macroexpand '(sml/propertize-position sml/line-number-format 'sml/line-number hText))))))
     
-    ;; Encoding
-    (sml/show-encoding
-     (:propertize sml/mule-info
-            face sml/mule-info
-            help-echo mode-line-mule-info-help-echo
-            mouse-face mode-line-highlight
-            local-map mode-line-coding-system-map)) 
-
-    ;; EOL
-    (sml/show-eol
-     (:eval (propertize (mode-line-eol-desc)
-                        'face 'sml/mule-info)))
+    ;; encodings, input methods, and EOL information
+    mode-line-mule-info
     
     ;; Modified status
-    (:eval
-     (cond ;; ((file-remote-p (buffer-file-name)) "%1+")
-      ((not (or (and (buffer-file-name) (file-remote-p buffer-file-name))
-                (verify-visited-file-modtime (current-buffer))))
-       (propertize sml/outside-modified-char 'face 'sml/outside-modified
-                   'help-echo "Modified outside Emacs!\nRevert first!"))
-      (buffer-read-only (propertize sml/read-only-char
-                                    'face 'sml/read-only
-                                    'help-echo "Read-Only Buffer"))
-      ((buffer-modified-p)
-       (propertize sml/modified-char
-                   'face 'sml/modified
-                   'help-echo (if (buffer-file-name)
-                                  (format-time-string
-                                   sml/modified-time-string
-                                   (nth 5 (file-attributes (buffer-file-name))))
-                                "Buffer Modified")
-                   'local-map '(keymap (mode-line keymap (mouse-1 . save-buffer)))))
-      (t " ")))
-
+    mode-line-modified
     
     ;; Anchor
     sml/anchor-after-status
@@ -788,10 +755,10 @@ mouse-1: Display Line and Column Mode Menu"
     
     ;; The modes list
     mode-line-modes
-    
+
     ;; Anchor
     sml/anchor-after-minor-modes
-    
+
     ;; Extra strings. I know that at least perpective, mew, and battery use this ;; global-mode-string 
     mode-line-misc-info
     )
@@ -800,13 +767,6 @@ mouse-1: Display Line and Column Mode Menu"
   :group 'smart-mode-line;-mode-line
   :package-version '(smart-mode-line . "1.18"))
 
-(defmacro sml/propertize-position (s face help)
-  "Propertize string S as a line/column number, using FACE and help-echo HELP."
-  `(propertize ,s
-               'face ,face
-               'help-echo ,help
-               'mouse-face 'mode-line-highlight
-               'local-map mode-line-column-line-number-mode-map))
 ;;;###autoload
 (defun sml/setup (&optional arg)
   "Setup the mode-line, or revert it.
@@ -828,25 +788,28 @@ called straight from your init file."
 
     (setq battery-mode-line-format sml/battery-format)
 
-    ;; We implement line-number and column number separately, so
-    ;; remove it from mode-line-position (so that we can still include
-    ;; it)
-
+    ;; Our buffer-file-name display.
     (setq-default mode-line-buffer-identification
                   '(:eval (sml/generate-buffer-identification)))
-
     ;; For buffers which edit mode-line-identification, make sure they use OUR color.
     (set-face-foreground 'mode-line-buffer-id
                          (internal-get-lisp-face-attribute
                           'sml/filename :foreground))
 
     ;; Remove elements we implement separately, and color the ones not removed.
+    (setq-default mode-line-front-space nil)
+    (sml/filter-mode-line-list 'mode-line-mule-info)
+    (sml/filter-mode-line-list 'mode-line-client)
+    (sml/filter-mode-line-list 'mode-line-modified)
+    (sml/filter-mode-line-list 'mode-line-remote)
+    (sml/filter-mode-line-list 'mode-line-frame-identification)
     (sml/filter-mode-line-list 'mode-line-position)
     (sml/filter-mode-line-list 'mode-line-modes)
-    
+    (setq-default mode-line-end-spaces nil)
+
     ;;; And this is where the magic happens.
     ;; Set the mode-line
-    (setq-default mode-line-format sml/mode-line-format)
+    ;; (setq-default mode-line-format sml/mode-line-format)
 
     ;;;; And here comes support for a bunch of extra stuff. Some of
     ;;;; these are just needed for coloring, and some are needed
@@ -926,6 +889,35 @@ Might implement a quick flash eventually."
                  (null erc-track-position-in-mode-line))
       (setq erc-track-position-in-mode-line t))))
 
+(defun sml/generate-modified-status ()
+  "Return a string describing the modified status of the buffer."
+  (cond ;; ((file-remote-p (buffer-file-name)) "%1+")
+   ((not (or (and (buffer-file-name) (file-remote-p buffer-file-name))
+             (verify-visited-file-modtime (current-buffer))))
+    (propertize sml/outside-modified-char 'face 'sml/outside-modified
+                'help-echo "Modified outside Emacs!\nRevert first!"))
+   (buffer-read-only (propertize sml/read-only-char
+                                 'face 'sml/read-only
+                                 'help-echo "Read-Only Buffer"))
+   ((buffer-modified-p)
+    (propertize sml/modified-char
+                'face 'sml/modified
+                'help-echo (if (buffer-file-name)
+                               (format-time-string
+                                sml/modified-time-string
+                                (nth 5 (file-attributes (buffer-file-name))))
+                             "Buffer Modified")
+                'local-map '(keymap (mode-line keymap (mouse-1 . save-buffer)))))
+   (t " ")))
+
+(defmacro sml/propertize-position (s face help)
+  "Propertize string S as a line/column number, using FACE and help-echo HELP."
+  `(propertize ,s
+               'face ,face
+               'help-echo ,help
+               'mouse-face 'mode-line-highlight
+               'local-map mode-line-column-line-number-mode-map))
+
 (defun sml/propertize-time-string ()
   "Function to be added to `display-time-hook' to propertize the string."
   (when (stringp display-time-string)
@@ -938,10 +930,10 @@ Might implement a quick flash eventually."
 
 L must be a symbol! We asign right back to it"
   (if (and (symbolp l) (listp (eval l)))
-      (set l
-           (remove-if
-            'null
-            (mapcar 'sml/parse-mode-line-elements (eval l))))
+      (set-default l
+       (remove-if
+        'null
+        (mapcar 'sml/parse-mode-line-elements (eval l))))
     (error "l must be a symbol to a list!")))
 
 (defun sml/fill-for-buffer-identification ()
@@ -973,8 +965,55 @@ L must be a symbol! We asign right back to it"
 To be used in mapcar and accumulate results."
   (cond
    ;; These are implemented separately
-   ((member el '("(" ")" (t erc-modified-channels-object))) nil)
-   ((member (car-safe el) '(line-number-mode column-number-mode size-indication-mode)) nil)   
+   ((member el '("%1+" "(" ")" "%1@" (t erc-modified-channels-object)
+                 (:eval (if (display-graphic-p) " " "-"))))
+    nil)   
+   ((member (car-safe el) '(line-number-mode column-number-mode size-indication-mode current-input-method)) nil)
+
+   ;; mode-line-client
+   ((equal el '("" (:propertize ("" (:eval (if (frame-parameter nil 'client) "@" "")))
+                                help-echo "emacsclient frame")))   
+    `(sml/show-client
+      (:eval (if (frame-parameter nil 'client)
+                 ,(propertize "@" 'face 'sml/client 'help-echo (purecopy "emacsclient frame"))
+               " "))))
+
+   ;; mode-line-modified
+   ((and (stringp el) (string-match "%[0-9-]*\\*" el))
+    '(:eval (sml/generate-modified-status)))
+   
+   ;;;; mode-line-position
+   ;; Color the position percentage
+   ((sml/is-%p-p el)
+    `(:propertize ,el
+                  face sml/position-percentage
+                  help-echo "Buffer Relative Position\n\
+mouse-1: Display Line and Column Mode Menu"))
+
+   ;;;; mode-line-mule-info
+   ;; Partially hide some MULE info
+   ((and (stringp el) (string-match "\\s-*%[-0-9]*z" el))
+    `(:propertize (,(1+ (length (format-mode-line sml/mule-info)))
+                   (sml/mule-info
+                    ,(propertize sml/mule-info
+                                 'help-echo 'mode-line-mule-info-help-echo
+                                 'mouse-face 'mode-line-highlight
+                                 'local-map mode-line-coding-system-map))                      
+                   (current-input-method
+                    (:propertize ("" current-input-method-title)
+                                 help-echo (concat
+                                            ,(purecopy "Current input method: ")
+                                            current-input-method
+                                            ,(purecopy "\n\
+mouse-2: Disable input method\n\
+mouse-3: Describe current input method"))
+                                 local-map ,mode-line-input-method-map
+                                 mouse-face mode-line-highlight)))))
+   ;; Make EOL optional
+   ((equal el '(:eval (mode-line-eol-desc)))
+    '(sml/show-eol (:eval (propertize (mode-line-eol-desc)))))
+   
+   ;;;; mode-line-mods
    ;; Color the mode line process
    ((equal el '("" mode-line-process))
     `(:propertize ("" mode-line-process) face sml/process))
@@ -989,12 +1028,6 @@ To be used in mapcar and accumulate results."
          (equal (cadr el) '("" minor-mode-alist)))
     '(:eval (sml/extract-minor-modes minor-mode-alist sml/mode-width)))
 
-   ;; Color the position percentage
-   ((sml/is-%p-p el)
-    `(:propertize ,el
-                  face sml/position-percentage
-                  help-echo "Buffer Relative Position\n\
-mouse-1: Display Line and Column Mode Menu"))
    (t el)))
 
 (defun sml/is-%p-p (x)
