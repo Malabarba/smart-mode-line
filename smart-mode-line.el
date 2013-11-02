@@ -922,7 +922,7 @@ L must be a symbol! We asign right back to it"
 (defun sml/fill-for-buffer-identification ()
   "Returns a string of spaces so that `mode-line-buffer-identification' is fixed-width."
   (make-string (max (- sml/name-width -2 (length (format-mode-line mode-line-buffer-identification)))
-                    0) ?\ ))
+                    0) sml/fill-char))
 
 (defun sml/generate-buffer-identification ()
   "Return fully propertized prefix+path+buffername."
@@ -1130,7 +1130,7 @@ duplicated buffer names) from being displayed."
         (decf size (length propertized-shorten-mode-string))
         (add-to-list 'out propertized-shorten-mode-string t))
       ;; Fill with spaces, unless size is negative.
-      (append out (list (propertize (make-string (max 0 size) ?\ )
+      (append out (list (propertize (make-string (max 0 size) sml/fill-char)
                                     'help-echo helpString
                                     'face 'sml/folder))))))
 
