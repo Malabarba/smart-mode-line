@@ -1047,7 +1047,7 @@ duplicated buffer names) from being displayed."
 (defun sml/fill-width-available ()
   "Return the size available for filling."
   (max 0
-       (+ sml/extra-filler 
+       (+ sml/extra-filler
           (- (window-width)
              (let ((sml/simplified t))
                (length (format-mode-line mode-line-format)))))))
