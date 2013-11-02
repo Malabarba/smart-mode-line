@@ -712,23 +712,6 @@ If you want it to show the backend, just set it to t."
     
     mode-line-client    
     
-    ;; Position
-    (:eval
-     (let ((hText (format-mode-line (format "Buffer size:\n\t%%IB\n\
-Number of Lines:\n\t%s\n\
-Current Line:\n\t%%l\n\
-mouse-1: Display Line and Column Mode Menu"
-                                            (line-number-at-pos (point-max))))))
-       `((size-indication-mode
-         ,,(macroexpand '(sml/propertize-position sml/size-indication-format 'sml/col-number hText)))
-        (column-number-mode
-         ,,(macroexpand '(sml/propertize-position sml/col-number-format 'sml/col-number hText)))
-        (column-number-mode  
-         (line-number-mode
-          ,,(macroexpand '(sml/propertize-position sml/numbers-separator 'sml/numbers-separator hText))))
-        (line-number-mode
-         ,,(macroexpand '(sml/propertize-position sml/line-number-format 'sml/line-number hText))))))
-    
     ;; encodings, input methods, and EOL information
     mode-line-mule-info
     
@@ -740,13 +723,6 @@ mouse-1: Display Line and Column Mode Menu"
     
     ;; Full path to buffer/file name
     mode-line-buffer-identification
-    ;; This is to ensure fixed width. The reason we do this manually
-    ;; is that some major-modes change the variable above (so we can't
-    ;; do it inside the variable), and we want this symbol to be an
-    ;; element in `mode-line-format' for compatibility with other
-    ;; packages which hack into the mode-line.
-    (:eval (sml/fill-for-buffer-identification))
-    
     ;; Position percentage
     mode-line-position
     
@@ -783,14 +759,11 @@ called straight from your init file."
       (sml/revert)
     ;; We use this to make the mode-line readable in lighter backgrounds
     (when sml/override-theme (sml/set-face-color nil nil))
-    ;; This is a warning for people not to use the old syntax. Should probably remove this eventually.
-    (when sml/show-warning (sml/check-hidden-modes))
 
     (setq battery-mode-line-format sml/battery-format)
 
+    ;;; And this is where the magic happens.
     ;; Our buffer-file-name display.
-    (setq-default mode-line-buffer-identification
-                  '(:eval (sml/generate-buffer-identification)))
     ;; For buffers which edit mode-line-identification, make sure they use OUR color.
     (set-face-foreground 'mode-line-buffer-id
                          (internal-get-lisp-face-attribute
@@ -802,12 +775,23 @@ called straight from your init file."
     (sml/filter-mode-line-list 'mode-line-client)
     (sml/filter-mode-line-list 'mode-line-modified)
     (sml/filter-mode-line-list 'mode-line-remote)
-    (sml/filter-mode-line-list 'mode-line-frame-identification)
+    (setq-default mode-line-frame-identification nil)
+    (setq-default mode-line-buffer-identification '(:eval (sml/generate-buffer-identification)))
     (sml/filter-mode-line-list 'mode-line-position)
     (sml/filter-mode-line-list 'mode-line-modes)
     (setq-default mode-line-end-spaces nil)
+    
+    (setq-default mode-line-front-space '(:eval (sml/generate-position)))
 
-    ;;; And this is where the magic happens.
+    ;; This is to ensure fixed name width. The reason we do this manually
+    ;; is that some major-modes change `mode-line-buffer-identification'
+    ;; (so we can't fill inside the variable), and we want this
+    ;; symbol to be an element in `mode-line-format' for compatibility
+    ;; with other packages which hack into the mode-line.
+    (add-to-list 'mode-line-position
+                 '(buffer-file-name
+                   nil (:eval (sml/fill-for-buffer-identification))))
+    
     ;; Set the mode-line
     ;; (setq-default mode-line-format sml/mode-line-format)
 
@@ -889,6 +873,39 @@ Might implement a quick flash eventually."
                  (null erc-track-position-in-mode-line))
       (setq erc-track-position-in-mode-line t))))
 
+(defun sml/generate-position ()
+  "Return a string describing various positional information."
+  (let ((hText (format-mode-line (format "Buffer size:\n\t%%IB\n\
+Number of Lines:\n\t%s\n\
+Current Line:\n\t%%l\n\
+mouse-1: Display Line and Column Mode Menu"
+                                         (line-number-at-pos (point-max))))))
+    `((size-indication-mode
+       ,(propertize sml/size-indication-format
+                    'face 'sml/col-number
+                    'help-echo hText
+                    'mouse-face 'mode-line-highlight
+                    'local-map mode-line-column-line-number-mode-map))
+      (column-number-mode
+       ,(propertize sml/col-number-format
+                    'face 'sml/col-number
+                    'help-echo hText
+                    'mouse-face 'mode-line-highlight
+                    'local-map mode-line-column-line-number-mode-map))
+      (column-number-mode  
+       (line-number-mode
+        ,(propertize sml/numbers-separator
+                     'face 'sml/numbers-separator
+                     'help-echo hText
+                     'mouse-face 'mode-line-highlight
+                     'local-map mode-line-column-line-number-mode-map)))
+      (line-number-mode
+       ,(propertize sml/line-number-format
+                    'face 'sml/line-number
+                    'help-echo hText
+                    'mouse-face 'mode-line-highlight
+                    'local-map mode-line-column-line-number-mode-map)))))
+
 (defun sml/generate-modified-status ()
   "Return a string describing the modified status of the buffer."
   (cond ;; ((file-remote-p (buffer-file-name)) "%1+")
@@ -938,7 +955,7 @@ L must be a symbol! We asign right back to it"
 
 (defun sml/fill-for-buffer-identification ()
   "Returns a string of spaces so that `mode-line-buffer-identification' is fixed-width."
-  (make-string (max (- sml/name-width -1 (length (format-mode-line mode-line-buffer-identification)))
+  (make-string (max (- sml/name-width -2 (length (format-mode-line mode-line-buffer-identification)))
                     1) ?\ ))
 
 (defun sml/generate-buffer-identification ()
@@ -966,7 +983,9 @@ To be used in mapcar and accumulate results."
   (cond
    ;; These are implemented separately
    ((member el '("%1+" "(" ")" "%1@" (t erc-modified-channels-object)
-                 (:eval (if (display-graphic-p) " " "-"))))
+                 (:eval (if (display-graphic-p) " " "-"))
+                 (:eval (unless (display-graphic-p) "-%-"))
+                 (:eval (mode-line-frame-control))))
     nil)   
    ((member (car-safe el) '(line-number-mode column-number-mode size-indication-mode current-input-method)) nil)
 
@@ -993,22 +1012,21 @@ mouse-1: Display Line and Column Mode Menu"))
    ;;;; mode-line-mule-info
    ;; Partially hide some MULE info
    ((and (stringp el) (string-match "\\s-*%[-0-9]*z" el))
-    `(:propertize (,(1+ (length (format-mode-line sml/mule-info)))
+    `(:propertize ((1 (current-input-method
+                       (:propertize ("" current-input-method-title)
+                                    help-echo (concat
+                                               ,(purecopy "Current input method: ")
+                                               current-input-method
+                                               ,(purecopy "\n\
+mouse-2: Disable input method\n\
+mouse-3: Describe current input method"))
+                                    local-map ,mode-line-input-method-map
+                                    mouse-face mode-line-highlight)))                      
                    (sml/mule-info
                     ,(propertize sml/mule-info
                                  'help-echo 'mode-line-mule-info-help-echo
                                  'mouse-face 'mode-line-highlight
-                                 'local-map mode-line-coding-system-map))                      
-                   (current-input-method
-                    (:propertize ("" current-input-method-title)
-                                 help-echo (concat
-                                            ,(purecopy "Current input method: ")
-                                            current-input-method
-                                            ,(purecopy "\n\
-mouse-2: Disable input method\n\
-mouse-3: Describe current input method"))
-                                 local-map ,mode-line-input-method-map
-                                 mouse-face mode-line-highlight)))))
+                                 'local-map mode-line-coding-system-map)))))
    ;; Make EOL optional
    ((equal el '(:eval (mode-line-eol-desc)))
     '(sml/show-eol (:eval (propertize (mode-line-eol-desc)))))
@@ -1069,15 +1087,6 @@ duplicated buffer names) from being displayed."
           (- (window-width)
              (let ((sml/simplified t))
                (length (format-mode-line mode-line-format)))))))
-
-(defun sml/check-hidden-modes ()
-  "Checks if `sml/hidden-modes' is using the new syntax. 
-
-New syntax means the items should start with a space."
-  (dolist (cur sml/hidden-modes)
-    (unless (eq ?\  (string-to-char cur))
-      (warn "[sml]Strings in `sml/hidden-modes' should start with a space (\" \").\nTo stop showing this message, toggle `sml/show-warning.'")
-      (return)))) 
 
 (defun sml/mode-list-to-string-list (ml) ;;Credits to Constantin
   "Try to read the mode-list (which contains almost anything) and return a sensible list of strings."     
