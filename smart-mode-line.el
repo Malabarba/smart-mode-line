@@ -730,7 +730,7 @@ called straight from your init file."
                          (internal-get-lisp-face-attribute
                           'sml/filename :foreground))
 
-    ;; Remove elements we implement separately, and color the ones not removed.
+    ;; Remove elements we implement separately, and improve the ones not removed.
     (setq-default mode-line-front-space nil)
     (sml/filter-mode-line-list 'mode-line-mule-info)
     (sml/filter-mode-line-list 'mode-line-client)
@@ -742,6 +742,7 @@ called straight from your init file."
     (sml/filter-mode-line-list 'mode-line-modes)
     (setq-default mode-line-end-spaces nil)
     
+    ;; Add position descriptions on the left (they were already removed from the middle)
     (setq-default mode-line-front-space '(:eval (sml/generate-position)))
 
     ;; This is to ensure fixed name width. The reason we do this manually
@@ -749,15 +750,9 @@ called straight from your init file."
     ;; (so we can't fill inside the variable), and we want this
     ;; symbol to be an element in `mode-line-format' for compatibility
     ;; with other packages which hack into the mode-line.
-
     (add-to-list 'mode-line-position
                  '(buffer-file-name
                    nil (:eval (sml/fill-for-buffer-identification))))
-
-    ;; (setq mode-line-position
-    ;;       (delete '(buffer-file-name
-    ;;                 nil (:eval (sml/fill-for-buffer-identification)))
-    ;;               mode-line-position))
     
     ;; Remove some annoying big spaces
     (setq-default mode-line-format
