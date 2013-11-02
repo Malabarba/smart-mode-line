@@ -147,8 +147,16 @@
 ;; 
 
 ;;; Change Log:
-;; 2.0 - 20131102 - Redesign the format to use mode-line-modes
-;; 2.0 - 20131101 - Redesign the format to use mode-line-position
+;; 2.0 - 20131102 - Redesign the format to use mode-line-mule-info.
+;; 2.0 - 20131102 - Redesign the format to use mode-line-client.
+;; 2.0 - 20131102 - Redesign the format to use mode-line-modified.
+;; 2.0 - 20131102 - Redesign the format to use mode-line-remote.
+;; 2.0 - 20131102 - Manually edits mode-line-front-space.
+;; 2.0 - 20131102 - Manually edits mode-line-frame-identification.
+;; 2.0 - 20131102 - Manually edits mode-line-buffer-identification.
+;; 2.0 - 20131102 - Manually edits mode-line-end-spaces.
+;; 2.0 - 20131102 - Redesign the format to use mode-line-modes.
+;; 2.0 - 20131101 - Redesign the format to use mode-line-position.
 ;; 1.30.1 - 20131021 - eval-when-compile cl
 ;; 1.30 - 20131013 - Click mode list to toggle minor-mode hiding.
 ;; 1.29.2 - 20131002 - Different default position-percentage face.
@@ -240,9 +248,6 @@
 (defgroup smart-mode-line '()
   "Customization group for the `smart-mode-line.el' package."
   :group 'convenience)
-;; (defgroup smart-mode-line-mode-line '()
-;;   "Group for editing the mode-line created by `sml/setup'."
-;;   :group 'smart-mode-line)
 (defgroup smart-mode-line-position '()
   "Group for editing the major/minor mode list."
   :group 'smart-mode-line)
@@ -303,7 +308,7 @@ Changing this only has effect after restarting emacs."
   :group 'smart-mode-line-faces
   :group 'smart-mode-line)
 
-(defcustom sml/position-percentage-format " %p"
+(defcustom sml/position-percentage-format "%p"
   "Format used to display position in the buffer.
 
 Empty it to hide the number."
@@ -788,12 +793,22 @@ called straight from your init file."
     ;; (so we can't fill inside the variable), and we want this
     ;; symbol to be an element in `mode-line-format' for compatibility
     ;; with other packages which hack into the mode-line.
+
     (add-to-list 'mode-line-position
                  '(buffer-file-name
                    nil (:eval (sml/fill-for-buffer-identification))))
+
+    ;; (setq mode-line-position
+    ;;       (delete '(buffer-file-name
+    ;;                 nil (:eval (sml/fill-for-buffer-identification)))
+    ;;               mode-line-position))
     
-    ;; Set the mode-line
-    ;; (setq-default mode-line-format sml/mode-line-format)
+    ;; Remove some annoying big spaces
+    (setq-default mode-line-format
+                  (mapcar
+                   (lambda (x) (if (and (stringp x) (string-match "\\` +\\'" x))
+                                   " " x))
+                   mode-line-format))
 
     ;;;; And here comes support for a bunch of extra stuff. Some of
     ;;;; these are just needed for coloring, and some are needed
@@ -956,14 +971,12 @@ L must be a symbol! We asign right back to it"
 (defun sml/fill-for-buffer-identification ()
   "Returns a string of spaces so that `mode-line-buffer-identification' is fixed-width."
   (make-string (max (- sml/name-width -2 (length (format-mode-line mode-line-buffer-identification)))
-                    1) ?\ ))
+                    0) ?\ ))
 
 (defun sml/generate-buffer-identification ()
   "Return fully propertized prefix+path+buffername."
   (let* ((prefix (sml/get-prefix (sml/replacer (abbreviate-file-name (sml/get-directory)))))
          (bufname (sml/buffer-name))
-         ;; (if (and (buffer-file-name) (file-directory-p (buffer-file-name)))
-         ;; 			   "" (buffer-name))
          (dirsize (max 0 (- (abs sml/name-width) (length prefix) (length bufname))))
          (dirstring (funcall sml/shortener-func (sml/get-directory) dirsize)))
     
