@@ -4,7 +4,8 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 1.30.1
+;; Version: 2.0
+;; Package-Requires: ((emacs "24.2") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
 ;; Separator: /
@@ -146,6 +147,8 @@
 ;; 
 
 ;;; Change Log:
+;; 2.0 - 20131102 - Redesign the format to use mode-line-modes
+;; 2.0 - 20131101 - Redesign the format to use mode-line-position
 ;; 1.30.1 - 20131021 - eval-when-compile cl
 ;; 1.30 - 20131013 - Click mode list to toggle minor-mode hiding.
 ;; 1.29.2 - 20131002 - Different default position-percentage face.
@@ -212,10 +215,11 @@
 ;;; Code:
 
 (eval-when-compile (require 'cl))
+(require 'dash)
 
-(defconst sml/version "1.30.1" "Version of the smart-mode-line.el package.")
+(defconst sml/version "2.0" "Version of the smart-mode-line.el package.")
 
-(defconst sml/version-int 35 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version-int 36 "Version of the smart-mode-line.el package, as an integer.")
 
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
@@ -312,6 +316,12 @@ Empty it to hide the number."
 Empty it or disable `line-number-mode' to hide the number."
   :type 'string
   :group 'smart-mode-line-position)
+
+(defcustom sml/size-indication-format "%I "
+  "Format to display buffer size when `size-indication-mode' is on."
+  :type 'string
+  :group 'smart-mode-line-position
+  :package-version '(smart-mode-line . "2.0"))
 
 (defcustom sml/col-number-format "%2c"
   "Format used to display column number.
@@ -621,11 +631,10 @@ if you just want to fine-tune it)."
   "" :group 'smart-mode-line-faces)
 (defface sml/filename (if sml/override-theme
                           '((t :inherit sml/global
-                               :foreground "#eab700"
-                               :weight bold))
+                               :foreground "#eab700"))
                         '((t :inherit font-lock-keyword-face
                              ;:foreground "Red"
-                             :weight bold)))
+                             )))
   "" :group 'smart-mode-line-faces)
 (defface sml/modes (if sml/override-theme
                        '((t :inherit sml/global
@@ -648,9 +657,9 @@ if you just want to fine-tune it)."
   "" :group 'smart-mode-line-faces)
 
 ;; Anchors
-(defconst sml/anchor-beginning '() "Anchor so that other packages can find specific positions in the mode-line.")
-(defconst sml/anchor-after-status '() "Anchor so that other packages can find specific positions in the mode-line.")
-(defconst sml/anchor-before-major-mode '() "Anchor so that other packages can find specific positions in the mode-line.")
+(defconst sml/anchor-beginning         '() "Anchor so that other packages can find specific positions in the mode-line.")
+(defconst sml/anchor-after-status      '() "Anchor so that other packages can find specific positions in the mode-line.")
+(defconst sml/anchor-before-major-mode '(" ") "Anchor so that other packages can find specific positions in the mode-line.")
 (defconst sml/anchor-after-minor-modes '() "Anchor so that other packages can find specific positions in the mode-line.")
 (defconst sml/simplified-mode-line-patchy-fix ""
   "Fix for filling to work with packages that manually edit the mode-line.")
@@ -711,10 +720,11 @@ If you want it to show the backend, just set it to t."
     (:eval
      (let ((hText (format-mode-line (format "Buffer size:\n\t%%IB\nNumber of Lines:\n\t%s\nCurrent Line:\n\t%%l"
                                             (line-number-at-pos (point-max))))))
-       `((column-number-mode (:eval (propertize sml/col-number-format  'face 'sml/col-number        'help-echo ,hText)))
-         (column-number-mode
-          (line-number-mode  (:eval (propertize sml/numbers-separator  'face 'sml/numbers-separator 'help-echo ,hText))))
-         (line-number-mode   (:eval (propertize sml/line-number-format 'face 'sml/line-number       'help-echo ,hText))))))
+       `((size-indication-mode (:eval (propertize sml/size-indication-format  'face 'sml/col-number        'help-echo ,hText)))
+         (column-number-mode   (:eval (propertize sml/col-number-format       'face 'sml/col-number        'help-echo ,hText)))
+         (column-number-mode  
+          (line-number-mode    (:eval (propertize sml/numbers-separator       'face 'sml/numbers-separator 'help-echo ,hText))))
+         (line-number-mode     (:eval (propertize sml/line-number-format      'face 'sml/line-number       'help-echo ,hText))))))
     
     ;; Encoding
     (sml/show-encoding
@@ -755,64 +765,28 @@ If you want it to show the backend, just set it to t."
     sml/anchor-after-status
     
     ;; Full path to buffer/file name
-    (:eval
-     (let* ((prefix (sml/get-prefix (sml/replacer (abbreviate-file-name (sml/get-directory)))))
-            (bufname (sml/buffer-name))
-            ;; (if (and (buffer-file-name) (file-directory-p (buffer-file-name)))
-            ;; 			   "" (buffer-name))
-            (dirsize (max 0 (- (abs sml/name-width) (length prefix) (length bufname))))
-            (dirstring (funcall sml/shortener-func (sml/get-directory) dirsize)))
-       
-       (propertize (concat (sml/propertize-prefix (replace-regexp-in-string "%" "%%" prefix))
-                           (propertize (replace-regexp-in-string "%" "%%" dirstring) 'face 'sml/folder)
-                           (propertize (replace-regexp-in-string "%" "%%" bufname) 'face 'sml/filename)
-                           (make-string (max 0 (- dirsize (length dirstring))) ?\ ))
-                   'help-echo (format "%s\n\nmouse-1: Previous buffer\nmouse-3: Next buffer"
-                                      (or (buffer-file-name) (buffer-name)))
-                   'mouse-face 'mode-line-highlight
-                   'local-map   mode-line-buffer-identification-keymap)))
+    mode-line-buffer-identification
+    ;; This is to ensure fixed width. The reason we do this manually
+    ;; is that some major-modes change the variable above (so we can't
+    ;; do it inside the variable), and we want this symbol to be an
+    ;; element in `mode-line-format' for compatibility with other
+    ;; packages which hack into the mode-line.
+    (:eval (sml/fill-for-buffer-identification))
     
-    (-4 (:eval (propertize sml/position-percentage-format 'face 'sml/position-percentage 'help-echo
-                           (format-mode-line (format "Buffer size:\n\t%%IB\nNumber of Lines:\n\t%s\nCurrent Line:\n\t%%l"
-                                                     (line-number-at-pos (point-max)))))))
+    ;; Position percentage
+    mode-line-position
     
-    ;; Anchor
+    ;; Anchor (This contains a space)
     sml/anchor-before-major-mode
     
-    " "
     ;; The modes list
-    (:eval (propertize (format-mode-line mode-name)
-                       'mouse-face  'mode-line-highlight
-                       'face        'sml/modes
-                       'local-map   mode-line-major-mode-keymap
-                       'help-echo   sml/major-help-echo))
-
-    ;; vc-mode
-    (vc-mode vc-mode)
-    
-    ;; The mode line process, doesn't get counted into the width
-    ;; limit.
-    (:eval (propertize (format-mode-line
-                        (if (stringp mode-line-process)
-                            (replace-regexp-in-string "%" "%%%%" mode-line-process)
-                          mode-line-process)) ;("" mode-line-process)
-                       'face       'sml/process))
-    
-    ;; Minor modes list
-    (:eval (sml/extract-minor-modes minor-mode-alist sml/mode-width))
+    mode-line-modes
     
     ;; Anchor
     sml/anchor-after-minor-modes
     
     ;; Extra strings. I know that at least perpective, mew, and battery use this ;; global-mode-string 
     mode-line-misc-info
-    
-    ;; add the time, with the date and the emacs uptime in the tooltip
-    ;; (sml/show-time
-    ;;  (:eval (propertize (format-time-string sml/time-format)
-    ;;                     'face 'sml/time
-    ;;                     'help-echo (concat (format-time-string "%c;")
-    ;;                                        (emacs-uptime "\nUptime: %hh")))))
     )
   "Mode-line format to be applied when you activate `sml/setup'."
   :type 'list
@@ -840,6 +814,22 @@ called straight from your init file."
 
     (setq battery-mode-line-format sml/battery-format)
 
+    ;; We implement line-number and column number separately, so
+    ;; remove it from mode-line-position (so that we can still include
+    ;; it)
+
+    (setq-default mode-line-buffer-identification
+                  '(:eval (sml/generate-buffer-identification)))
+
+    ;; For buffers which edit mode-line-identification, make sure they use OUR color.
+    (set-face-foreground 'mode-line-buffer-id
+                         (internal-get-lisp-face-attribute
+                          'sml/filename :foreground))
+
+    ;; Remove elements we implement separately, and color the ones not removed.
+    (sml/filter-mode-line-list 'mode-line-position)
+    (sml/filter-mode-line-list 'mode-line-modes)
+        
     ;;; And this is where the magic happens.
     ;; Set the mode-line
     (setq-default mode-line-format sml/mode-line-format)
@@ -936,6 +926,75 @@ Might implement a quick flash eventually."
     (unless (and (boundp 'erc-track-position-in-mode-line)
                  (null erc-track-position-in-mode-line))
       (setq erc-track-position-in-mode-line t))))
+
+(defun sml/filter-mode-line-list (l)
+  "Filter some elements of L and propertize the ones not filtered.
+
+L must be a symbol! We asign right back to it"
+  (if (and (symbolp l) (listp (eval l)))
+      (set l
+           (remove-if
+            'null
+            (mapcar 'sml/parse-mode-line-elements (eval l))))
+    (error "l must be a symbol to a list!")))
+
+(defun sml/fill-for-buffer-identification ()
+  "Returns a string of spaces so that `mode-line-buffer-identification' is fixed-width."
+  (make-string (max (- sml/name-width -1 (length (format-mode-line mode-line-buffer-identification)))
+                    1) ?\ ))
+
+(defun sml/generate-buffer-identification ()
+  "Return fully propertized prefix+path+buffername."
+  (let* ((prefix (sml/get-prefix (sml/replacer (abbreviate-file-name (sml/get-directory)))))
+         (bufname (sml/buffer-name))
+         ;; (if (and (buffer-file-name) (file-directory-p (buffer-file-name)))
+         ;; 			   "" (buffer-name))
+         (dirsize (max 0 (- (abs sml/name-width) (length prefix) (length bufname))))
+         (dirstring (funcall sml/shortener-func (sml/get-directory) dirsize)))
+    
+    (propertize (concat (sml/propertize-prefix (replace-regexp-in-string "%" "%%" prefix))
+                        (propertize (replace-regexp-in-string "%" "%%" dirstring) 'face 'sml/folder)
+                        (propertize (replace-regexp-in-string "%" "%%" bufname) 'face 'sml/filename)
+                        (make-string (max 0 (- dirsize (length dirstring))) ?\ ))
+                'help-echo (format "%s\n\nmouse-1: Previous buffer\nmouse-3: Next buffer"
+                                   (or (buffer-file-name) (buffer-name)))
+                'mouse-face 'mode-line-highlight
+                'local-map   mode-line-buffer-identification-keymap)))
+
+(defun sml/parse-mode-line-elements (el)
+  "Propertize or delete EL.
+
+To be used in mapcar and accumulate results."
+  (cond
+   ;; These are implemented separately
+   ((member el '("(" ")" (t erc-modified-channels-object))) nil)
+   ((member (car-safe el) '(line-number-mode column-number-mode size-indication-mode)) nil)   
+   ;; Color the mode line process
+   ((equal el '("" mode-line-process))
+    `(:propertize ("" mode-line-process) face sml/process))
+   ;; Color the mode name, without changing other properties
+   ((and (listp el)
+         (equal (car el) :propertize)
+         (equal (cadr el) '("" mode-name)))
+    (append el '(face sml/modes)))
+   ;; Completely replace the minor modes (so we can truncate)
+   ((and (listp el)
+         (equal (car el) :propertize)
+         (equal (cadr el) '("" minor-mode-alist)))
+    '(:eval (sml/extract-minor-modes minor-mode-alist sml/mode-width)))
+
+   ;; Color the position percentage
+   ((sml/is-%p-p el)
+    `(:propertize ,el face sml/position-percentage))
+   (t el)))
+
+(defun sml/is-%p-p (x)
+  "Non-nil if X matches \"%p\" in a very subjective sense."
+  (or (and (listp x)
+           (-first (lambda (y) (string-match ".*%p.*" y))
+                   (-filter 'stringp x)))
+      (and (stringp x)
+           (string-match ".*%p.*" x))))
 
 (defun sml/sml-modeline-support ()
   "Create a variable regarding `sml-modeline-mode' and insert `sml-modeline-create' in one of the anchors."
