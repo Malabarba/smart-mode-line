@@ -1094,7 +1094,7 @@ duplicated buffer names) from being displayed."
     ('string (list ml))
     ('symbol
      (if ml
-         (sml/mode-list-to-string-list (symbol-value ml) )
+         (sml/mode-list-to-string-list (symbol-value ml))
        nil))
     (('function 'subr) (sml/mode-list-to-string-list (list (funcall ml))))
     ('cons
@@ -1105,17 +1105,17 @@ duplicated buffer names) from being displayed."
           (let ((val (symbol-value kar))
                 (kadr (if (listp kdr) (car kdr) nil)))
             (case val
-              (:eval (sml/mode-list-to-string-list (eval kadr) ))
+              (:eval (sml/mode-list-to-string-list (eval kadr)))
               ;; properties now not handlet properly
-              (:propertize (sml/mode-list-to-string-list kdr ))
+              (:propertize (sml/mode-list-to-string-list kdr))
               (t
                (if val
                    (sml/mode-list-to-string-list kadr)
                  (sml/mode-list-to-string-list (cdr kdr)))))))
          ('integer
           ;; heh, now do nothing, must reduce max width if < 0 or do padding if > 0
-          (sml/mode-list-to-string-list kdr ))
-         (t (append (sml/mode-list-to-string-list kar ) (sml/mode-list-to-string-list kdr ))))))
+          (sml/mode-list-to-string-list kdr))
+         (t (append (sml/mode-list-to-string-list kar) (sml/mode-list-to-string-list kdr))))))
     ;; unknown
     (t ;;(message "mode-list-to-string-error Unknown: type: %s;\nval: %s" ml (type-of ml))
      (list (format "%s" ml)))))
