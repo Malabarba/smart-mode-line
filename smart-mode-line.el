@@ -875,10 +875,6 @@ called straight from your init file."
                                            ((string-match "^ [:@]" noback) 'sml/vc-edited)
                                            ((string-match "^ [!\\?]" noback) 'sml/warning))))))))
     
-    ;; evil support
-    (eval-after-load "evil-core"
-      '(sml/fix-evil-mode))
-    
     ;; Mew support
     (eval-after-load "mew-net"
       '(progn
@@ -1281,17 +1277,6 @@ regexp in `sml/prefix-regexp'."
         (when path
           (setq output (concat ".../" output)))
         output))))
-
-(defun sml/fix-evil-mode ()
-  "Fix for the way evil-mode implements their 'before and 'after positions."
-  ;; (setq sml/simplified-mode-line-patchy-fix " <E> ")
-  (if (eq evil-mode-line-format 'before)
-      (setq evil-mode-line-format '(before . sml/anchor-beginning))
-    (if (eq evil-mode-line-format 'after)
-        (setq evil-mode-line-format '(after . sml/anchor-after-minor-modes))))
-  ;; (when (eq sml/mode-width 'full)
-  ;; (warn "Setting `sml/mode-width' to full does not work well with evil-mode automatically. You need to either set "))
-  )
 
 (defun sml/set-face-color (sym val)
   (if sym (set-default sym val))
