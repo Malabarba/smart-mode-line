@@ -288,19 +288,34 @@ function (which are the only ways you should change it).")
   (if val (setq sml/shortener-func 'sml/do-shorten-directory)
     (setq sml/shortener-func 'sml/not-shorten-directory)))
 
-(defcustom sml/override-theme t
-  "For any value other than nil, sml will override your theme's foreground and background colors for the modeline. 
+(define-obsolete-variable-alias 'sml/override-theme 'sml/theme)
+(defcustom sml/theme 'dark
+  "Defines which theme `smart-mode-line' should use.
 
-If this is nil many modeline elements will use standard font-lock
-faces, in an attempt to still look nice. The result will vary
-depending on your theme, but that's what you're asking for if you
-set this to nil. ;-)
+This can be 'light, 'dark, or nil.
+Default value is 'dark.
+
+Setting this to 'light and 'dark will apply some predefined
+colors to the mode-line, which are designed to be easy to read.
+
+Setting it to nil will try to use the colors defined by your
+emacs color-theme (emphasis on the try). This will make the
+mode-line colors more consitent with buffer colors, but it's a
+bit of a shot in the dark. The result will vary for each
+color-theme, and you may get colors that don't read well.
+
+But don't forget, all colors are customizable!
+`sml/customize-faces'
+Any color you change manually won't get affected by this
+variable.
 
 You HAVE to set this BEFORE loading `smart-mode-line', otherwise
 it has no effect.
 
 Changing this only has effect after restarting emacs."
-  :type 'boolean
+  :type '(choice (const :tag "Use a dark color-theme. (Default)" dark)
+                 (const :tag "Use a light color-theme." light)
+                 (const :tag "Respect the color-theme's colors." nil))
   :group 'smart-mode-line-faces
   :group 'smart-mode-line)
 
@@ -562,100 +577,98 @@ if you just want to fine-tune it)."
   :group 'smart-mode-line-mode-list)
 
 ;; Color definitions
-(defcustom sml/active-foreground-color "gray60"
-  "Foreground mode-line color for the active frame."
-  :type 'color
-  :group 'smart-mode-line-faces
-  :set 'sml/set-face-color
-  :initialize 'set-default)
+(defcustom sml/active-foreground-color "gray60" "Foreground mode-line color for the active frame."
+  :type 'color :group 'smart-mode-line-faces :set 'sml/set-face-color :initialize 'set-default)
 (defcustom sml/active-background-color "black" "Background mode-line color for the active frame."
-  :type 'color :group 'smart-mode-line-faces
-  :set 'sml/set-face-color
-  :initialize 'set-default)
-
+  :type 'color :group 'smart-mode-line-faces :set 'sml/set-face-color :initialize 'set-default) 
 (defcustom sml/inactive-foreground-color "gray60" "Foreground mode-line color for the inactive frame."
-  :type 'color :group 'smart-mode-line-faces
-  :set 'sml/set-face-color
-  :initialize 'set-default)
+  :type 'color :group 'smart-mode-line-faces :set 'sml/set-face-color :initialize 'set-default)
 (defcustom sml/inactive-background-color "#404045" "Background mode-line color for the inactive frame."
-  :type 'color :group 'smart-mode-line-faces
-  :set 'sml/set-face-color
-  :initialize 'set-default)
+  :type 'color :group 'smart-mode-line-faces :set 'sml/set-face-color :initialize 'set-default)
 
 ;; Face definitions
-(defface sml/global '((t :foreground "gray50"))  
-  "" :group 'smart-mode-line-faces)
-(defface sml/warning (if sml/override-theme
-                         '((t :inherit sml/global
-                              :foreground "#bf0000"
-                              :weight bold))
-                       '((t :inherit font-lock-warning-face
-                            :weight bold)))
-  "" :group 'smart-mode-line-faces)
-(defface sml/line-number '((t :inherit sml/modes
-                              :weight bold))
-  "" :group 'smart-mode-line-faces)
-(defface sml/position-percentage '((t :inherit sml/prefix
-                                      :weight normal))
-  "" :group 'smart-mode-line-faces)
-(defface sml/col-number '((t :inherit sml/global))
-  "" :group 'smart-mode-line-faces)
-(defface sml/numbers-separator '((t :inherit sml/col-number))
-  "" :group 'smart-mode-line-faces)
-(defface sml/client '((t :inherit sml/prefix))
-  "" :group 'smart-mode-line-faces)
-(defface sml/not-modified '((t :inherit sml/global))
-  "" :group 'smart-mode-line-faces)
-(defface sml/read-only (if sml/override-theme
-                           '((t :inherit sml/global
-                                :foreground "DeepSkyBlue"))
-                         '((t :inherit font-lock-function-name-face)))
-  "" :group 'smart-mode-line-faces)
-(defface sml/outside-modified '((t :inherit sml/global
-                                   :foreground "#ffffff"
-                                   :background "#c82829"))
-  "" :group 'smart-mode-line-faces)
-(defface sml/modified '((t :inherit sml/warning))
-  "" :group 'smart-mode-line-faces)
-(defface sml/mule-info '((t :inherit sml/global))
-  "" :group 'smart-mode-line-faces)
-(defface sml/prefix (if sml/override-theme
-                        '((t :inherit sml/global
-                             :foreground "#bf6000"))
-                      '((t :inherit font-lock-variable-name-face)))
-  "" :group 'smart-mode-line-faces)
-(defface sml/sudo '((t :inherit sml/outside-modified))
-  "" :group 'smart-mode-line-faces)
-(defface sml/git '((t :inherit sml/read-only))
-  "" :group 'smart-mode-line-faces)
-(defface sml/folder '((t :inherit sml/global))
-  "" :group 'smart-mode-line-faces)
-(defface sml/filename (if sml/override-theme
-                          '((t :inherit sml/global
-                               :foreground "#eab700"))
-                        '((t :inherit font-lock-keyword-face
-                             ;:foreground "Red"
-                             )))
-  "" :group 'smart-mode-line-faces)
-(defface sml/modes (if sml/override-theme
-                       '((t :inherit sml/global
-                            :foreground "White"))
-                     '((t :inherit modeline)))
-  "" :group 'smart-mode-line-faces)
-(defface sml/process '((t :inherit sml/prefix))
-  "" :group 'smart-mode-line-faces)
-(defface sml/vc '((t :inherit sml/git))
-  "" :group 'smart-mode-line-faces)
-(defface sml/vc-edited '((t :inherit sml/prefix))
-  "" :group 'smart-mode-line-faces)
-(defface sml/charging '((t :inherit sml/global 
-                           :foreground "ForestGreen"))
-  "" :group 'smart-mode-line-faces)
-(defface sml/discharging '((t :inherit sml/global 
-                              :foreground "Red"))
-  "" :group 'smart-mode-line-faces)
-(defface sml/time '((t :inherit sml/modes))
-  "" :group 'smart-mode-line-faces)
+(defface sml/global    '((t :foreground "gray50"))                          "" :group 'smart-mode-line-faces)
+(defface sml/modes     '((t :inherit sml/global :foreground "White"))       "" :group 'smart-mode-line-faces)
+(defface sml/filename  '((t :inherit sml/global :foreground "#eab700"))     "" :group 'smart-mode-line-faces)
+(defface sml/prefix    '((t :inherit sml/global :foreground "#bf6000"))     "" :group 'smart-mode-line-faces)
+(defface sml/read-only '((t :inherit sml/global :foreground "DeepSkyBlue")) "" :group 'smart-mode-line-faces)
+(defface sml/outside-modified '((t :inherit sml/global :foreground "#ffffff" :background "#c82829")) "" :group 'smart-mode-line-faces)
+
+(defface sml/line-number         '((t :inherit sml/modes :weight bold))               "" :group 'smart-mode-line-faces)
+(defface sml/position-percentage '((t :inherit sml/prefix :weight normal))            "" :group 'smart-mode-line-faces)
+(defface sml/col-number          '((t :inherit sml/global))                           "" :group 'smart-mode-line-faces)
+(defface sml/numbers-separator   '((t :inherit sml/col-number))                       "" :group 'smart-mode-line-faces)
+(defface sml/client              '((t :inherit sml/prefix))                           "" :group 'smart-mode-line-faces)
+(defface sml/not-modified        '((t :inherit sml/global))                           "" :group 'smart-mode-line-faces)
+(defface sml/modified            '((t :inherit sml/warning))                          "" :group 'smart-mode-line-faces)
+(defface sml/mule-info           '((t :inherit sml/global))                           "" :group 'smart-mode-line-faces)
+(defface sml/sudo                '((t :inherit sml/outside-modified))                 "" :group 'smart-mode-line-faces)
+(defface sml/git                 '((t :inherit sml/read-only))                        "" :group 'smart-mode-line-faces)
+(defface sml/folder              '((t :inherit sml/global))                           "" :group 'smart-mode-line-faces)
+(defface sml/process             '((t :inherit sml/prefix))                           "" :group 'smart-mode-line-faces)
+(defface sml/vc                  '((t :inherit sml/git))                              "" :group 'smart-mode-line-faces)
+(defface sml/vc-edited           '((t :inherit sml/prefix))                           "" :group 'smart-mode-line-faces)
+(defface sml/charging            '((t :inherit sml/global :foreground "ForestGreen")) "" :group 'smart-mode-line-faces)
+(defface sml/discharging         '((t :inherit sml/global :foreground "Red"))         "" :group 'smart-mode-line-faces)
+(defface sml/time                '((t :inherit sml/modes))                            "" :group 'smart-mode-line-faces)
+
+;;; For changing between themes.
+(defconst sml/mode-line-active-foreground-original (internal-get-lisp-face-attribute 'mode-line :foreground))
+(defconst sml/mode-line-active-background-original (internal-get-lisp-face-attribute 'mode-line :background)) 
+(defconst sml/mode-line-inactive-foreground-original (internal-get-lisp-face-attribute 'mode-line-inactive :foreground))
+(defconst sml/mode-line-inactive-background-original (internal-get-lisp-face-attribute 'mode-line-inactive :background))
+(deftheme smart-mode-line) 
+(defun sml/apply-theme (theme)
+  "Apply THEME.
+
+Can be 'respectful, 'dark, or 'light."
+  (case theme
+    ('respectful
+     (custom-theme-set-variables
+      'smart-mode-line
+      `(sml/active-foreground-color ,sml/mode-line-active-foreground-original)
+      `(sml/active-background-color ,sml/mode-line-active-background-original) 
+      `(sml/inactive-foreground-color ,sml/mode-line-inactive-foreground-original)
+      `(sml/inactive-background-color ,sml/mode-line-inactive-background-original))
+     (custom-theme-set-faces
+      'smart-mode-line                             
+      '(sml/global    ((t :inherit mode-line :foreground "gray50")))
+      '(sml/filename  ((t :inherit (font-lock-keyword-face sml/global))))
+      '(sml/prefix    ((t :inherit (font-lock-variable-name-face sml/global))))
+      '(sml/read-only ((t :inherit (font-lock-function-name-face sml/global))))
+      '(sml/modes     ((t :inherit (mode-line sml/global))))
+      ))
+    ('light
+     (custom-theme-set-variables
+      'smart-mode-line
+      '(sml/active-foreground-color "black")
+      '(sml/active-background-color "grey75") 
+      '(sml/inactive-foreground-color "grey20")
+      '(sml/inactive-background-color "grey90")
+      )
+     (custom-theme-set-faces
+      'smart-mode-line ;; you must use the same theme name here...
+      '(sml/global    ((t :inherit mode-line  :foreground "gray50")))
+      '(sml/modes     ((t :inherit sml/global :foreground "White")))
+      '(sml/filename  ((t :inherit sml/global :foreground "#eab700")))
+      '(sml/prefix    ((t :inherit sml/global :foreground "#bf6000")))
+      '(sml/read-only ((t :inherit sml/global :foreground "DeepSkyBlue")))
+      ))
+    ('dark
+     (custom-theme-set-variables
+      'smart-mode-line
+      '(sml/active-foreground-color "gray60")
+      '(sml/active-background-color "black") 
+      '(sml/inactive-foreground-color "gray60")
+      '(sml/inactive-background-color "#404045")
+      )
+     (custom-theme-set-faces
+      'smart-mode-line ;; you must use the same theme name here...
+      '(sml/global    ((t :inherit mode-line  :foreground "gray50")))
+      '(sml/modes     ((t :inherit sml/global :foreground "White")))
+      '(sml/filename  ((t :inherit sml/global :foreground "#eab700")))
+      '(sml/prefix    ((t :inherit sml/global :foreground "#bf6000")))
+      '(sml/read-only ((t :inherit sml/global :foreground "DeepSkyBlue")))))))
 
 ;; Anchors
 (defconst sml/anchor-beginning         '() "Anchor so that other packages can find specific positions in the mode-line.")
@@ -797,7 +810,7 @@ called straight from your init file."
                    (propertize (if sml/vc-mode-show-backend vc-mode noback)
                                'face (cond ((string-match "^ -" noback)    'sml/vc)
                                            ((string-match "^ [:@]" noback) 'sml/vc-edited)
-                                           ((string-match "^ [!\\?]" noback) 'sml/warning))))))))
+                                           ((string-match "^ [!\\?]" noback) 'sml/modified))))))))
     
     ;; Mew support
     (eval-after-load "mew-net"
@@ -1260,7 +1273,6 @@ regexp in `sml/prefix-regexp'."
 
 (copy-face 'mode-line 'sml/active-backup)
 (copy-face 'mode-line-inactive 'sml/inactive-backup)
-
 (provide 'smart-mode-line)
 ;;; smart-mode-line.el ends here
 
