@@ -27,11 +27,12 @@ smart truncation. Its main features are:
     like the colors? See item 4)!
 
  2. **Fixed width** (if you want):  
-    Lets you set a maxium width for the path name and mode
-    names, and truncated intelligently (truncates the
-    directory, not the buffer name).
+    Lets you set a maxium width for the path name and mode names, and
+    truncates them intelligently (truncates the directory, not the
+    buffer name). Also let's you **right indent** strings in the
+    mode-line.
 
- 3. **Fancy features**:  
+ 3. **Directory as Prefixes**:  
     Prefix feature saves a LOT of space. e.g. **"~/.emacs.d/"**
     is translated to **":ED:"** in the path (open a file inside
     this folder to see it in action). Long path names you
@@ -40,6 +41,8 @@ smart truncation. Its main features are:
     of it (by configuring `sml/replacer-regexp-list`). Mousing
     over the abbreviated path will show you the full
     path. See below for examples.  	
+
+ 4. **Hide minor-modes**:__
     Hidden-modes feature saves even more space. Select
     which minor modes you don't want to see listed by
     customizing the `sml/hidden-modes` variable. This will
@@ -47,20 +50,20 @@ smart truncation. Its main features are:
     the modes list (mousing over the modes list still shows
     the full list).
 
- 4. **Very easy to configure**:  
+ 5. **Very easy to configure**:  
     All fonts are in the `smart-mode-line-faces`
     customization group, and all other options are in
     `smart-mode-line`. Just run `sml/customize` and see
     what's in there. If you feel anything is missing send me
     an e-mail.
 	
- 5. **Compatible with `battery-display-mode`**:
-	Just turn the mode on to have the battery level
-	displayed. sml uses a very short syntax for the
-	battery. Only the battery level is displayed (with no %
-	symbol), and green/red font means charging/discharging
-	respectively. `sml/battery-format` controls this format.
-
+ 6. **Compatible with absolutely anything**:  
+    I'm serious. Versions 2.0 and above should be compatible with
+    **any** other packages that display information in the mode-line
+    (evil, nyan-mode, elscreen, display-battery-mode, etc). If you
+    find *anything* that does not appear as it should, file a bug report
+    and I'll get to it.
+    
 Important Variables:
 ===
 All variables can be edited by running `sml/customize`, and the

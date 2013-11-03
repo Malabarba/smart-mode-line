@@ -11,17 +11,17 @@
 ;; Separator: /
 
 ;;; Commentary:
-
+;;
 ;; Smart Mode Line is a mode-line format that aims to be easy to
 ;; read from small to large monitors by using a prefix feature and
 ;; smart truncation.
-
+;;
 ;; Your mode-line will be color coded, smartly truncated (if you
 ;; want), easily customizable, and will have a few extra fancy
 ;; features like file path prefixes and minor mode filtering.
-
+;;
 ;;; Instructions:
-
+;;
 ;; INSTALLATION
 ;;
 ;; Make sure "smart-mode-line.el" is in your load path, then place
@@ -29,7 +29,7 @@
 ;;     (require 'smart-mode-line)
 ;;     (if after-init-time (sml/setup)
 ;;       (add-hook 'after-init-hook 'sml/setup))
-
+;;
 ;; DESCRIPTION
 ;;
 ;; Its main features are:
@@ -74,7 +74,7 @@
 ;; battery. Only the battery level is displayed (with no %
 ;; symbol), and green/red font means charging/discharging
 ;; respectively.
-
+;;
 ;; VARIABLES
 ;;
 ;; All variables can be edited by running `sml/customize', and the
