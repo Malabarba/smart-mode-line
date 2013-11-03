@@ -921,7 +921,7 @@ L must be a symbol! We asign right back to it"
 
 (defun sml/fill-for-buffer-identification ()
   "Returns a string of spaces so that `mode-line-buffer-identification' is fixed-width."
-  (make-string (max (- sml/name-width -2 (length (format-mode-line mode-line-buffer-identification)))
+  (make-string (max (- sml/name-width (length (format-mode-line mode-line-buffer-identification)))
                     0) sml/fill-char))
 
 (defun sml/generate-buffer-identification ()
