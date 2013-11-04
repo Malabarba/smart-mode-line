@@ -225,6 +225,8 @@
 
 (eval-when-compile (require 'cl))
 (require 'dash)
+(require 'custom)
+(require 'cus-face)
 
 (defconst sml/version "2.0" "Version of the smart-mode-line.el package.")
 (defconst sml/version-int 36 "Version of the smart-mode-line.el package, as an integer.")
@@ -294,7 +296,10 @@ function (which are the only ways you should change it).")
   (if val (setq sml/shortener-func 'sml/do-shorten-directory)
     (setq sml/shortener-func 'sml/not-shorten-directory)))
 
+(define-obsolete-variable-alias 'sml/time-format 'display-time-format)
+(define-obsolete-variable-alias 'sml/show-time 'display-time-mode)
 (define-obsolete-variable-alias 'sml/override-theme 'sml/theme)
+
 (defcustom sml/theme 'dark
   "Defines which theme `smart-mode-line' should use.
 
@@ -328,9 +333,11 @@ instead (M-x customize-variable RET sml/theme RET)."
 (defcustom sml/position-percentage-format "%p"
   "Format used to display position in the buffer.
 
-Empty it to hide the number."
+Set it to nil to hide the number."
   :type 'string
-  :group 'smart-mode-line-position)
+  :group 'smart-mode-line-position
+  :package-version '(smart-mode-line . "2.0"))
+(put 'sml/position-percentage-format 'risky-local-variable t)
 
 (defcustom sml/line-number-format "%3l"
   "Format used to display line number.
@@ -338,12 +345,14 @@ Empty it to hide the number."
 Empty it or disable `line-number-mode' to hide the number."
   :type 'string
   :group 'smart-mode-line-position)
+(put 'sml/line-number-format 'risky-local-variable t)
 
 (defcustom sml/size-indication-format "%I "
   "Format to display buffer size when `size-indication-mode' is on."
   :type 'string
   :group 'smart-mode-line-position
   :package-version '(smart-mode-line . "2.0"))
+(put 'sml/size-indication-format 'risky-local-variable t)
 
 (defcustom sml/col-number-format "%2c"
   "Format used to display column number.
@@ -351,6 +360,7 @@ Empty it or disable `line-number-mode' to hide the number."
 Empty it or disable `column-number-mode' to hide the number."
   :type 'string
   :group 'smart-mode-line-position)
+(put 'sml/col-number-format 'risky-local-variable t)
 
 (defcustom sml/numbers-separator ":"
   "Separator between line and column number.
@@ -537,22 +547,6 @@ for the syntax."
   :type 'string
   :group 'smart-mode-line-others)
 
-(defvaralias 'sml/time-format 'display-time-format
-  "This variable is now obsolete. Use the standard `display-time-format'.")
-;; (defcustom sml/time-format " %H:%M"
-;;   "Format used to display the time in the mode-line.
-
-;; Only relevant if `sml/show-time' is not nil."
-;;   :type 'string
-;;   :group 'smart-mode-line-others)
-
-(defvaralias 'sml/show-time 'display-time-mode
-  "This variable is now obsolete. Use the standard `display-time-mode'.")
-;; (defcustom sml/show-time nil
-;;   "Whether to show the time at the end of the mode-line."
-;;   :type 'boolean
-;;   :group 'smart-mode-line-others)
-
 (defcustom sml/modified-time-string "Modified on %T %Y-%m-%d."
   "String format used for displaying the modified time.
 
@@ -564,11 +558,6 @@ name."
 
 (defconst sml/major-help-echo
   "Mouse-1: mode menu.\nMouse-2: mode help.\nMouse-3: toggle minor modes.")
-
-(defcustom sml/show-warning t
-  "Should `sml/setup' warn you about baddly formated variables?"
-  :type 'boolean
-  :group 'smart-mode-line)
 
 (defcustom sml/extra-filler 0
   "The number of extra filling chars to use. It comes into play when `sml/mode-width' is set to 'full.
@@ -951,7 +940,7 @@ L must be a symbol! We asign right back to it"
 
 (defun sml/generate-buffer-identification ()
   "Return fully propertized prefix+path+buffername."
-  (let* ((prefix (sml/get-prefix (sml/replacer (abbreviate-file-name (sml/get-directory)))))
+  (let* ((prefix (sml/get-prefix (sml/replacer (sml/get-directory))))
          (bufname (sml/buffer-name))
          (dirsize (max 0 (- (abs sml/name-width) (length prefix) (length bufname))))
          (dirstring (funcall sml/shortener-func (sml/get-directory) dirsize)))
@@ -993,10 +982,13 @@ To be used in mapcar and accumulate results."
    ;;;; mode-line-position
    ;; Color the position percentage
    ((sml/is-%p-p el)
-    `(:propertize ,el
-                  face sml/position-percentage
-                  help-echo "Buffer Relative Position\n\
-mouse-1: Display Line and Column Mode Menu"))
+    `(sml/position-percentage-format
+      (-3 (:propertize (:eval sml/position-percentage-format)
+                    local-map ,mode-line-column-line-number-mode-map
+                    mouse-face mode-line-highlight
+                    face sml/position-percentage
+                    help-echo "Buffer Relative Position\n\
+mouse-1: Display Line and Column Mode Menu"))))
 
    ;;;; mode-line-mule-info
    ;; Partially hide some MULE info
@@ -1033,7 +1025,7 @@ mouse-3: Describe current input method"))
    ((and (listp el)
          (equal (car el) :propertize)
          (equal (cadr el) '("" minor-mode-alist)))
-    '(:eval (sml/extract-minor-modes minor-mode-alist sml/mode-width)))
+    '(:eval (sml/generate-minor-modes)))
 
    (t el)))
 
@@ -1057,7 +1049,7 @@ duplicated buffer names) from being displayed."
       (replace-regexp-in-string "<[0-9]+>$" "" (buffer-name)))))
 
 (defun sml/simplified-extract-minor-modes (ml maxSize)
-  "Simplified version of `sml/extract-minor-modes'. Used for width calculation."
+  "Simplified version of `sml/generate-minor-modes'. Used for width calculation."
   (if (and (integerp maxSize) sml/shorten-modes)
       (make-string (max 0 maxSize) ?\ )
     (if (equal maxSize 'full) 
@@ -1109,55 +1101,57 @@ duplicated buffer names) from being displayed."
     (t ;;(message "mode-list-to-string-error Unknown: type: %s;\nval: %s" ml (type-of ml))
      (list (format "%s" ml)))))
 
-(defun sml/extract-minor-modes (ml maxSize)
+(defun sml/generate-minor-modes ()
   "Extracts all rich strings necessary for the minor mode list."
-  (if sml/simplified
-      (sml/simplified-extract-minor-modes ml maxSize)
-    (let* ((nameList (sml/mode-list-to-string-list (reverse ml)))
-           (out nil)
-           (size (if (equal maxSize 'full) (sml/fill-width-available)
-                   maxSize))
-           (helpString (concat "Full list:\n  "
-                               (mapconcat 'identity nameList "\n  ")))
-           (keymap '(keymap (mode-line keymap (mouse-1 . sml/toggle-shorten-modes))))
-           (propertized-full-mode-string (propertize sml/full-mode-string
-                                                     'help-echo "mouse-1: Show all modes"
-                                                     'face 'sml/folder
-                                                     'local-map keymap
-                                                     'mouse-face 'mode-line-highlight))
-           (propertized-shorten-mode-string (propertize sml/shorten-mode-string
-                                                        'help-echo "mouse-1: Shorten minor modes"
-                                                        'face 'sml/folder
-                                                        'local-map keymap
-                                                        'mouse-face 'mode-line-highlight)))
-      (dolist (name nameList out)
-        (unless (member name sml/hidden-modes) ; :test #'equal
-          ;; If we're shortenning, check if it fits
-          (when (and sml/shorten-modes (< size (length name)))
-            ;; If the remaining size is too small even for the
-            ;; `sml/full-mode-string', get rid of the last string.
-            ;; (This won't work perfectly if the last string is
-            ;; smaller then `sml/full-mode-string', but that should be
-            ;; rare.)
-            (when (< size (length sml/full-mode-string)) (setq out (cdr out)))
-            (add-to-list 'out propertized-full-mode-string t)
-            (decf size (length sml/full-mode-string))
-            (return))
-          ;; If it fits or we're not shortenning, append the next one.
-          (decf size (length name))
-          (add-to-list 'out (propertize name
-                                        'help-echo helpString
-                                        'mouse-face 'mode-line-highlight
-                                        'face 'sml/folder
-                                        'local-map mode-line-minor-mode-keymap))))
-      ;; If we're not shortenning, at the " -" at the end.
-      (unless sml/shorten-modes
-        (decf size (length propertized-shorten-mode-string))
-        (add-to-list 'out propertized-shorten-mode-string t))
-      ;; Fill with spaces, unless size is negative.
-      (append out (list (propertize (make-string (max 0 size) sml/fill-char)
-                                    'help-echo helpString
-                                    'face 'sml/folder))))))
+  (let ((ml      minor-mode-alist)
+        (maxSize sml/mode-width))
+    (if sml/simplified
+        (sml/simplified-extract-minor-modes ml maxSize)
+      (let* ((nameList (sml/mode-list-to-string-list (reverse ml)))
+             (out nil)
+             (size (if (equal maxSize 'full) (sml/fill-width-available)
+                     maxSize))
+             (helpString (concat "Full list:\n  "
+                                 (mapconcat 'identity nameList "\n  ")))
+             (keymap '(keymap (mode-line keymap (mouse-1 . sml/toggle-shorten-modes))))
+             (propertized-full-mode-string (propertize sml/full-mode-string
+                                                       'help-echo "mouse-1: Show all modes"
+                                                       'face 'sml/folder
+                                                       'local-map keymap
+                                                       'mouse-face 'mode-line-highlight))
+             (propertized-shorten-mode-string (propertize sml/shorten-mode-string
+                                                          'help-echo "mouse-1: Shorten minor modes"
+                                                          'face 'sml/folder
+                                                          'local-map keymap
+                                                          'mouse-face 'mode-line-highlight)))
+        (dolist (name nameList out)
+          (unless (member name sml/hidden-modes) ; :test #'equal
+            ;; If we're shortenning, check if it fits
+            (when (and sml/shorten-modes (< size (length name)))
+              ;; If the remaining size is too small even for the
+              ;; `sml/full-mode-string', get rid of the last string.
+              ;; (This won't work perfectly if the last string is
+              ;; smaller then `sml/full-mode-string', but that should be
+              ;; rare.)
+              (when (< size (length sml/full-mode-string)) (setq out (cdr out)))
+              (add-to-list 'out propertized-full-mode-string t)
+              (decf size (length sml/full-mode-string))
+              (return))
+            ;; If it fits or we're not shortenning, append the next one.
+            (decf size (length name))
+            (add-to-list 'out (propertize name
+                                          'help-echo helpString
+                                          'mouse-face 'mode-line-highlight
+                                          'face 'sml/folder
+                                          'local-map mode-line-minor-mode-keymap))))
+        ;; If we're not shortenning, at the " -" at the end.
+        (unless sml/shorten-modes
+          (decf size (length propertized-shorten-mode-string))
+          (add-to-list 'out propertized-shorten-mode-string t))
+        ;; Fill with spaces, unless size is negative.
+        (append out (list (propertize (make-string (max 0 size) sml/fill-char)
+                                      'help-echo helpString
+                                      'face 'sml/folder)))))))
 
 (defun sml/propertize-prefix (prefix)
   "Set the color of the prefix according to its contents."
@@ -1166,30 +1160,23 @@ duplicated buffer names) from being displayed."
       (if (string-match (car pair) prefix)
           (return (propertize prefix 'face (car (cdr pair))))))))
 
-(defun sml/trim-modes (major minor)
-  "Maybe trim the modes list."
-  (let ((out (concat major minor))
-        (N sml/mode-width))
-    (if sml/shorten-modes
-        (if (> (length out) N)
-            (concat (substring out 0 (- N 3)) "...")
-          (concat out (make-string (- N (length out)) ?\ )))
-      (concat out (make-string (max 0 (- N (length out))) ?\ )))))
-
 (defun sml/revert ()
-  "Called by `sml/setup' with arg = -1."
+  "Called by `sml/setup' with arg = -1.
+
+Try to undo all changes made by `sml/setup'.
+Not perfect, but quite good."
   (copy-face 'sml/active-backup 'mode-line)
   (copy-face 'sml/inactive-backup 'mode-line-inactive)
   (setq-default mode-line-format sml/format-backup)
-  (setq battery-mode-line-format sml/battery-format-backup)
-  )
+  (setq battery-mode-line-format sml/battery-format-backup))
 
 (defun sml/get-directory ()
   "Decide if we want directory shown. If so, return it."
-  (cond ((buffer-file-name) default-directory)
-        ((and (listp mode-name) (string-match "Dired" (car mode-name)))
-         (replace-regexp-in-string "/[^/]*/$" "/" default-directory))
-        (t "")))
+  (abbreviate-file-name
+   (cond ((buffer-file-name) default-directory)
+         ((and (listp mode-name) (string-match "Dired" (car mode-name)))
+          (replace-regexp-in-string "/[^/]*/$" "/" default-directory))
+         (t ""))))
 
 (defun sml/set-battery-font ()
   "Set `sml/battery' face depending on battery state."
@@ -1201,24 +1188,14 @@ duplicated buffer names) from being displayed."
 (defadvice battery-update (before sml/set-battery-font activate)
   (sml/set-battery-font))
 
-(defun sml/format-minor-list (mml)
-  "Cleans and fontifies the minor mode list."
-  (let ((case-fold-search nil))
-    (if sml/hidden-modes
-        (replace-regexp-in-string (concat " \\(" (mapconcat 'identity sml/hidden-modes "\\|") "\\)")
-                                  ""
-                                  mml)
-      mml)))
-
 (defun sml/replacer (in)
   "Runs the replacements specified in `sml/replacer-regexp-list'.
 
 Used by `sml/strip-prefix' and `sml/get-prefix'."
   (let ((out in))
     (dolist (cur sml/replacer-regexp-list)
-      (setq out (replace-regexp-in-string (car cur)
-                                          (car (cdr cur))
-                                          out)))
+      (setq out (replace-regexp-in-string
+                 (car cur) (car (cdr cur)) out)))
     out))
 
 (defun sml/regexp-composer (getter)
@@ -1276,6 +1253,7 @@ regexp in `sml/prefix-regexp'."
   (set-face-attribute 'mode-line-inactive nil
                       :background sml/inactive-background-color
                       :foreground sml/inactive-foreground-color))
+
 ;; Backup the original configs, just in case.
 (defconst sml/format-backup mode-line-format
   "Backs up the `mode-line-format' before SML was required.")
@@ -1285,6 +1263,6 @@ regexp in `sml/prefix-regexp'."
 
 (copy-face 'mode-line 'sml/active-backup)
 (copy-face 'mode-line-inactive 'sml/inactive-backup)
+
 (provide 'smart-mode-line)
 ;;; smart-mode-line.el ends here
-
