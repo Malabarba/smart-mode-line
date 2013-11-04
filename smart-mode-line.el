@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.0
+;; Version: 2.0.1
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
@@ -143,6 +143,7 @@
 ;; 
 
 ;;; Change Log:
+;; 2.0.1  - 20131104 - Slight fix on sml/apply-theme
 ;; 2.0    - 20131104 - Remove unnecessary functions.
 ;; 2.0    - 20131104 - Many other internal improvements.
 ;; 2.0    - 20131102 - Remove sml/mode-line-format
@@ -226,8 +227,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.0" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 36 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.0.1" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 37 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -581,7 +582,7 @@ if you just want to fine-tune it)."
 ;; Face definitions
 (defface sml/global           '((t :foreground "gray50"))                                            "" :group 'smart-mode-line-faces)
 (defface sml/modes            '((t :inherit sml/global :foreground "White"))                         "" :group 'smart-mode-line-faces)
-(defface sml/filename         '((t :inherit sml/global :foreground "#eab700"))                       "" :group 'smart-mode-line-faces)
+(defface sml/filename         '((t :inherit sml/global :foreground "#eab700" :weight bold))          "" :group 'smart-mode-line-faces)
 (defface sml/prefix           '((t :inherit sml/global :foreground "#bf6000"))                       "" :group 'smart-mode-line-faces)
 (defface sml/read-only        '((t :inherit sml/global :foreground "DeepSkyBlue"))                   "" :group 'smart-mode-line-faces)
 (defface sml/outside-modified '((t :inherit sml/global :foreground "#ffffff" :background "#c82829")) "" :group 'smart-mode-line-faces)
@@ -621,7 +622,9 @@ for more information on each value.
 
 The second argument (VALUE) is for internal use only, don't use it."
   (if value (setq sml/theme value)
-    (setq sml/theme theme))
+    (if theme
+        (setq sml/theme theme)
+      (setq sml/theme 'respectful)))
   (case sml/theme
     ('respectful (custom-theme-set-variables
                   'smart-mode-line
@@ -632,7 +635,7 @@ The second argument (VALUE) is for internal use only, don't use it."
                  (custom-theme-set-faces
                   'smart-mode-line                             
                   '(sml/global    ((t :inherit font-lock-preprocessor-face)))
-                  '(sml/filename  ((t :inherit (font-lock-function-name-face sml/global))))
+                  '(sml/filename  ((t :inherit (font-lock-function-name-face sml/global) :weight bold)))
                   '(sml/prefix    ((t :inherit (font-lock-variable-name-face sml/global))))
                   '(sml/read-only ((t :inherit (font-lock-type-face sml/global))))
                   `(sml/modes     ((t :inherit sml/global :foreground ,sml/active-foreground-color)))))
@@ -646,7 +649,7 @@ The second argument (VALUE) is for internal use only, don't use it."
              'smart-mode-line
              '(sml/global    ((t :foreground "gray20")))
              '(sml/modes     ((t :inherit sml/global :foreground "Black")))
-             '(sml/filename  ((t :inherit sml/global :foreground "Blue")))
+             '(sml/filename  ((t :inherit sml/global :foreground "Blue" :weight bold)))
              '(sml/prefix    ((t :inherit sml/global :foreground "#5b2507")))
              '(sml/read-only ((t :inherit sml/global :foreground "DarkGreen")))))
     ((dark t)
@@ -660,7 +663,7 @@ The second argument (VALUE) is for internal use only, don't use it."
       'smart-mode-line
       '(sml/global    ((t :foreground "gray50")))
       '(sml/modes     ((t :inherit sml/global :foreground "White")))
-      '(sml/filename  ((t :inherit sml/global :foreground "#eab700")))
+      '(sml/filename  ((t :inherit sml/global :foreground "#eab700" :weight bold)))
       '(sml/prefix    ((t :inherit sml/global :foreground "#bf6000")))
       '(sml/read-only ((t :inherit sml/global :foreground "DeepSkyBlue"))))
      (if (eq sml/theme t)
