@@ -292,30 +292,30 @@ function (which are the only ways you should change it).")
 (defcustom sml/theme 'dark
   "Defines which theme `smart-mode-line' should use.
 
-This can be 'light, 'dark, or nil.
-Default value is 'dark.
+This can be 'dark, 'light or 'respectful.
 
 Setting this to 'light and 'dark will apply some predefined
 colors to the mode-line, which are designed to be easy to read.
 
-Setting it to nil will try to use the colors defined by your
-emacs color-theme (emphasis on the try). This will make the
-mode-line colors more consitent with buffer colors, but it's a
-bit of a shot in the dark. The result will vary for each
-color-theme, and you may get colors that don't read well.
+Setting it to 'respectful will try to use the colors defined by
+your current emacs theme (emphasis on the \"try\"). This will
+make the mode-line colors more consistent with buffer colors, but
+it's a bit of a shot in the dark. The result will vary for each
+color theme, and you may get colors that don't read well.
 
-But don't forget, all colors are customizable!
+But don't forget, ALL COLORS ARE CUSTOMIZABLE!
 `sml/customize-faces'
 Any color you change manually won't get affected by this
 variable.
 
-You HAVE to set this BEFORE loading `smart-mode-line', otherwise
-it has no effect.
-
-Changing this only has effect after restarting emacs."
+Setting this variable via `setq' only has effect BEFORE loading
+`smart-mode-line'. If smart-mode-line is already loaded, use
+either `sml/apply-theme' or the customization interface
+instead (M-x customize-variable RET sml/theme RET)."
   :type '(choice (const :tag "Use a dark color-theme. (Default)" dark)
                  (const :tag "Use a light color-theme." light)
                  (const :tag "Respect the color-theme's colors." nil))
+  :set 'sml/apply-theme
   :group 'smart-mode-line-faces
   :group 'smart-mode-line)
 
@@ -587,12 +587,13 @@ if you just want to fine-tune it)."
   :type 'color :group 'smart-mode-line-faces :set 'sml/set-face-color :initialize 'set-default)
 
 ;; Face definitions
-(defface sml/global    '((t :foreground "gray50"))                          "" :group 'smart-mode-line-faces)
-(defface sml/modes     '((t :inherit sml/global :foreground "White"))       "" :group 'smart-mode-line-faces)
-(defface sml/filename  '((t :inherit sml/global :foreground "#eab700"))     "" :group 'smart-mode-line-faces)
-(defface sml/prefix    '((t :inherit sml/global :foreground "#bf6000"))     "" :group 'smart-mode-line-faces)
-(defface sml/read-only '((t :inherit sml/global :foreground "DeepSkyBlue")) "" :group 'smart-mode-line-faces)
+(defface sml/global           '((t :foreground "gray50"))                                            "" :group 'smart-mode-line-faces)
+(defface sml/modes            '((t :inherit sml/global :foreground "White"))                         "" :group 'smart-mode-line-faces)
+(defface sml/filename         '((t :inherit sml/global :foreground "#eab700"))                       "" :group 'smart-mode-line-faces)
+(defface sml/prefix           '((t :inherit sml/global :foreground "#bf6000"))                       "" :group 'smart-mode-line-faces)
+(defface sml/read-only        '((t :inherit sml/global :foreground "DeepSkyBlue"))                   "" :group 'smart-mode-line-faces)
 (defface sml/outside-modified '((t :inherit sml/global :foreground "#ffffff" :background "#c82829")) "" :group 'smart-mode-line-faces)
+(defface sml/modified         '((t :inherit sml/global :foreground "Red" :weight bold))              "" :group 'smart-mode-line-faces)
 
 (defface sml/line-number         '((t :inherit sml/modes :weight bold))               "" :group 'smart-mode-line-faces)
 (defface sml/position-percentage '((t :inherit sml/prefix :weight normal))            "" :group 'smart-mode-line-faces)
@@ -600,7 +601,6 @@ if you just want to fine-tune it)."
 (defface sml/numbers-separator   '((t :inherit sml/col-number))                       "" :group 'smart-mode-line-faces)
 (defface sml/client              '((t :inherit sml/prefix))                           "" :group 'smart-mode-line-faces)
 (defface sml/not-modified        '((t :inherit sml/global))                           "" :group 'smart-mode-line-faces)
-(defface sml/modified            '((t :inherit sml/warning))                          "" :group 'smart-mode-line-faces)
 (defface sml/mule-info           '((t :inherit sml/global))                           "" :group 'smart-mode-line-faces)
 (defface sml/sudo                '((t :inherit sml/outside-modified))                 "" :group 'smart-mode-line-faces)
 (defface sml/git                 '((t :inherit sml/read-only))                        "" :group 'smart-mode-line-faces)
@@ -617,58 +617,59 @@ if you just want to fine-tune it)."
 (defconst sml/mode-line-active-background-original (internal-get-lisp-face-attribute 'mode-line :background)) 
 (defconst sml/mode-line-inactive-foreground-original (internal-get-lisp-face-attribute 'mode-line-inactive :foreground))
 (defconst sml/mode-line-inactive-background-original (internal-get-lisp-face-attribute 'mode-line-inactive :background))
+
 (deftheme smart-mode-line) 
-(defun sml/apply-theme (theme)
+(defun sml/apply-theme (theme &optional value)
   "Apply THEME.
 
-Can be 'respectful, 'dark, or 'light."
-  (case theme
-    ('respectful
-     (custom-theme-set-variables
-      'smart-mode-line
-      `(sml/active-foreground-color ,sml/mode-line-active-foreground-original)
-      `(sml/active-background-color ,sml/mode-line-active-background-original) 
-      `(sml/inactive-foreground-color ,sml/mode-line-inactive-foreground-original)
-      `(sml/inactive-background-color ,sml/mode-line-inactive-background-original))
-     (custom-theme-set-faces
-      'smart-mode-line                             
-      '(sml/global    ((t :inherit mode-line :foreground "gray50")))
-      '(sml/filename  ((t :inherit (font-lock-keyword-face sml/global))))
-      '(sml/prefix    ((t :inherit (font-lock-variable-name-face sml/global))))
-      '(sml/read-only ((t :inherit (font-lock-function-name-face sml/global))))
-      '(sml/modes     ((t :inherit (mode-line sml/global))))
-      ))
-    ('light
-     (custom-theme-set-variables
-      'smart-mode-line
-      '(sml/active-foreground-color "black")
-      '(sml/active-background-color "grey75") 
-      '(sml/inactive-foreground-color "grey20")
-      '(sml/inactive-background-color "grey90")
-      )
-     (custom-theme-set-faces
-      'smart-mode-line ;; you must use the same theme name here...
-      '(sml/global    ((t :inherit mode-line  :foreground "gray50")))
-      '(sml/modes     ((t :inherit sml/global :foreground "White")))
-      '(sml/filename  ((t :inherit sml/global :foreground "#eab700")))
-      '(sml/prefix    ((t :inherit sml/global :foreground "#bf6000")))
-      '(sml/read-only ((t :inherit sml/global :foreground "DeepSkyBlue")))
-      ))
-    ('dark
-     (custom-theme-set-variables
-      'smart-mode-line
-      '(sml/active-foreground-color "gray60")
-      '(sml/active-background-color "black") 
-      '(sml/inactive-foreground-color "gray60")
-      '(sml/inactive-background-color "#404045")
-      )
-     (custom-theme-set-faces
-      'smart-mode-line ;; you must use the same theme name here...
-      '(sml/global    ((t :inherit mode-line  :foreground "gray50")))
-      '(sml/modes     ((t :inherit sml/global :foreground "White")))
-      '(sml/filename  ((t :inherit sml/global :foreground "#eab700")))
-      '(sml/prefix    ((t :inherit sml/global :foreground "#bf6000")))
-      '(sml/read-only ((t :inherit sml/global :foreground "DeepSkyBlue")))))))
+THEME can be one of the symbols: respectful, dark, or light.
+
+This also sets the `sml/theme' variable, see its documentation
+for more information on each value.
+
+The second argument (VALUE) is for internal use only, don't use it."
+  (if value (setq sml/theme value)
+    (setq sml/theme theme))
+  (case sml/theme
+    ('respectful (custom-theme-set-variables
+                  'smart-mode-line
+                  `(sml/active-foreground-color ,sml/mode-line-active-foreground-original)
+                  `(sml/active-background-color ,sml/mode-line-active-background-original) 
+                  `(sml/inactive-foreground-color ,sml/mode-line-inactive-foreground-original)
+                  `(sml/inactive-background-color ,sml/mode-line-inactive-background-original))
+                 (custom-theme-set-faces
+                  'smart-mode-line                             
+                  '(sml/global    ((t :inherit font-lock-preprocessor-face)))
+                  '(sml/filename  ((t :inherit (font-lock-function-name-face sml/global))))
+                  '(sml/prefix    ((t :inherit (font-lock-variable-name-face sml/global))))
+                  '(sml/read-only ((t :inherit (font-lock-type-face sml/global))))
+                  `(sml/modes     ((t :inherit sml/global :foreground ,sml/active-foreground-color)))))
+    ('light (custom-theme-set-variables
+             'smart-mode-line
+             '(sml/active-foreground-color "black")
+             '(sml/active-background-color "grey75") 
+             '(sml/inactive-foreground-color "grey20")
+             '(sml/inactive-background-color "grey90"))
+            (custom-theme-set-faces
+             'smart-mode-line
+             '(sml/global    ((t :foreground "gray20")))
+             '(sml/modes     ((t :inherit sml/global :foreground "Black")))
+             '(sml/filename  ((t :inherit sml/global :foreground "Blue")))
+             '(sml/prefix    ((t :inherit sml/global :foreground "#5b2507")))
+             '(sml/read-only ((t :inherit sml/global :foreground "DarkGreen")))))
+    ('dark (custom-theme-set-variables
+            'smart-mode-line
+            '(sml/active-foreground-color "gray60")
+            '(sml/active-background-color "black") 
+            '(sml/inactive-foreground-color "gray60")
+            '(sml/inactive-background-color "#404045"))
+           (custom-theme-set-faces
+            'smart-mode-line
+            '(sml/global    ((t :foreground "gray50")))
+            '(sml/modes     ((t :inherit sml/global :foreground "White")))
+            '(sml/filename  ((t :inherit sml/global :foreground "#eab700")))
+            '(sml/prefix    ((t :inherit sml/global :foreground "#bf6000")))
+            '(sml/read-only ((t :inherit sml/global :foreground "DeepSkyBlue")))))))
 
 ;; Anchors
 (defconst sml/anchor-beginning         '() "Anchor so that other packages can find specific positions in the mode-line.")
@@ -728,129 +729,134 @@ This should be called after any themes have been applied, which
 is why it is better to add as an `after-init-hook' than to be
 called straight from your init file."
   (interactive)
-  (setq sml/simplified nil)
-  (if (and (integerp arg) (< arg 1))
-      (sml/revert)
-    ;; We use this to make the mode-line readable in lighter backgrounds
-    (when sml/override-theme (sml/set-face-color nil nil))
+  (if (not after-init-time)
+      (add-hook 'after-init-hook 'sml/setup)
+    (setq sml/simplified nil)
+    (if (and (integerp arg) (< arg 1))
+        (sml/revert)
+      ;; We use this to make the mode-line readable in lighter backgrounds
+      (when sml/override-theme (sml/set-face-color nil nil))
 
-    (setq battery-mode-line-format sml/battery-format)
+      (setq battery-mode-line-format sml/battery-format)
 
-    ;;; And this is where the magic happens.
-    ;; Our buffer-file-name display.
-    ;; For buffers which edit mode-line-identification, make sure they use OUR color.
-    (set-face-foreground 'mode-line-buffer-id
-                         (internal-get-lisp-face-attribute
-                          'sml/filename :foreground))
+      ;; Set the theme the user requested.
+      (sml/apply-theme sml/theme)    
+      
+      ;;; And this is where the magic happens.
+      ;; Our buffer-file-name display.
+      ;; For buffers which edit mode-line-identification, make sure they use OUR color.
+      (set-face-foreground 'mode-line-buffer-id
+                           (internal-get-lisp-face-attribute
+                            'sml/filename :foreground))
 
-    ;; Remove elements we implement separately, and improve the ones not removed.
-    (setq-default mode-line-front-space nil)
-    (sml/filter-mode-line-list 'mode-line-mule-info)
-    (sml/filter-mode-line-list 'mode-line-client)
-    (sml/filter-mode-line-list 'mode-line-modified)
-    (sml/filter-mode-line-list 'mode-line-remote)
-    (setq-default mode-line-frame-identification nil)
-    (setq-default mode-line-buffer-identification '(:eval (sml/generate-buffer-identification)))
-    (sml/filter-mode-line-list 'mode-line-position)
-    (sml/filter-mode-line-list 'mode-line-modes)
-    (setq-default mode-line-end-spaces nil)
-    
-    ;; Add position descriptions on the left (they were already removed from the middle)
-    (setq-default mode-line-front-space '(:eval (sml/generate-position)))
+      ;; Remove elements we implement separately, and improve the ones not removed.
+      (setq-default mode-line-front-space nil)
+      (sml/filter-mode-line-list 'mode-line-mule-info)
+      (sml/filter-mode-line-list 'mode-line-client)
+      (sml/filter-mode-line-list 'mode-line-modified)
+      (sml/filter-mode-line-list 'mode-line-remote)
+      (setq-default mode-line-frame-identification nil)
+      (setq-default mode-line-buffer-identification '(:eval (sml/generate-buffer-identification)))
+      (sml/filter-mode-line-list 'mode-line-position)
+      (sml/filter-mode-line-list 'mode-line-modes)
+      (setq-default mode-line-end-spaces nil)
+      
+      ;; Add position descriptions on the left (they were already removed from the middle)
+      (setq-default mode-line-front-space '(:eval (sml/generate-position)))
 
-    ;; This is to ensure fixed name width. The reason we do this manually
-    ;; is that some major-modes change `mode-line-buffer-identification'
-    ;; (so we can't fill inside the variable), and we want this
-    ;; symbol to be an element in `mode-line-format' for compatibility
-    ;; with other packages which hack into the mode-line.
-    (add-to-list 'mode-line-position
-                 '(buffer-file-name
-                   nil (:eval (sml/fill-for-buffer-identification))))
-    
-    ;; Remove some annoying big spaces
-    (setq-default mode-line-format
-                  (mapcar
-                   (lambda (x) (if (and (stringp x) (string-match "\\` +\\'" x))
-                                   " " x))
-                   mode-line-format))
+      ;; This is to ensure fixed name width. The reason we do this manually
+      ;; is that some major-modes change `mode-line-buffer-identification'
+      ;; (so we can't fill inside the variable), and we want this
+      ;; symbol to be an element in `mode-line-format' for compatibility
+      ;; with other packages which hack into the mode-line.
+      (add-to-list 'mode-line-position
+                   '(buffer-file-name
+                     nil (:eval (sml/fill-for-buffer-identification))))
+      
+      ;; Remove some annoying big spaces
+      (setq-default mode-line-format
+                    (mapcar
+                     (lambda (x) (if (and (stringp x) (string-match "\\` +\\'" x))
+                                     " " x))
+                     mode-line-format))
 
     ;;;; And here comes support for a bunch of extra stuff. Some of
     ;;;; these are just needed for coloring, and some are needed
     ;;;; because the package would manually edit the mode-line (and
     ;;;; thus be invisible to us).
-    
-    ;; Display time
-    (add-hook 'display-time-hook 'sml/propertize-time-string)
-    
-    ;; Battery support
-    (eval-after-load 'battery
-      '(defadvice battery-update (after sml/after-battery-update-advice () activate)
-         "Change battery color."
-         (when battery-mode-line-string
-           (setq battery-mode-line-string
-                 (propertize battery-mode-line-string
-                             'face 'sml/battery)))))
-    
-    ;; Perspective support
-    (eval-after-load "perspective"
-      '(progn
-         (defcustom sml/persp-selected-color "Green"
-           "Replace `persp-selected-color', otherwise it's unreadable."
-           :type 'string
-           :group 'smart-mode-line-others)
-         (set-face-foreground 'persp-selected-face sml/persp-selected-color)))
-    
-    ;; vc-mode
-    (eval-after-load "vc-hooks"
-      '(defadvice vc-mode-line (after sml/after-vc-mode-line-advice () activate)
-         "Color `vc-mode'."
-         (when (stringp vc-mode)
-           (let ((noback (replace-regexp-in-string (format "^ %s" (vc-backend buffer-file-name)) " " vc-mode)))
-             (setq vc-mode
-                   (propertize (if sml/vc-mode-show-backend vc-mode noback)
-                               'face (cond ((string-match "^ -" noback)    'sml/vc)
-                                           ((string-match "^ [:@]" noback) 'sml/vc-edited)
-                                           ((string-match "^ [!\\?]" noback) 'sml/modified))))))))
-    
-    ;; Mew support
-    (eval-after-load "mew-net"
-      '(progn
-         (defgroup smart-mode-line-mew '() "Group for editing the mew-support variables." :group 'smart-mode-line)
-         (defcustom sml/mew-support t
-           "Whether to flash the mode-line when mew detects new mail."
-           :type 'boolean :group 'smart-mode-line-mew
-           :package-version '(smart-mode-line . "1.11"))
-         (defcustom sml/new-mail-background-color "#110000"
-           "When new mail arrives, mode-line background will be tinted this color.
+      
+      ;; Display time
+      (add-hook 'display-time-hook 'sml/propertize-time-string)
+      
+      ;; Battery support
+      (eval-after-load 'battery
+        '(defadvice battery-update (after sml/after-battery-update-advice () activate)
+           "Change battery color."
+           (when battery-mode-line-string
+             (setq battery-mode-line-string
+                   (propertize battery-mode-line-string
+                               'face 'sml/battery)))))
+      
+      ;; Perspective support
+      (eval-after-load "perspective"
+        '(progn
+           (defcustom sml/persp-selected-color "Green"
+             "Replace `persp-selected-color', otherwise it's unreadable."
+             :type 'string
+             :group 'smart-mode-line-others)
+           (set-face-foreground 'persp-selected-face sml/persp-selected-color)))
+      
+      ;; vc-mode
+      (eval-after-load "vc-hooks"
+        '(defadvice vc-mode-line (after sml/after-vc-mode-line-advice () activate)
+           "Color `vc-mode'."
+           (when (stringp vc-mode)
+             (let ((noback (replace-regexp-in-string (format "^ %s" (vc-backend buffer-file-name)) " " vc-mode)))
+               (setq vc-mode
+                     (propertize (if sml/vc-mode-show-backend vc-mode noback)
+                                 'face (cond ((string-match "^ -" noback)    'sml/vc)
+                                             ((string-match "^ [:@]" noback) 'sml/vc-edited)
+                                             ((string-match "^ [!\\?]" noback) 'sml/modified))))))))
+      
+      ;; Mew support
+      (eval-after-load "mew-net"
+        '(progn
+           (defgroup smart-mode-line-mew '() "Group for editing the mew-support variables." :group 'smart-mode-line)
+           (defcustom sml/mew-support t
+             "Whether to flash the mode-line when mew detects new mail."
+             :type 'boolean :group 'smart-mode-line-mew
+             :package-version '(smart-mode-line . "1.11"))
+           (defcustom sml/new-mail-background-color "#110000"
+             "When new mail arrives, mode-line background will be tinted this color.
 
 Only works with mew-biff. Right now it stays colored until you
 read the mail, so this color should probably be something sutil.
 Might implement a quick flash eventually."
-           :type 'color :group 'smart-mode-line-mew
-           :package-version '(smart-mode-line . "1.11"))
-         (defcustom sml/mew-biff-format (concat "%2d" (if (char-displayable-p ?✉) "✉" "M"))
-           "Format used for new-mail notifications if you use mew with biff."
-           :type 'string :group 'smart-mode-line-mew
-           :package-version '(smart-mode-line . "1.11"))
-         (defadvice mew-biff-clear (around sml/mew-biff-clear-advice activate)
-           "Advice used to customize mew-biff-bark to fit sml's style."
-           ad-do-it 
-           (when sml/mew-support
-             ;; Remove the color
-             (set-face-attribute 'mode-line nil :background sml/active-background-color)))
-         (defadvice mew-biff-bark (around sml/mew-biff-bark-advice (n) activate)
-           "Advice used to customize mew-biff-bark to fit sml's style."
-           ad-do-it
-           (when sml/mew-support
-             ;; Remove the color if mail has been read.
-             (if (= n 0) (set-face-attribute 'mode-line nil :background sml/active-background-color)
-               ;; Apply color if there's mail. (mew-biff-bark 100)
-               (set-face-attribute 'mode-line nil :background sml/new-mail-background-color)
-               (setq mew-biff-string (format sml/mew-biff-format n)))))))
+             :type 'color :group 'smart-mode-line-mew
+             :package-version '(smart-mode-line . "1.11"))
+           (defcustom sml/mew-biff-format (concat "%2d" (if (char-displayable-p ?✉) "✉" "M"))
+             "Format used for new-mail notifications if you use mew with biff."
+             :type 'string :group 'smart-mode-line-mew
+             :package-version '(smart-mode-line . "1.11"))
+           (defadvice mew-biff-clear (around sml/mew-biff-clear-advice activate)
+             "Advice used to customize mew-biff-bark to fit sml's style."
+             ad-do-it 
+             (when sml/mew-support
+               ;; Remove the color
+               (set-face-attribute 'mode-line nil :background sml/active-background-color)))
+           (defadvice mew-biff-bark (around sml/mew-biff-bark-advice (n) activate)
+             "Advice used to customize mew-biff-bark to fit sml's style."
+             ad-do-it
+             (when sml/mew-support
+               ;; Remove the color if mail has been read.
+               (if (= n 0) (set-face-attribute 'mode-line nil :background sml/active-background-color)
+                 ;; Apply color if there's mail. (mew-biff-bark 100)
+                 (set-face-attribute 'mode-line nil :background sml/new-mail-background-color)
+                 (setq mew-biff-string (format sml/mew-biff-format n)))))))
 
-    (unless (and (boundp 'erc-track-position-in-mode-line)
-                 (null erc-track-position-in-mode-line))
-      (setq erc-track-position-in-mode-line t))))
+      (unless (and (boundp 'erc-track-position-in-mode-line)
+                   (null erc-track-position-in-mode-line))
+        (setq erc-track-position-in-mode-line t)))))
 
 (defun sml/generate-position ()
   "Return a string describing various positional information."
