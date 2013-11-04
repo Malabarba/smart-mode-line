@@ -11,9 +11,9 @@ Usage:
 Make sure **"smart-mode-line.el"** is in your load path, then place
 this code in your .emacs file:
 
+    (setq sml/theme 'dark)
 	(require 'smart-mode-line)
-    (if after-init-time (sml/setup)
-      (add-hook 'after-init-hook 'sml/setup))
+    (sml/setup)
 
 Description
 ===

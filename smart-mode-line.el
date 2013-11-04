@@ -26,9 +26,9 @@
 ;;
 ;; Make sure "smart-mode-line.el" is in your load path, then place
 ;; this code in your .emacs file:
+;;     (setq sml/theme 'dark)
 ;;     (require 'smart-mode-line)
-;;     (if after-init-time (sml/setup)
-;;       (add-hook 'after-init-hook 'sml/setup))
+;;     (sml/setup)
 ;;
 ;; DESCRIPTION
 ;;
@@ -244,19 +244,24 @@
 
 (defgroup smart-mode-line '()
   "Customization group for the `smart-mode-line.el' package."
-  :group 'convenience)
+  :group 'convenience
+  :prefix 'sml/)
 (defgroup smart-mode-line-position '()
   "Group for editing the major/minor mode list."
-  :group 'smart-mode-line)
+  :group 'smart-mode-line
+  :prefix 'sml/)
 (defgroup smart-mode-line-path&prefix '()
   "Group for editing the path, buffer-name, and prefix."
-  :group 'smart-mode-line)
+  :group 'smart-mode-line
+  :prefix 'sml/)
 (defgroup smart-mode-line-mode-list '()
   "Group for editing the major/minor mode list."
-  :group 'smart-mode-line)
+  :group 'smart-mode-line
+  :prefix 'sml/)
 (defgroup smart-mode-line-others '()
   "Group for editing the major/minor mode list."
-  :group 'smart-mode-line)
+  :group 'smart-mode-line
+  :prefix 'sml/)
 
 (defgroup smart-mode-line-faces '()
   "Font (face) colors for the `smart-mode-line.el' package.
@@ -270,7 +275,8 @@ face. We need to override, otherwise some elements become
 unreadable on lighter themes. If you'd rather configure these
 unreadable colors yourself and keep your theme's settings, just
 set `sml/override-theme' to nil."
-  :group 'smart-mode-line
+  :prefix 'sml/  
+  :group 'smart-mode-line  
   :group 'faces)
 
 (defvar sml/shortener-func 'sml/do-shorten-directory
