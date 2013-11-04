@@ -1,36 +1,36 @@
 smart-mode-line
-===============
+---------------
 
-A fixed width smart mode line for Emacs.
+Smart Mode Line is a sexy mode-line for Emacs, that aims to be easy to
+read from small to large monitors by using a *prefix feature* and
+*smart truncation*. 
 
 ![Screenshot 1](http://bruce-connor.github.com/control-pianobar/sml/screenshot.png)
 ![Screenshot 2](http://bruce-connor.github.com/control-pianobar/sml/sml-small.png)
 
-Usage:
+Installation
 ===
-Make sure **"smart-mode-line.el"** is in your load path, then place
+Make sure *"smart-mode-line.el"* is in your load path, then place
 this code in your .emacs file:
 
     (setq sml/theme 'dark)
-	(require 'smart-mode-line)
+    (require 'smart-mode-line)
     (sml/setup)
-
-Description
+    
+Features
 ===
-Smart Mode Line is a mode-line format that aims to be easy to
-read from small to large monitors by using a prefix feature and
-smart truncation. Its main features are:
+Its main features include:
 
  1. **Color coded**:  
     Highlights the most important information for you
     (buffer name, modified state, line number). Don't
-    like the colors? See item 4)!
+    like the colors? See item 5)!
 
  2. **Fixed width** (if you want):  
     Lets you set a maxium width for the path name and mode names, and
     truncates them intelligently (truncates the directory, not the
     buffer name). Also let's you **right indent** strings in the
-    mode-line.
+    mode-line (see `sml/mode-width`).
 
  3. **Directory as Prefixes**:  
     Prefix feature saves a LOT of space. e.g. **"~/.emacs.d/"**
@@ -51,17 +51,17 @@ smart truncation. Its main features are:
     the full list).
 
  5. **Very easy to configure**:  
-    All fonts are in the `smart-mode-line-faces`
-    customization group, and all other options are in
-    `smart-mode-line`. Just run `sml/customize` and see
-    what's in there. If you feel anything is missing send me
-    an e-mail.
+    All colors and variables are customizable. You can change the
+    whole theme with `sml/apply-theme`, or just customize anything
+    manually with `sml/customize` and `sml/customize-faces`. There are
+    *DOZENS* of variables to customize your mode-line, just pop over
+    there and have a look!
 	
  6. **Compatible with absolutely anything**:  
     I'm serious. Versions 2.0 and above should be compatible with
     **any** other packages that display information in the mode-line
     (evil, nyan-mode, elscreen, display-battery-mode, etc). If you
-    find *anything* that does not appear as it should, file a bug report
+    find *ANYTHING* that does not appear as it should, file a bug report
     and I'll get to it.
     
 Important Variables:
@@ -70,21 +70,21 @@ All variables can be edited by running `sml/customize`, and the
 documentations are mostly self explanatory, I list here only the
 most important ones.
 
-*Note:* We use an `after-init-hook` in the installation because we
-need sml/setup to override the theme's colors for the mode-line. See
-the documentattion on the `sml/override-theme` variable for more
-information.
-
  1. `sml/shorten-directory` and `sml/shorten-modes`  
-  Setting both of these to t garantees a fixed width mode-line
-  (directory name and modes list will be truncated to fit). To
+  Choose what theme ou want to use for the mode-line colors. For now
+  there are 3 different themes: `dark`, `light`, and `respectful`.
+ 
+ 1. `sml/shorten-directory` and `sml/shorten-modes`  
+  Setting both of these to `t` garantees a fixed width mode-line
+  (directory name and minor-modes list will be truncated to fit). To
   actually define the width, see below.
   
  2. `sml/name-width` and `sml/mode-width`  
-  Customize these according to the width of your emacs
-  frame. I set them to 40 and 'full respectively, and the
-  mode-line fits perfectly when the frame is split in two even
-  on my laptop's small 17" monitor.
+  Customize these according to the width of your emacs frame. I set
+  them to `40` and `full` respectively, and the mode-line fits
+  perfectly when the frame is split in two even on my laptop's small
+  17" monitor. `full` means everything after the minor-modes will be
+  right-indented.
   
  3. `sml/replacer-regexp-list`  
   This variable is a list of (REGEXP REPLACEMENT) that is used
