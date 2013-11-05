@@ -143,6 +143,7 @@
 ;; 
 
 ;;; Change Log:
+;; 2.0.2  - 2013/11/05 - sml/mule-info also hides input system.
 ;; 2.0.2  - 2013/11/05 - show-encoding is now alias for sml/mule-info .
 ;; 2.0.2  - 2013/11/05 - Removed anchors.
 ;; 2.0.1  - 2013/11/04 - Slight fix on sml/apply-theme
@@ -982,30 +983,29 @@ To be used in mapcar and accumulate results."
    ((sml/is-%p-p el)
     `(sml/position-percentage-format
       (-3 (:propertize (:eval sml/position-percentage-format)
-                    local-map ,mode-line-column-line-number-mode-map
-                    mouse-face mode-line-highlight
-                    face sml/position-percentage
-                    help-echo "Buffer Relative Position\n\
+                       local-map ,mode-line-column-line-number-mode-map
+                       mouse-face mode-line-highlight
+                       face sml/position-percentage
+                       help-echo "Buffer Relative Position\n\
 mouse-1: Display Line and Column Mode Menu"))))
 
    ;;;; mode-line-mule-info
    ;; Partially hide some MULE info
    ((and (stringp el) (string-match "\\s-*%[-0-9]*z" el))
-    `(:propertize ((1 (current-input-method
-                       (:propertize ("" current-input-method-title)
-                                    help-echo (concat
-                                               ,(purecopy "Current input method: ")
-                                               current-input-method
-                                               ,(purecopy "\n\
+    `(sml/mule-info ((1 (current-input-method
+                         (:propertize ("" current-input-method-title)
+                                      help-echo (concat
+                                                 ,(purecopy "Current input method: ")
+                                                 current-input-method
+                                                 ,(purecopy "\n\
 mouse-2: Disable input method\n\
 mouse-3: Describe current input method"))
-                                    local-map ,mode-line-input-method-map
-                                    mouse-face mode-line-highlight)))                      
-                   (sml/mule-info
-                    ,(propertize sml/mule-info
-                                 'help-echo 'mode-line-mule-info-help-echo
-                                 'mouse-face 'mode-line-highlight
-                                 'local-map mode-line-coding-system-map)))))
+                                      local-map ,mode-line-input-method-map
+                                      mouse-face mode-line-highlight)))                      
+                     (:propertize (:eval sml/mule-info)
+                                  help-echo mode-line-mule-info-help-echo
+                                  mouse-face mode-line-highlight
+                                  local-map ,mode-line-coding-system-map))))
    ;; Make EOL optional
    ((equal el '(:eval (mode-line-eol-desc)))
     '(sml/show-eol (:eval (propertize (mode-line-eol-desc)))))
