@@ -143,6 +143,7 @@
 ;; 
 
 ;;; Change Log:
+;; 2.0.2  - 2013/11/05 - better sml/replacer-regexp-list.
 ;; 2.0.2  - 2013/11/05 - sml/mule-info also hides input system.
 ;; 2.0.2  - 2013/11/05 - show-encoding is now alias for sml/mule-info .
 ;; 2.0.2  - 2013/11/05 - Removed anchors.
@@ -398,14 +399,15 @@ just set this to \"\" to save an extra charof space."
   :group 'smart-mode-line-path&prefix)
 
 (defcustom sml/replacer-regexp-list
-  '(("^~/\\.emacs\\.d/" ":ED:")
+  `((,(concat "^" (regexp-quote org-directory)) ":Org:")
+    ("^~/\\.emacs\\.d/" ":ED:")
     ("^/sudo:.*:" ":SU:")
     ("^~/Documents/" ":Doc:")
     ("^~/Dropbox/" ":DB:")
     ("^:\\([^:]*\\):Documento?s/" ":\\1/Doc:")
     ("^~/[Gg]it/" ":Git:")
     ("^~/[Gg]it[Hh]ub/" ":Git:")
-    ("^~/[Gg]it-?[Pp]rojects/" ":Git:"))
+    ("^~/[Gg]it\\([Hh]ub\\|\\)-?[Pp]rojects/" ":Git:"))
   "List of pairs of strings used (by `sml/replacer') to create prefixes.
 
 The first string of each pair is a regular expression, the second
@@ -673,7 +675,6 @@ The second argument (VALUE) is for internal use only, don't use it."
          (message "[WARNING] smart-mode-line: setting `sml/override-theme' to t is obsolete.
 Use the `sml/theme' variable instead.")))))
 
-;; Anchors
 (defconst sml/simplified-mode-line-patchy-fix ""
   "Fix for filling to work with packages that manually edit the mode-line.")
 
