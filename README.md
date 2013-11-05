@@ -10,8 +10,16 @@ read from small to large monitors by using a *prefix feature* and
 
 Installation
 ===
-Make sure *"smart-mode-line.el"* is in your load path, then place
-this code in your .emacs file:
+**smart-mode-line** is available on Melpa, and that's the recommended
+way of installing it. If you do that, you can simply activate it with:
+
+    (setq sml/theme 'dark)
+    (sml/setup)
+
+To install it manually, you need **emacs-version >= 24.3.**. First
+make sure you install [dash.el](https://github.com/magnars/dash.el)
+(which is a dependency), then make sure *"smart-mode-line.el"* is in
+your load path, and finally place this code in your `.emacs` file:
 
     (setq sml/theme 'dark)
     (require 'smart-mode-line)
