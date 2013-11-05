@@ -143,6 +143,7 @@
 ;; 
 
 ;;; Change Log:
+;; 2.0.2  - 2013/11/05 - show-encoding is now alias for sml/mule-info .
 ;; 2.0.2  - 2013/11/05 - Removed anchors.
 ;; 2.0.1  - 2013/11/04 - Slight fix on sml/apply-theme
 ;; 2.0    - 2013/11/04 - Remove unnecessary functions.
@@ -675,11 +676,7 @@ Use the `sml/theme' variable instead.")))))
 (defconst sml/simplified-mode-line-patchy-fix ""
   "Fix for filling to work with packages that manually edit the mode-line.")
 
-(defcustom sml/show-encoding nil
-  "Whether to display the buffer encoding in the mode-line."
-  :type 'boolean
-  :group 'smart-mode-line-others
-  :package-version '(smart-mode-line . "1.20"))
+(defvaralias 'sml/show-encoding 'sml/mule-info)
 
 (defcustom sml/show-eol nil
   "Whether to display the buffer EOL in the mode-line."
@@ -694,7 +691,7 @@ Use the `sml/theme' variable instead.")))))
 
 (defvaralias 'sml/encoding-format 'sml/mule-info)
 (defcustom sml/mule-info "%z"
-  "Multilingual information. Set this to nil to hide it."
+  "Format for multilingual information. Set this to nil to hide buffer encoding."
   :type '(choice string (const :tag "Don't display." nil))
   :group 'smart-mode-line-others
   :package-version '(smart-mode-line . "2.0"))
