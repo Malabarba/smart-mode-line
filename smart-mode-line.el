@@ -795,8 +795,10 @@ called straight from your init file."
       (setq-default mode-line-end-spaces nil)
       
       ;; Add position descriptions on the left (they were already removed from the middle)
-      (setq-default mode-line-front-space '(sml/position-construct sml/position-construct))
-
+      (setq-default mode-line-front-space '(sml/position-construct
+                                            sml/position-construct
+                                            (:eval (sml/compile-position-construct))))
+      
       (add-hook 'after-save-hook 'sml/generate-buffer-identification)      
       (ad-activate 'rename-buffer)
       (ad-activate 'set-visited-file-name)
@@ -1318,10 +1320,8 @@ regexp in `sml/prefix-regexp'."
 ;; Backup the original configs, just in case.
 (defconst sml/format-backup mode-line-format
   "Backs up the `mode-line-format' before SML was required.")
-
 (defconst sml/battery-format-backup (if (boundp 'battery-mode-line-format) battery-mode-line-format "")
   "Backs up the `battery-mode-line-format' before SML was required.")
-
 (copy-face 'mode-line 'sml/active-backup)
 (copy-face 'mode-line-inactive 'sml/inactive-backup)
 
