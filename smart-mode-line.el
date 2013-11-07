@@ -143,6 +143,7 @@
 ;; 
 
 ;;; Change Log:
+;; 2.0.3  - 2013/11/07 - sml/show-frame-identification.
 ;; 2.0.3  - 2013/11/07 - Improvements to sml/parse-mode-line-elements.
 ;; 2.0.3  - 2013/11/07 - sml/compile-position-construct.
 ;; 2.0.3  - 2013/11/07 - Line-number removed from sml/generate-position-help.
@@ -596,13 +597,20 @@ if you just want to fine-tune it)."
   :type 'color :group 'smart-mode-line-faces :set 'sml/set-face-color :initialize 'set-default)
 
 ;; Face definitions
-(defface sml/global           '((t :foreground "gray50"))                                            "" :group 'smart-mode-line-faces)
-(defface sml/modes            '((t :inherit sml/global :foreground "White"))                         "" :group 'smart-mode-line-faces)
-(defface sml/filename         '((t :inherit sml/global :foreground "#eab700" :weight bold))          "" :group 'smart-mode-line-faces)
-(defface sml/prefix           '((t :inherit sml/global :foreground "#bf6000"))                       "" :group 'smart-mode-line-faces)
-(defface sml/read-only        '((t :inherit sml/global :foreground "DeepSkyBlue"))                   "" :group 'smart-mode-line-faces)
-(defface sml/outside-modified '((t :inherit sml/global :foreground "#ffffff" :background "#c82829")) "" :group 'smart-mode-line-faces)
-(defface sml/modified         '((t :inherit sml/global :foreground "Red" :weight bold))              "" :group 'smart-mode-line-faces)
+(defface sml/global           '((t :foreground "gray50"))
+  "" :group 'smart-mode-line-faces)
+(defface sml/modes            '((t :inherit sml/global :foreground "White"))
+  "" :group 'smart-mode-line-faces)
+(defface sml/filename         '((t :inherit sml/global :foreground "#eab700" :weight bold))
+  "" :group 'smart-mode-line-faces)
+(defface sml/prefix           '((t :inherit sml/global :foreground "#bf6000"))
+  "" :group 'smart-mode-line-faces)
+(defface sml/read-only        '((t :inherit sml/global :foreground "DeepSkyBlue"))
+  "" :group 'smart-mode-line-faces)
+(defface sml/outside-modified '((t :inherit sml/global :foreground "#ffffff" :background "#c82829"))
+  "" :group 'smart-mode-line-faces)
+(defface sml/modified         '((t :inherit sml/global :foreground "Red" :weight bold))
+  "" :group 'smart-mode-line-faces)
 
 (defface sml/line-number         '((t :inherit sml/modes :weight bold))               "" :group 'smart-mode-line-faces)
 (defface sml/position-percentage '((t :inherit sml/prefix :weight normal))            "" :group 'smart-mode-line-faces)
@@ -715,6 +723,13 @@ Use the `sml/theme' variable instead.")))))
   :group 'smart-mode-line-others
   :package-version '(smart-mode-line . "1.20"))
 
+(defcustom sml/show-frame-identification (or (null window-system)
+                                             (eq window-system 'pc))
+  "Format use for `mode-line-frame-identification'"
+  :type 'string
+  :group 'smart-mode-line
+  :package-version '(smart-mode-line . "2.0.3"))
+
 (defcustom sml/vc-mode-show-backend nil
   "Whether to show or the backend in vc-mode's mode-line description.
 
@@ -785,11 +800,14 @@ called straight from your init file."
       (sml/filter-mode-line-list 'mode-line-client)
       (sml/filter-mode-line-list 'mode-line-modified)
       (sml/filter-mode-line-list 'mode-line-remote)
-      (setq-default mode-line-frame-identification nil)
+      (setq-default mode-line-frame-identification
+                    '(sml/show-frame-identification "%F"))
+      
       ;; (setq-default mode-line-buffer-identification '("%b"))
-      (setq-default mode-line-buffer-identification '(sml/buffer-identification
-                                                      sml/buffer-identification
-                                                      (:eval (sml/generate-buffer-identification))))
+      (setq-default mode-line-buffer-identification
+                    '(sml/buffer-identification
+                      sml/buffer-identification
+                      (:eval (sml/generate-buffer-identification))))
       (sml/filter-mode-line-list 'mode-line-position)
       (sml/filter-mode-line-list 'mode-line-modes)
       (setq-default mode-line-end-spaces nil)
