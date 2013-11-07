@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.0.2
+;; Version: 2.0.3
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
@@ -143,6 +143,7 @@
 ;; 
 
 ;;; Change Log:
+;; 2.0.3  - 2013/11/07 - Performance optimization thanks to sml/buffer-identification.
 ;; 2.0.2  - 2013/11/05 - better sml/replacer-regexp-list.
 ;; 2.0.2  - 2013/11/05 - sml/mule-info also hides input system.
 ;; 2.0.2  - 2013/11/05 - show-encoding is now alias for sml/mule-info .
@@ -231,8 +232,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.0.2" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 38 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.0.3" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 39 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -713,6 +714,20 @@ If you want it to show the backend, just set it to t."
   :group 'smart-mode-line-others    
   :package-version '(smart-mode-line . "1.22"))
 
+(defvar sml/buffer-identification nil
+  "Used for recycling buffer identification without having to recompute it.")
+(make-variable-buffer-local 'sml/buffer-identification)
+(put 'sml/buffer-identification 'risky-local-variable t)
+(defadvice rename-buffer (after sml/after-rename-buffer-advice () activate)
+  "Regenerate buffer-identification after rename-buffer."
+  (sml/generate-buffer-identification))
+(defadvice set-visited-file-name (after sml/after-set-visited-file-name-advice () activate)
+  "Regenerate buffer-identification after set-visited-file-name."
+  (sml/generate-buffer-identification))
+(defadvice set-buffer-modified-p (after sml/after-set-buffer-modified-p-advice () activate)
+  "Regenerate buffer-identification after set-buffer-modified-p."
+  (sml/generate-buffer-identification))
+
 ;;;###autoload
 (defun sml/setup (&optional arg)
   "Setup the mode-line, or revert it.
@@ -751,7 +766,11 @@ called straight from your init file."
       (sml/filter-mode-line-list 'mode-line-modified)
       (sml/filter-mode-line-list 'mode-line-remote)
       (setq-default mode-line-frame-identification nil)
-      (setq-default mode-line-buffer-identification '(:eval (sml/generate-buffer-identification)))
+      ;; (setq-default mode-line-buffer-identification '("%b"))
+      (add-hook 'after-save-hook 'sml/generate-buffer-identification)
+      (setq-default mode-line-buffer-identification '(sml/buffer-identification
+                                                      sml/buffer-identification
+                                                      (:eval (sml/generate-buffer-identification))))
       (sml/filter-mode-line-list 'mode-line-position)
       (sml/filter-mode-line-list 'mode-line-modes)
       (setq-default mode-line-end-spaces nil)
@@ -940,19 +959,20 @@ L must be a symbol! We asign right back to it"
 
 (defun sml/generate-buffer-identification ()
   "Return fully propertized prefix+path+buffername."
-  (let* ((prefix (sml/get-prefix (sml/replacer (sml/get-directory))))
-         (bufname (sml/buffer-name))
-         (dirsize (max 0 (- (abs sml/name-width) (length prefix) (length bufname))))
-         (dirstring (funcall sml/shortener-func (sml/get-directory) dirsize)))
-    
-    (propertize (concat (sml/propertize-prefix (replace-regexp-in-string "%" "%%" prefix))
-                        (propertize (replace-regexp-in-string "%" "%%" dirstring) 'face 'sml/folder)
-                        (propertize (replace-regexp-in-string "%" "%%" bufname) 'face 'sml/filename)
-                        (make-string (max 0 (- dirsize (length dirstring))) ?\ ))
-                'help-echo (format "%s\n\nmouse-1: Previous buffer\nmouse-3: Next buffer"
-                                   (or (buffer-file-name) (buffer-name)))
-                'mouse-face 'mode-line-highlight
-                'local-map   mode-line-buffer-identification-keymap)))
+  (setq sml/buffer-identification
+        (let* ((prefix (sml/get-prefix (sml/replacer (sml/get-directory))))
+               (bufname (sml/buffer-name))
+               (dirsize (max 0 (- (abs sml/name-width) (length prefix) (length bufname))))
+               (dirstring (funcall sml/shortener-func (sml/get-directory) dirsize)))
+          
+          (propertize (concat (sml/propertize-prefix (replace-regexp-in-string "%" "%%" prefix))
+                              (propertize (replace-regexp-in-string "%" "%%" dirstring) 'face 'sml/folder)
+                              (propertize (replace-regexp-in-string "%" "%%" bufname) 'face 'sml/filename)
+                              (make-string (max 0 (- dirsize (length dirstring))) ?\ ))
+                      'help-echo (format "%s\n\nmouse-1: Previous buffer\nmouse-3: Next buffer"
+                                         (or (buffer-file-name) (buffer-name)))
+                      'mouse-face 'mode-line-highlight
+                      'local-map   mode-line-buffer-identification-keymap))))
 
 (defun sml/parse-mode-line-elements (el)
   "Propertize or delete EL.
