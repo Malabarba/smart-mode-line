@@ -143,6 +143,7 @@
 ;; 
 
 ;;; Change Log:
+;; 2.0.3  - 2013/11/07 - Improvements to sml/parse-mode-line-elements.
 ;; 2.0.3  - 2013/11/07 - sml/compile-position-construct.
 ;; 2.0.3  - 2013/11/07 - Line-number removed from sml/generate-position-help.
 ;; 2.0.3  - 2013/11/07 - Position optimization with sml/position-construct.
@@ -350,14 +351,18 @@ Set it to nil to hide the number."
 
 Empty it or disable `line-number-mode' to hide the number."
   :type 'string
-  :group 'smart-mode-line-position)
+  :group 'smart-mode-line-position
+  :set 'sml/compile-position-construct
+  :initialize 'set-default)
 (put 'sml/line-number-format 'risky-local-variable t)
 
 (defcustom sml/size-indication-format "%I "
   "Format to display buffer size when `size-indication-mode' is on."
   :type 'string
   :group 'smart-mode-line-position
-  :package-version '(smart-mode-line . "2.0"))
+  :package-version '(smart-mode-line . "2.0")
+  :set 'sml/compile-position-construct
+  :initialize 'set-default)
 (put 'sml/size-indication-format 'risky-local-variable t)
 
 (defcustom sml/col-number-format "%2c"
@@ -365,7 +370,9 @@ Empty it or disable `line-number-mode' to hide the number."
 
 Empty it or disable `column-number-mode' to hide the number."
   :type 'string
-  :group 'smart-mode-line-position)
+  :group 'smart-mode-line-position
+  :set 'sml/compile-position-construct
+  :initialize 'set-default)
 (put 'sml/col-number-format 'risky-local-variable t)
 
 (defcustom sml/numbers-separator ":"
@@ -788,9 +795,7 @@ called straight from your init file."
       (setq-default mode-line-end-spaces nil)
       
       ;; Add position descriptions on the left (they were already removed from the middle)
-      (setq-default mode-line-front-space '(sml/position-construct
-                                            sml/position-construct
-                                            (:eval (sml/compile-position-construct))))
+      (setq-default mode-line-front-space '(sml/position-construct sml/position-construct))
 
       (add-hook 'after-save-hook 'sml/generate-buffer-identification)      
       (ad-activate 'rename-buffer)
@@ -815,10 +820,8 @@ called straight from your init file."
                                      " " x))
                      mode-line-format))
 
-    ;;;; And here comes support for a bunch of extra stuff. Some of
-    ;;;; these are just needed for coloring, and some are needed
-    ;;;; because the package would manually edit the mode-line (and
-    ;;;; thus be invisible to us).
+      ;;;; And here comes support for a bunch of extra stuff. Some of
+      ;;;; these are just needed for coloring.
       
       ;; Display time
       (add-hook 'display-time-hook 'sml/propertize-time-string)
@@ -1005,7 +1008,7 @@ L must be a symbol! We asign right back to it"
                                              (or (buffer-file-name) (buffer-name)))
                           'mouse-face 'mode-line-highlight
                           'local-map   mode-line-buffer-identification-keymap))
-            sml/buffer-identification-filling nil)
+            sml/buffer-identification-filling "")
     (setq sml/buffer-identification-filling (sml/fill-for-buffer-identification))))
 
 (defun sml/parse-mode-line-elements (el)
@@ -1063,11 +1066,12 @@ mouse-3: Describe current input method"))
                                   local-map ,mode-line-coding-system-map))))
    ;; Make EOL optional
    ((equal el '(:eval (mode-line-eol-desc)))
-    '(sml/show-eol (:eval (propertize (mode-line-eol-desc)))))
+    '(sml/show-eol (:eval (mode-line-eol-desc))))
    
    ;;;; mode-line-mods
    ;; Color the mode line process
-   ((equal el '("" mode-line-process))
+   ((or (equal el '("" mode-line-process))
+        (equal (car (cdr-safe el)) '("" mode-line-process)))
     `(:propertize ("" mode-line-process) face sml/process))
    ;; Color the mode name, without changing other properties
    ((and (listp el)
@@ -1079,7 +1083,7 @@ mouse-3: Describe current input method"))
          (equal (car el) :propertize)
          (equal (cadr el) '("" minor-mode-alist)))
     '(:eval (sml/generate-minor-modes)))
-
+   ;; If it's something we don't recognize, just leave it as-is.
    (t el)))
 
 (defun sml/is-%p-p (x)
