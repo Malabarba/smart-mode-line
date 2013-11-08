@@ -412,7 +412,7 @@ just set this to \"\" to save an extra charof space."
   :group 'smart-mode-line-path&prefix)
 
 (defcustom sml/replacer-regexp-list
-  `((,(concat "^" (regexp-quote org-directory)) ":Org:")
+  `((,(concat "^" (if (boundp org-directory) (regexp-quote org-directory) "~/org/")) ":Org:")
     ("^~/\\.emacs\\.d/" ":ED:")
     ("^/sudo:.*:" ":SU:")
     ("^~/Documents/" ":Doc:")
