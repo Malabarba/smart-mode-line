@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.0.3
+;; Version: 2.0.3.1
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
@@ -143,93 +143,94 @@
 ;; 
 
 ;;; Change Log:
-;; 2.0.3  - 2013/11/07 - sml/show-frame-identification.
-;; 2.0.3  - 2013/11/07 - Improvements to sml/parse-mode-line-elements.
-;; 2.0.3  - 2013/11/07 - sml/compile-position-construct.
-;; 2.0.3  - 2013/11/07 - Line-number removed from sml/generate-position-help.
-;; 2.0.3  - 2013/11/07 - Position optimization with sml/position-construct.
-;; 2.0.3  - 2013/11/07 - Performance optimization thanks to sml/buffer-identification.
-;; 2.0.2  - 2013/11/05 - better sml/replacer-regexp-list.
-;; 2.0.2  - 2013/11/05 - sml/mule-info also hides input system.
-;; 2.0.2  - 2013/11/05 - show-encoding is now alias for sml/mule-info .
-;; 2.0.2  - 2013/11/05 - Removed anchors.
-;; 2.0.1  - 2013/11/04 - Slight fix on sml/apply-theme
-;; 2.0    - 2013/11/04 - Remove unnecessary functions.
-;; 2.0    - 2013/11/04 - Many other internal improvements.
-;; 2.0    - 2013/11/02 - Remove sml/mode-line-format
-;; 2.0    - 2013/11/02 - Reduce huge spaces in mode-line-format
-;; 2.0    - 2013/11/02 - Redesign the format to use mode-line-mule-info.
-;; 2.0    - 2013/11/02 - Redesign the format to use mode-line-client.
-;; 2.0    - 2013/11/02 - Redesign the format to use mode-line-modified.
-;; 2.0    - 2013/11/02 - Redesign the format to use mode-line-remote.
-;; 2.0    - 2013/11/02 - Manually edits mode-line-front-space.
-;; 2.0    - 2013/11/02 - Manually edits mode-line-frame-identification.
-;; 2.0    - 2013/11/02 - Manually edits mode-line-buffer-identification.
-;; 2.0    - 2013/11/02 - Manually edits mode-line-end-spaces.
-;; 2.0    - 2013/11/02 - Redesign the format to use mode-line-modes.
-;; 2.0    - 2013/11/01 - Redesign the format to use mode-line-position.
-;; 1.30.1 - 2013/10/21 - eval-when-compile cl
-;; 1.30   - 2013/10/13 - Click mode list to toggle minor-mode hiding.
-;; 1.29.2 - 2013/10/02 - Different default position-percentage face.
-;; 1.29.1 - 2013/08/22 - Fix hang introduced with last update.
-;; 1.29   - 2013/08/11 - Fixed lag with remote files.
-;; 1.28.1 - 2013/08/11 - Fix for the erc fix.
-;; 1.28   - 2013/08/11 - Fixing erc notifications.
-;; 1.27   - 2013/08/10 - Changed default value of sml/mode-width to a number. 'full didn't work for everyone.
-;; 1.27   - 2013/08/10 - Doc bug.
-;; 1.26   - 2013/07/18 - Fix for % in the process string.
-;; 1.25   - 2013/07/16 - sml/override-theme also tries to set good colors for the text (not just the background).
-;; 1.24   - 2013/07/16 - sml/mule-info face changed to be less important.
-;; 1.23.2 - 2013/07/15 - Changed doc of sml/replacer-regexp-list.
-;; 1.23.1 - 2013/07/15 - moved perspective variable to eval-after-load.
-;; 1.23   - 2013/07/15 - added an icon to mew-format.
-;; 1.23   - 2013/07/15 - obsolete sml/show-time.
-;; 1.23   - 2013/07/15 - fixed a bug which required emacs restart for changes to take effect.
-;; 1.22   - 2013/07/15 - sml/vc-mode-show-backend implemented.
-;; 1.22   - 2013/07/15 - move mew-support variable.
-;; 1.22   - 2013/07/15 - Changed default value of sml/replacer-regexp-list.
-;; 1.21   - 2013/07/14 - Encoding description.
-;; 1.21   - 2013/07/14 - Reestructured some of the present functions.
-;; 1.21   - 2013/07/14 - New position indicator.
-;; 1.20   - 2013/07/14 - vc-mode support.
-;; 1.19   - 2013/07/14 - Reorganized groups.
-;; 1.18   - 2013/07/12 - mew variables only get created if mew is loaded.
-;; 1.18   - 2013/07/12 - Reformulated the simplified mode-line.
-;; 1.18   - 2013/07/12 - Added number of lines to mouse tooltip of position.
-;; 1.17   - 2013/07/10 - Fallback 'modified' string.
-;; 1.16   - 2013/07/08 - Changed implementation of battery display.
-;; 1.16   - 2013/07/08 - Fixed battery-display.
-;; 1.15   - 2013/07/06 - Implemented sml-modeline support.
-;; 1.14   - 2013/06/25 - Slightly reduced the default value of extra-filler.
-;; 1.13   - 2013/06/10 - removed 'cl requirement.
-;; 1.13   - 2013/06/10 - Advice to mew-biff-clear.
-;; 1.12   - 2013/06/06 - Gigantic typo fix. Sorry about that.
-;; 1.11   - 2013/06/05 - Added biff support.
-;; 1.10   - 2013/05/24 - Fix for buffer name with '%'.
-;; 1.9    - 2013/05/13 - Now uses file name instead of buffer-name by default, controled by `sml/show-file-name'.
-;; 1.9    - 2013/05/13 - When showing buffer name, can strip the <N> part by setting `sml/show-trailing-N'.
-;; 1.8.3  - 2013/04/21 - Fixed first line of docs.
-;; 1.8.2  - 2013/04/18 - added empty anchors throughout the mode-line.
-;; 1.8.2  - 2013/04/18 - evil-mode support.
-;; 1.8.1  - 2013/04/17 - sml/bug-report function.
-;; 1.8.1  - 2013/04/17 - sml/override-theme variable.
-;; 1.8.1  - 2013/04/17 - Changed install instruction to override theme settings.
-;; 1.8    - 2013/04/14 - sml/mode-width can now be 'full.
-;; 1.7.1  - 2012/11/17 - Perspective support.
-;; 1.7    - 2012/11/14 - Fixed some modes not showing in the minor mode list - Thanks Constantin.
-;; 1.7    - 2012/11/14 - Fixed infinite loop.  - Thanks Constantin.
-;; 1.7    - 2012/11/14 - Fixed for dired-mode.
-;; 1.7    - 2012/11/14 - Added parent customize groups.
-;; 1.6.2  - 2012/07/13 - Fixed mode shortenning.
-;; 1.6.1  - 2012/07/12 - NEW FEATURE: Modes list now fully supports clicking.
-;; 1.6.1  - 2012/07/12 - NEW FEATURE: `sml/version' constant.
-;; 1.6.1  - 2012/07/12 - `sml/hidden-modes' is now a list of strings (not regexps).
-;; 1.6    - 2012/07/09 - NEW FEATURE: Customizable faces for the prefix, see `sml/prefix-face-list'.
-;; 1.5.4  - 2012/06/28 - Optimized regexp-replacer.
-;; 1.5.3  - 2012/06/20 - Remove prefix and folder for non-files. Color the :Git prefix.
-;; 1.5.2  - 2012/06/14 - Saner default widths and mode-name fix for Term.
-;; 1.5.1  - 2012/06/12 - Fixed battery font for corner cases.
-;; 1.5    - 2012/06/11 - Added support for display-battery-mode. See the description for more.
+;; 2.0.3.1 - 2013/11/08 - Quick fix sml/get-directory.
+;; 2.0.3   - 2013/11/07 - sml/show-frame-identification.
+;; 2.0.3   - 2013/11/07 - Improvements to sml/parse-mode-line-elements.
+;; 2.0.3   - 2013/11/07 - sml/compile-position-construct.
+;; 2.0.3   - 2013/11/07 - Line-number removed from sml/generate-position-help.
+;; 2.0.3   - 2013/11/07 - Position optimization with sml/position-construct.
+;; 2.0.3   - 2013/11/07 - Performance optimization thanks to sml/buffer-identification.
+;; 2.0.2   - 2013/11/05 - better sml/replacer-regexp-list.
+;; 2.0.2   - 2013/11/05 - sml/mule-info also hides input system.
+;; 2.0.2   - 2013/11/05 - show-encoding is now alias for sml/mule-info .
+;; 2.0.2   - 2013/11/05 - Removed anchors.
+;; 2.0.1   - 2013/11/04 - Slight fix on sml/apply-theme
+;; 2.0     - 2013/11/04 - Remove unnecessary functions.
+;; 2.0     - 2013/11/04 - Many other internal improvements.
+;; 2.0     - 2013/11/02 - Remove sml/mode-line-format
+;; 2.0     - 2013/11/02 - Reduce huge spaces in mode-line-format
+;; 2.0     - 2013/11/02 - Redesign the format to use mode-line-mule-info.
+;; 2.0     - 2013/11/02 - Redesign the format to use mode-line-client.
+;; 2.0     - 2013/11/02 - Redesign the format to use mode-line-modified.
+;; 2.0     - 2013/11/02 - Redesign the format to use mode-line-remote.
+;; 2.0     - 2013/11/02 - Manually edits mode-line-front-space.
+;; 2.0     - 2013/11/02 - Manually edits mode-line-frame-identification.
+;; 2.0     - 2013/11/02 - Manually edits mode-line-buffer-identification.
+;; 2.0     - 2013/11/02 - Manually edits mode-line-end-spaces.
+;; 2.0     - 2013/11/02 - Redesign the format to use mode-line-modes.
+;; 2.0     - 2013/11/01 - Redesign the format to use mode-line-position.
+;; 1.30.1  - 2013/10/21 - eval-when-compile cl
+;; 1.30    - 2013/10/13 - Click mode list to toggle minor-mode hiding.
+;; 1.29.2  - 2013/10/02 - Different default position-percentage face.
+;; 1.29.1  - 2013/08/22 - Fix hang introduced with last update.
+;; 1.29    - 2013/08/11 - Fixed lag with remote files.
+;; 1.28.1  - 2013/08/11 - Fix for the erc fix.
+;; 1.28    - 2013/08/11 - Fixing erc notifications.
+;; 1.27    - 2013/08/10 - Changed default value of sml/mode-width to a number. 'full didn't work for everyone.
+;; 1.27    - 2013/08/10 - Doc bug.
+;; 1.26    - 2013/07/18 - Fix for % in the process string.
+;; 1.25    - 2013/07/16 - sml/override-theme also tries to set good colors for the text (not just the background).
+;; 1.24    - 2013/07/16 - sml/mule-info face changed to be less important.
+;; 1.23.2  - 2013/07/15 - Changed doc of sml/replacer-regexp-list.
+;; 1.23.1  - 2013/07/15 - moved perspective variable to eval-after-load.
+;; 1.23    - 2013/07/15 - added an icon to mew-format.
+;; 1.23    - 2013/07/15 - obsolete sml/show-time.
+;; 1.23    - 2013/07/15 - fixed a bug which required emacs restart for changes to take effect.
+;; 1.22    - 2013/07/15 - sml/vc-mode-show-backend implemented.
+;; 1.22    - 2013/07/15 - move mew-support variable.
+;; 1.22    - 2013/07/15 - Changed default value of sml/replacer-regexp-list.
+;; 1.21    - 2013/07/14 - Encoding description.
+;; 1.21    - 2013/07/14 - Reestructured some of the present functions.
+;; 1.21    - 2013/07/14 - New position indicator.
+;; 1.20    - 2013/07/14 - vc-mode support.
+;; 1.19    - 2013/07/14 - Reorganized groups.
+;; 1.18    - 2013/07/12 - mew variables only get created if mew is loaded.
+;; 1.18    - 2013/07/12 - Reformulated the simplified mode-line.
+;; 1.18    - 2013/07/12 - Added number of lines to mouse tooltip of position.
+;; 1.17    - 2013/07/10 - Fallback 'modified' string.
+;; 1.16    - 2013/07/08 - Changed implementation of battery display.
+;; 1.16    - 2013/07/08 - Fixed battery-display.
+;; 1.15    - 2013/07/06 - Implemented sml-modeline support.
+;; 1.14    - 2013/06/25 - Slightly reduced the default value of extra-filler.
+;; 1.13    - 2013/06/10 - removed 'cl requirement.
+;; 1.13    - 2013/06/10 - Advice to mew-biff-clear.
+;; 1.12    - 2013/06/06 - Gigantic typo fix. Sorry about that.
+;; 1.11    - 2013/06/05 - Added biff support.
+;; 1.10    - 2013/05/24 - Fix for buffer name with '%'.
+;; 1.9     - 2013/05/13 - Now uses file name instead of buffer-name by default, controled by `sml/show-file-name'.
+;; 1.9     - 2013/05/13 - When showing buffer name, can strip the <N> part by setting `sml/show-trailing-N'.
+;; 1.8.3   - 2013/04/21 - Fixed first line of docs.
+;; 1.8.2   - 2013/04/18 - added empty anchors throughout the mode-line.
+;; 1.8.2   - 2013/04/18 - evil-mode support.
+;; 1.8.1   - 2013/04/17 - sml/bug-report function.
+;; 1.8.1   - 2013/04/17 - sml/override-theme variable.
+;; 1.8.1   - 2013/04/17 - Changed install instruction to override theme settings.
+;; 1.8     - 2013/04/14 - sml/mode-width can now be 'full.
+;; 1.7.1   - 2012/11/17 - Perspective support.
+;; 1.7     - 2012/11/14 - Fixed some modes not showing in the minor mode list - Thanks Constantin.
+;; 1.7     - 2012/11/14 - Fixed infinite loop.  - Thanks Constantin.
+;; 1.7     - 2012/11/14 - Fixed for dired-mode.
+;; 1.7     - 2012/11/14 - Added parent customize groups.
+;; 1.6.2   - 2012/07/13 - Fixed mode shortenning.
+;; 1.6.1   - 2012/07/12 - NEW FEATURE: Modes list now fully supports clicking.
+;; 1.6.1   - 2012/07/12 - NEW FEATURE: `sml/version' constant.
+;; 1.6.1   - 2012/07/12 - `sml/hidden-modes' is now a list of strings (not regexps).
+;; 1.6     - 2012/07/09 - NEW FEATURE: Customizable faces for the prefix, see `sml/prefix-face-list'.
+;; 1.5.4   - 2012/06/28 - Optimized regexp-replacer.
+;; 1.5.3   - 2012/06/20 - Remove prefix and folder for non-files. Color the :Git prefix.
+;; 1.5.2   - 2012/06/14 - Saner default widths and mode-name fix for Term.
+;; 1.5.1   - 2012/06/12 - Fixed battery font for corner cases.
+;; 1.5     - 2012/06/11 - Added support for display-battery-mode. See the description for more.
 ;;; Code:
 
 (eval-when-compile (require 'cl))
@@ -237,8 +238,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.0.3" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 39 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.0.3.1" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 40 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -1255,7 +1256,8 @@ Not perfect, but quite good."
   "Decide if we want directory shown. If so, return it."
   (abbreviate-file-name
    (cond ((buffer-file-name) default-directory)
-         ((and (listp mode-name) (string-match "Dired" (car mode-name)))
+         ((and (listp mode-name) (stringp (car mode-name))
+               (string-match "Dired" (car mode-name)))
           (replace-regexp-in-string "/[^/]*/$" "/" default-directory))
          (t ""))))
 
