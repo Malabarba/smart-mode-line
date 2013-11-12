@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.0.3.1
+;; Version: 2.0.3.2
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
@@ -143,6 +143,7 @@
 ;; 
 
 ;;; Change Log:
+;; 2.0.3.2 - 2013/11/12 - sml/filter-mode-line-list now uses remove nil.
 ;; 2.0.3.1 - 2013/11/08 - Quick fix sml/get-directory.
 ;; 2.0.3   - 2013/11/07 - sml/show-frame-identification.
 ;; 2.0.3   - 2013/11/07 - Improvements to sml/parse-mode-line-elements.
@@ -238,8 +239,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.0.3.1" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 40 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.0.3.2" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 41 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -1001,9 +1002,7 @@ mouse-1: Display Line and Column Mode Menu"
 L must be a symbol! We asign right back to it"
   (if (and (symbolp l) (listp (eval l)))
       (set-default l
-       (remove-if
-        'null
-        (mapcar 'sml/parse-mode-line-elements (eval l))))
+       (remove nil (mapcar 'sml/parse-mode-line-elements (eval l))))
     (error "l must be a symbol to a list!")))
 
 (defun sml/fill-for-buffer-identification ()
