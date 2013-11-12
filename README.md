@@ -5,8 +5,8 @@ Smart Mode Line is a sexy mode-line for Emacs, that aims to be easy to
 read from small to large monitors by using a *prefix feature* and
 *smart truncation*. 
 
-![Screenshot 1](http://bruce-connor.github.com/control-pianobar/sml/screenshot.png)
-![Screenshot 2](http://bruce-connor.github.com/control-pianobar/sml/sml-small.png)
+![Dark Theme Screenshot](http://raw.github.com/Bruce-Connor/smart-mode-line/master/screenshot-2013-11-11-dark.png)
+![Light Theme Screenshot](http://raw.github.com/Bruce-Connor/smart-mode-line/master/screenshot-2013-11-11-light.png)
 
 Installation
 ===
