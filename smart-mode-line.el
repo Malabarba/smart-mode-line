@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.0.3.2
+;; Version: 2.0.3.3
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
@@ -143,6 +143,7 @@
 ;; 
 
 ;;; Change Log:
+;; 2.0.3.3 - 2013/11/13 - Small fix on sml/generate-buffer-identification for man pages.
 ;; 2.0.3.2 - 2013/11/12 - sml/filter-mode-line-list now uses remove nil.
 ;; 2.0.3.1 - 2013/11/08 - Quick fix sml/get-directory.
 ;; 2.0.3   - 2013/11/07 - sml/show-frame-identification.
@@ -153,7 +154,7 @@
 ;; 2.0.3   - 2013/11/07 - Performance optimization thanks to sml/buffer-identification.
 ;; 2.0.2   - 2013/11/05 - better sml/replacer-regexp-list.
 ;; 2.0.2   - 2013/11/05 - sml/mule-info also hides input system.
-;; 2.0.2   - 2013/11/05 - show-encoding is now alias for sml/mule-info .
+;; 2.0.2   - 2013/11/05 - show-encoding is now alias for sml/mule-info.
 ;; 2.0.2   - 2013/11/05 - Removed anchors.
 ;; 2.0.1   - 2013/11/04 - Slight fix on sml/apply-theme
 ;; 2.0     - 2013/11/04 - Remove unnecessary functions.
@@ -239,8 +240,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.0.3.2" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 41 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.0.3.3" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 42 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -1029,7 +1030,8 @@ L must be a symbol! We asign right back to it"
                           'mouse-face 'mode-line-highlight
                           'local-map   mode-line-buffer-identification-keymap))
             sml/buffer-identification-filling "")
-    (setq sml/buffer-identification-filling (sml/fill-for-buffer-identification))))
+    (setq sml/buffer-identification-filling (sml/fill-for-buffer-identification)))
+  nil)
 
 (defun sml/parse-mode-line-elements (el)
   "Propertize or delete EL.
