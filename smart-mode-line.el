@@ -732,7 +732,7 @@ Use the `sml/theme' variable instead.")))))
                                              (eq window-system 'pc))
   "Format use for `mode-line-frame-identification'"
   :type 'string
-  :group 'smart-mode-line
+  :group 'smart-mode-line-others
   :package-version '(smart-mode-line . "2.0.3"))
 
 (defcustom sml/vc-mode-show-backend nil
