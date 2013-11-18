@@ -339,7 +339,8 @@ instead (M-x customize-variable RET sml/theme RET)."
   :type '(choice (const :tag "Use a dark color-theme. (Default)" dark)
                  (const :tag "Use a light color-theme." light)
                  (const :tag "Respect the color-theme's colors." nil))
-  :initialize 'set-default      :set 'sml/apply-theme
+  :set 'sml/apply-theme
+  :initialize 'custom-initialize-default 
   :group 'smart-mode-line-faces :group 'smart-mode-line)
 
 (defcustom sml/position-percentage-format "%p"
@@ -358,7 +359,7 @@ Empty it or disable `line-number-mode' to hide the number."
   :type 'string
   :group 'smart-mode-line-position
   :set 'sml/compile-position-construct
-  :initialize 'set-default)
+  :initialize 'custom-initialize-default)
 (put 'sml/line-number-format 'risky-local-variable t)
 
 (defcustom sml/size-indication-format "%I "
@@ -367,7 +368,7 @@ Empty it or disable `line-number-mode' to hide the number."
   :group 'smart-mode-line-position
   :package-version '(smart-mode-line . "2.0")
   :set 'sml/compile-position-construct
-  :initialize 'set-default)
+  :initialize 'custom-initialize-default)
 (put 'sml/size-indication-format 'risky-local-variable t)
 
 (defcustom sml/col-number-format "%2c"
@@ -377,7 +378,7 @@ Empty it or disable `column-number-mode' to hide the number."
   :type 'string
   :group 'smart-mode-line-position
   :set 'sml/compile-position-construct
-  :initialize 'set-default)
+  :initialize 'custom-initialize-default)
 (put 'sml/col-number-format 'risky-local-variable t)
 
 (defcustom sml/numbers-separator ":"
@@ -592,13 +593,13 @@ if you just want to fine-tune it)."
 
 ;; Color definitions
 (defcustom sml/active-foreground-color "gray60" "Foreground mode-line color for the active frame."
-  :type 'color :group 'smart-mode-line-faces :set 'sml/set-face-color :initialize 'set-default)
+  :type 'color :group 'smart-mode-line-faces :set 'sml/set-face-color :initialize 'custom-initialize-default)
 (defcustom sml/active-background-color "black" "Background mode-line color for the active frame."
-  :type 'color :group 'smart-mode-line-faces :set 'sml/set-face-color :initialize 'set-default) 
+  :type 'color :group 'smart-mode-line-faces :set 'sml/set-face-color :initialize 'custom-initialize-default) 
 (defcustom sml/inactive-foreground-color "gray60" "Foreground mode-line color for the inactive frame."
-  :type 'color :group 'smart-mode-line-faces :set 'sml/set-face-color :initialize 'set-default)
+  :type 'color :group 'smart-mode-line-faces :set 'sml/set-face-color :initialize 'custom-initialize-default)
 (defcustom sml/inactive-background-color "#404045" "Background mode-line color for the inactive frame."
-  :type 'color :group 'smart-mode-line-faces :set 'sml/set-face-color :initialize 'set-default)
+  :type 'color :group 'smart-mode-line-faces :set 'sml/set-face-color :initialize 'custom-initialize-default)
 
 ;; Face definitions
 (defface sml/global           '((t :foreground "gray50"))
