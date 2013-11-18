@@ -82,7 +82,7 @@ documentations are mostly self explanatory, I list here only the
 most important ones.
 
  1. `sml/theme`  
-  Choose what theme ou want to use for the mode-line colors. For now
+  Choose what theme you want to use for the mode-line colors. For now
   there are 3 different themes: `dark`, `light`, and `respectful`.
  
  1. `sml/shorten-directory` and `sml/shorten-modes`  
