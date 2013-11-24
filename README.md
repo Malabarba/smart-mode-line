@@ -1,10 +1,24 @@
-smart-mode-line [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GLZLRLW72Q8G2)
+smart-mode-line [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GLZLRLW72Q8G2)
 ---------------
 
 Smart Mode Line is a sexy mode-line for Emacs, that aims to be easy to
 read from small to large monitors by using a *prefix feature* and
 *smart truncation*. 
 
+New in v2.1
+===========
+- **Themes!** (yes, finally). Besides the usual dark theme, we now have
+light and a respectful theme. See `sml/theme`.
+- **Zero Compromise.** This means you don't have to
+give anything up in order to use this package. Every single bit of
+information which is displayed in the standard mode-line is present in
+`sml` (though some might need to be turned on). This includs 100%
+compatibility with other external packages which display information
+in the mode-line.
+- Performance improvements.
+
+Images
+======
 **Dark Theme**  
 ![Dark Theme Screenshot](https://raw.github.com/Bruce-Connor/smart-mode-line/master/screenshot-2013-11-11-dark.png)
 

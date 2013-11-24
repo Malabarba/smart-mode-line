@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.0.5
+;; Version: 2.1
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
@@ -243,8 +243,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.0.5" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 46 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.1" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 47 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
