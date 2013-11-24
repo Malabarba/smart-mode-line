@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.0.3.4
+;; Version: 2.0.4
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
@@ -143,6 +143,7 @@
 ;; 
 
 ;;; Change Log:
+;; 2.0.4   - 2013/11/24 - Improved faces a little.
 ;; 2.0.3.4 - 2013/11/15 - Workaround to prevent core dump.
 ;; 2.0.3.3 - 2013/11/13 - Small fix on sml/generate-buffer-identification for man pages.
 ;; 2.0.3.2 - 2013/11/12 - sml/filter-mode-line-list now uses remove nil.
@@ -241,8 +242,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.0.3.4" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 44 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.0.4" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 45 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -626,7 +627,7 @@ if you just want to fine-tune it)."
 (defface sml/mule-info           '((t :inherit sml/global))                           "" :group 'smart-mode-line-faces)
 (defface sml/sudo                '((t :inherit sml/outside-modified))                 "" :group 'smart-mode-line-faces)
 (defface sml/git                 '((t :inherit sml/read-only))                        "" :group 'smart-mode-line-faces)
-(defface sml/folder              '((t :inherit sml/global))                           "" :group 'smart-mode-line-faces)
+(defface sml/folder              '((t :inherit sml/global :weight normal))            "" :group 'smart-mode-line-faces)
 (defface sml/process             '((t :inherit sml/prefix))                           "" :group 'smart-mode-line-faces)
 (defface sml/vc                  '((t :inherit sml/git))                              "" :group 'smart-mode-line-faces)
 (defface sml/vc-edited           '((t :inherit sml/prefix))                           "" :group 'smart-mode-line-faces)
@@ -664,23 +665,24 @@ The second argument (VALUE) is for internal use only, don't use it."
                  (custom-theme-set-faces
                   'smart-mode-line                             
                   '(sml/global    ((t :inherit font-lock-preprocessor-face)))
-                  '(sml/filename  ((t :inherit (font-lock-function-name-face sml/global) :weight bold)))
+                  `(sml/filename  ((t :inherit (font-lock-function-name-face sml/global) :weight bold
+                                      :foreground ,(internal-get-lisp-face-attribute 'default :foreground))))
                   '(sml/prefix    ((t :inherit (font-lock-variable-name-face sml/global))))
                   '(sml/read-only ((t :inherit (font-lock-type-face sml/global))))
                   `(sml/modes     ((t :inherit sml/global :foreground ,sml/active-foreground-color)))))
     ('light (custom-theme-set-variables
              'smart-mode-line
              '(sml/active-foreground-color "black")
-             '(sml/active-background-color "grey75") 
+             '(sml/active-background-color "grey85") 
              '(sml/inactive-foreground-color "grey20")
-             '(sml/inactive-background-color "grey90"))
+             '(sml/inactive-background-color "#fdf6e3"))
             (custom-theme-set-faces
              'smart-mode-line
              '(sml/global    ((t :foreground "gray20")))
              '(sml/modes     ((t :inherit sml/global :foreground "Black")))
              '(sml/filename  ((t :inherit sml/global :foreground "Blue" :weight bold)))
-             '(sml/prefix    ((t :inherit sml/global :foreground "#5b2507")))
-             '(sml/read-only ((t :inherit sml/global :foreground "DarkGreen")))))
+             '(sml/prefix    ((t :inherit sml/global :foreground "#5b2507" :weight bold)))
+             '(sml/read-only ((t :inherit sml/global :foreground "DarkGreen" :weight bold)))))
     ((dark t)
      (custom-theme-set-variables
       'smart-mode-line
