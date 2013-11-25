@@ -12,7 +12,7 @@ light and a respectful theme. See `sml/theme`.
 - **Zero Compromise.** This means you don't have to
 give anything up in order to use this package. Every single bit of
 information which is displayed in the standard mode-line is present in
-`sml` (though some might need to be turned on). This includs 100%
+`sml` (though some might need to be turned on). This includes 100%
 compatibility with other external packages which display information
 in the mode-line.
 - Performance improvements.
