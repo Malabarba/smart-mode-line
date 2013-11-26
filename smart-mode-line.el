@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.1
+;; Version: 2.2
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
@@ -143,6 +143,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.2     - 2013/11/26 - Better minor list and some fixes.
 ;; 2.0.5   - 2013/11/24 - sml/revert no longer available.
 ;; 2.0.4   - 2013/11/24 - Improved faces a little.
 ;; 2.0.3.4 - 2013/11/15 - Workaround to prevent core dump.
@@ -243,8 +244,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.1" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 47 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.2" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 48 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -789,8 +790,6 @@ this to make sure that we are loaded after any themes)."
   (if (not after-init-time)
       (add-hook 'after-init-hook 'sml/setup)
     (setq sml/simplified nil)
-    ;; We use this to make the mode-line readable in lighter backgrounds
-    (when sml/override-theme (sml/set-face-color nil nil))
 
     (setq battery-mode-line-format sml/battery-format)
 
