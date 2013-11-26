@@ -1209,11 +1209,14 @@ duplicated buffer names) from being displayed."
            (helpString (concat "Full list:" (replace-regexp-in-string " " "\n    " finalNameList)
                                "\n\n" sml/major-help-echo))
            needs-removing)
+      ;; Remove hidden-modes
       (setq nameList
             (remove
              nil
              (mapcar (lambda (x) (unless (and (stringp x) (member x sml/hidden-modes)) x))
                      nameList)))
+      ;; Truncate
+      (setq finalNameList (mapconcat 'format-mode-line  nameList ""))
       (when (and sml/shorten-modes (> (length finalNameList) size))
         ;; We need to remove 1+"the number of spaces found". We use
         ;; 2+ because the car of the list element returned by `last'
@@ -1221,6 +1224,7 @@ duplicated buffer names) from being displayed."
         (setq needs-removing
               (+ 2 (sml/count-occurrences-starting-at
                     " " finalNameList (- size (length sml/full-mode-string))))))
+      ;; Add truncation string if necessary
       (when needs-removing
         (setcdr (last nameList needs-removing)
                 (list t sml/propertized-full-mode-string)))
