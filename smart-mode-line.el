@@ -1136,19 +1136,6 @@ duplicated buffer names) from being displayed."
         (buffer-name)
       (replace-regexp-in-string "<[0-9]+>$" "" (buffer-name)))))
 
-(defun sml/simplified-extract-minor-modes (ml maxSize)
-  "Simplified version of `sml/generate-minor-modes'. Used for width calculation."
-  (if (and (integerp maxSize) sml/shorten-modes)
-      (make-string (max 0 maxSize) ?\ )
-    (if (equal maxSize 'full) 
-        ""
-      (let* ((nameList (sml/mode-list-to-string-list (reverse ml)))
-             (out nil))
-        (dolist (name nameList out)
-          (unless (member name sml/hidden-modes) ; :test #'equal
-            ;; Append the next one.
-            (add-to-list 'out name)))))))
-
 (defun sml/fill-width-available ()
   "Return the size available for filling."
   (max 0
@@ -1175,8 +1162,8 @@ duplicated buffer names) from being displayed."
                 (kadr (if (listp kdr) (car kdr) nil)))
             (case val
               (:eval (sml/mode-list-to-string-list (eval kadr)))
-              ;; properties now not handlet properly
-              (:propertize (sml/mode-list-to-string-list kdr))
+              ;; properties now handled properly
+              (:propertize `((:propertize ,@(sml/mode-list-to-string-list kadr) ,@(cdr-safe kdr))))
               (t
                (if val
                    (sml/mode-list-to-string-list kadr)
@@ -1189,57 +1176,54 @@ duplicated buffer names) from being displayed."
     (t ;;(message "mode-list-to-string-error Unknown: type: %s;\nval: %s" ml (type-of ml))
      (list (format "%s" ml)))))
 
+(defconst sml/propertized-shorten-mode-string
+  '(:propertize sml/shorten-mode-string
+              help-echo "mouse-1: Shorten minor modes"
+              local-map (keymap (mode-line keymap (mouse-1 . sml/toggle-shorten-modes)))
+              mouse-face mode-line-highlight))
+(defconst sml/propertized-full-mode-string
+  '(:propertize sml/full-mode-string
+              help-echo "mouse-1: Show all modes"
+              local-map (keymap (mode-line keymap (mouse-1 . sml/toggle-shorten-modes)))
+              mouse-face mode-line-highlight))
+
+(defun sml/count-occurrences-starting-at (regex string start)
+  "Count occurrences of REGEX in STRING starting at index START."
+  (if (string-match regex string start)
+      (+ 1 (sml/count-occurrences-starting-at regex string (match-end 0)))
+    0))
+
 (defun sml/generate-minor-modes ()
   "Extracts all rich strings necessary for the minor mode list."
-  (let ((ml      minor-mode-alist)
-        (maxSize sml/mode-width))
-    (if sml/simplified
-        (sml/simplified-extract-minor-modes ml maxSize)
-      (let* ((nameList (sml/mode-list-to-string-list (reverse ml)))
-             (out nil)
-             (size (if (equal maxSize 'full) (sml/fill-width-available)
-                     maxSize))
-             (helpString (concat "Full list:\n  "
-                                 (mapconcat 'identity nameList "\n  ")))
-             (keymap '(keymap (mode-line keymap (mouse-1 . sml/toggle-shorten-modes))))
-             (propertized-full-mode-string (propertize sml/full-mode-string
-                                                       'help-echo "mouse-1: Show all modes"
-                                                       'face 'sml/folder
-                                                       'local-map keymap
-                                                       'mouse-face 'mode-line-highlight))
-             (propertized-shorten-mode-string (propertize sml/shorten-mode-string
-                                                          'help-echo "mouse-1: Shorten minor modes"
-                                                          'face 'sml/folder
-                                                          'local-map keymap
-                                                          'mouse-face 'mode-line-highlight)))
-        (dolist (name nameList out)
-          (unless (member name sml/hidden-modes) ; :test #'equal
-            ;; If we're shortenning, check if it fits
-            (when (and sml/shorten-modes (< size (length name)))
-              ;; If the remaining size is too small even for the
-              ;; `sml/full-mode-string', get rid of the last string.
-              ;; (This won't work perfectly if the last string is
-              ;; smaller then `sml/full-mode-string', but that should be
-              ;; rare.)
-              (when (< size (length sml/full-mode-string)) (setq out (cdr out)))
-              (add-to-list 'out propertized-full-mode-string t)
-              (decf size (length sml/full-mode-string))
-              (return))
-            ;; If it fits or we're not shortenning, append the next one.
-            (decf size (length name))
-            (add-to-list 'out (propertize name
-                                          'help-echo helpString
-                                          'mouse-face 'mode-line-highlight
-                                          'face 'sml/folder
-                                          'local-map mode-line-minor-mode-keymap))))
-        ;; If we're not shortenning, at the " -" at the end.
-        (unless sml/shorten-modes
-          (decf size (length propertized-shorten-mode-string))
-          (add-to-list 'out propertized-shorten-mode-string t))
-        ;; Fill with spaces, unless size is negative.
-        (append out (list (propertize (make-string (max 0 size) sml/fill-char)
-                                      'help-echo helpString
-                                      'face 'sml/folder)))))))
+  (if sml/simplified
+      ""
+    (let* ((nameList (sml/mode-list-to-string-list minor-mode-alist))
+           (finalNameList (mapconcat 'format-mode-line  nameList ""))
+           (size (if (equal sml/mode-width 'full) (sml/fill-width-available) sml/mode-width))
+           (helpString (concat "Full list:" (replace-regexp-in-string " " "\n    " finalNameList)
+                               "\n\n" sml/major-help-echo))
+           needs-removing)
+      (setq nameList nameList)
+      (when (and sml/shorten-modes (> (length finalNameList) size))
+        ;; We need to remove 1+"the number of spaces found". We use
+        ;; 2+ because the car of the list element returned by `last'
+        ;; (below) won't actually be removed.
+        (setq needs-removing
+              (+ 2 (sml/count-occurrences-starting-at
+                    " " finalNameList (- size (length sml/full-mode-string))))))
+      (when needs-removing
+        (setcdr (last nameList needs-removing)
+                (list t sml/propertized-full-mode-string)))
+      ;; If we're not shortenning, add " -" at the end.
+      (unless sml/shorten-modes
+        (add-to-list 'nameList sml/propertized-shorten-mode-string t))
+
+      (list size ;; Padding
+            (list ':propertize nameList
+                  'help-echo helpString
+                  'mouse-face 'mode-line-highlight
+                  'face 'sml/folder
+                  'local-map mode-line-minor-mode-keymap)))))
 
 (defun sml/propertize-prefix (prefix)
   "Set the color of the prefix according to its contents."
