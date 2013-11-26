@@ -734,7 +734,7 @@ Use the `sml/theme' variable instead.")))))
 
 (defcustom sml/show-frame-identification (or (null window-system)
                                              (eq window-system 'pc))
-  "Format use for `mode-line-frame-identification'"
+  "Format to use for `mode-line-frame-identification'"
   :type 'string
   :group 'smart-mode-line-others
   :package-version '(smart-mode-line . "2.0.3"))
