@@ -858,6 +858,11 @@ this to make sure that we are loaded after any themes)."
     ;; Display time
     (add-hook 'display-time-hook 'sml/propertize-time-string)
 
+    ;; Small thing to help powerline support
+    (when (fboundp 'powerline-default-theme)
+      (when (eq sml/mode-width 'full)
+        (setq sml/mode-width 0)))    
+    
     ;; Battery support
     (eval-after-load 'battery
       '(defadvice battery-update (after sml/after-battery-update-advice () activate)
@@ -924,8 +929,9 @@ Might implement a quick flash eventually."
                (set-face-attribute 'mode-line nil :background sml/new-mail-background-color)
                (setq mew-biff-string (format sml/mew-biff-format n)))))))
 
-    (unless (and (boundp 'erc-track-position-in-mode-line)
-                 (null erc-track-position-in-mode-line))
+    (unless (or (and (boundp 'erc-track-position-in-mode-line)
+                     (null erc-track-position-in-mode-line))
+                (fboundp 'powerline-default-theme))
       (setq erc-track-position-in-mode-line t))))
 
 (defun sml/generate-position-help (&rest ignored)
@@ -1231,20 +1237,6 @@ duplicated buffer names) from being displayed."
     (dolist (pair sml/prefix-face-list)
       (if (string-match (car pair) prefix)
           (return (propertize prefix 'face (car (cdr pair))))))))
-
-;; (defun sml/revert ()
-;;   "Called by `sml/setup' with arg = -1.
-
-;; Try to undo all changes made by `sml/setup'.
-;; Not perfect, but quite good."
-;;   (remove-hook 'after-save-hook 'sml/generate-buffer-identification)
-;;   (ad-deactivate 'rename-buffer)
-;;   (ad-deactivate 'set-visited-file-name)
-;;   (ad-deactivate 'set-buffer-modified-p)
-;;   (copy-face 'sml/active-backup 'mode-line)
-;;   (copy-face 'sml/inactive-backup 'mode-line-inactive)
-;;   (setq-default mode-line-format sml/format-backup)
-;;   (setq battery-mode-line-format sml/battery-format-backup))
 
 (defun sml/get-directory ()
   "Decide if we want directory shown. If so, return it."
