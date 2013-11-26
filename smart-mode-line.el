@@ -1209,7 +1209,11 @@ duplicated buffer names) from being displayed."
            (helpString (concat "Full list:" (replace-regexp-in-string " " "\n    " finalNameList)
                                "\n\n" sml/major-help-echo))
            needs-removing)
-      (setq nameList nameList)
+      (setq nameList
+            (remove
+             nil
+             (mapcar (lambda (x) (unless (and (stringp x) (member x sml/hidden-modes)) x))
+                     nameList)))
       (when (and sml/shorten-modes (> (length finalNameList) size))
         ;; We need to remove 1+"the number of spaces found". We use
         ;; 2+ because the car of the list element returned by `last'
