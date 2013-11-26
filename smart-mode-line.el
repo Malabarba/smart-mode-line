@@ -859,8 +859,10 @@ this to make sure that we are loaded after any themes)."
 
     ;; Small thing to help powerline support
     (when (fboundp 'powerline-default-theme)
-      (when (eq sml/mode-width 'full)
-        (setq sml/mode-width 0)))    
+      (when (eq sml/mode-width 'full) (setq sml/mode-width 0))
+      (when (= sml/name-width 44)
+        (setq sml/mode-width 0)
+        (setq sml/shorten-directory nil)))
     
     ;; Battery support
     (eval-after-load 'battery
