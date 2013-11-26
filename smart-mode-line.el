@@ -857,12 +857,12 @@ this to make sure that we are loaded after any themes)."
     ;; Display time
     (add-hook 'display-time-hook 'sml/propertize-time-string)
 
-    ;; Small thing to help powerline support
-    (when (fboundp 'powerline-default-theme)
-      (when (eq sml/mode-width 'full) (setq sml/mode-width 0))
-      (when (= sml/name-width 44)
-        (setq sml/mode-width 0)
-        (setq sml/shorten-directory nil)))
+    ;; ;; Small thing to help powerline support
+    ;; (when (fboundp 'powerline-default-theme)
+    ;;   (when (eq sml/mode-width 'full) (setq sml/mode-width 0))
+    ;;   (when (= sml/name-width 44)
+    ;;     (setq sml/mode-width 0)
+    ;;     (setq sml/shorten-directory nil)))
     
     ;; Battery support
     (eval-after-load 'battery
@@ -930,9 +930,8 @@ Might implement a quick flash eventually."
                (set-face-attribute 'mode-line nil :background sml/new-mail-background-color)
                (setq mew-biff-string (format sml/mew-biff-format n)))))))
 
-    (unless (or (and (boundp 'erc-track-position-in-mode-line)
-                     (null erc-track-position-in-mode-line))
-                (fboundp 'powerline-default-theme))
+    (unless (and (boundp 'erc-track-position-in-mode-line)
+                 (null erc-track-position-in-mode-line))
       (setq erc-track-position-in-mode-line t))))
 
 (defun sml/generate-position-help (&rest ignored)
@@ -1008,7 +1007,7 @@ Might implement a quick flash eventually."
 
 (defun sml/propertize-time-string ()
   "Function to be added to `display-time-hook' to propertize the string."
-  (when (stringp display-time-string)
+  (when (and (boundp 'display-time-string) (stringp display-time-string))
     (setq display-time-string
           (propertize display-time-string
                       'face 'sml/time))))
@@ -1250,7 +1249,9 @@ duplicated buffer names) from being displayed."
 
 (defun sml/set-battery-font ()
   "Set `sml/battery' face depending on battery state."
-  (let ((data (and (boundp battery-status-function) battery-status-function (funcall battery-status-function))))
+  (let ((data (and (boundp 'battery-status-function)
+                   battery-status-function
+                   (funcall battery-status-function))))
     (if  (string-equal "AC" (cdr (assoc 76 data)))
         (copy-face 'sml/charging 'sml/battery)
       (copy-face 'sml/discharging 'sml/battery))))
