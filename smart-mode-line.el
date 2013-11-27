@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.2
+;; Version: 2.2.1
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
@@ -143,6 +143,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.2.1   - 2013/11/27 - Fix doc for sml/show-frame-identification.
 ;; 2.2     - 2013/11/26 - Better minor list and some fixes.
 ;; 2.0.5   - 2013/11/24 - sml/revert no longer available.
 ;; 2.0.4   - 2013/11/24 - Improved faces a little.
@@ -244,8 +245,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.2" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 48 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.2.1" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 49 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -734,8 +735,13 @@ Use the `sml/theme' variable instead.")))))
 
 (defcustom sml/show-frame-identification (or (null window-system)
                                              (eq window-system 'pc))
-  "Format use for `mode-line-frame-identification'"
-  :type 'string
+  "Whether to show frame identification or not.
+
+In systems this doesn't even display anything. It's most useful
+on terminals, but you might want to disable it anyway.
+
+Just set this to nil, and frame identification won't be displayed."
+  :type 'boolean
   :group 'smart-mode-line-others
   :package-version '(smart-mode-line . "2.0.3"))
 
