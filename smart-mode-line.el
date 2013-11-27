@@ -390,7 +390,7 @@ Empty it or disable `column-number-mode' to hide the number."
   "Separator between line and column number.
 
 Since we use different faces for line and column number, you can
-just set this to \"\" to save an extra charof space."
+just set this to \"\" to save an extra char of space."
   :type 'string
   :group 'smart-mode-line-position)
 
@@ -751,7 +751,7 @@ Use the `sml/theme' variable instead."))))
                                              (eq window-system 'pc))
   "Whether to show frame identification or not.
 
-In systems this doesn't even display anything. It's most useful
+In some systems this doesn't even display anything. It's most useful
 on terminals, but you might want to disable it anyway.
 
 Just set this to nil, and frame identification won't be displayed."
@@ -760,7 +760,7 @@ Just set this to nil, and frame identification won't be displayed."
   :package-version '(smart-mode-line . "2.0.3"))
 
 (defcustom sml/vc-mode-show-backend nil
-  "Whether to show or the backend in vc-mode's mode-line description.
+  "Whether to show or not the backend in vc-mode's mode-line description.
 
 I think most people only use one backend, so this defaults to nil.
 If you want it to show the backend, just set it to t."
