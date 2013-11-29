@@ -1270,7 +1270,7 @@ duplicated buffer names) from being displayed."
 (defun sml/get-directory ()
   "Decide if we want directory shown. If so, return it."
   (abbreviate-file-name
-   (cond ((buffer-file-name) default-directory)
+   (cond ((buffer-file-name) (file-name-directory (buffer-file-name)))
          ((and (listp mode-name) (stringp (car mode-name))
                (string-match "Dired" (car mode-name)))
           (replace-regexp-in-string "/[^/]*/$" "/" default-directory))
