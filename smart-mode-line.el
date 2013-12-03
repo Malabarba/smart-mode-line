@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.2.2
+;; Version: 2.2.3
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
@@ -143,6 +143,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.2.3   - 2013/12/03 - Fix possible recursion in sml/apply-theme.
 ;; 2.2.2   - 2013/11/27 - Fix sml/apply-theme to consider saved faces.
 ;; 2.2.1   - 2013/11/27 - Fix doc for sml/show-frame-identification.
 ;; 2.2     - 2013/11/26 - Better minor list and some fixes.
@@ -246,8 +247,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.2.2" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 50 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.2.3" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 51 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -668,58 +669,60 @@ This also sets the `sml/theme' variable, see its documentation
 for more information on each value.
 
 The second argument (VALUE) is for internal use only, don't use it."
-  (if value (setq sml/theme value)
-    (if theme
-        (setq sml/theme theme)
-      (setq sml/theme 'respectful)))
-  (case sml/theme
-    ('respectful (custom-theme-set-variables
-                  'smart-mode-line
-                  `(sml/active-foreground-color ,sml/mode-line-active-foreground-original)
-                  `(sml/active-background-color ,sml/mode-line-active-background-original)
-                  `(sml/inactive-foreground-color ,sml/mode-line-inactive-foreground-original)
-                  `(sml/inactive-background-color ,sml/mode-line-inactive-background-original))
-                 (custom-theme-set-faces
-                  'smart-mode-line
-                  '(sml/global    ((t :inherit font-lock-preprocessor-face)))
-                  `(sml/filename  ((t :inherit (font-lock-function-name-face sml/global) :weight bold
-                                      :foreground ,(internal-get-lisp-face-attribute 'default :foreground))))
-                  '(sml/prefix    ((t :inherit (font-lock-variable-name-face sml/global))))
-                  '(sml/read-only ((t :inherit (font-lock-type-face sml/global))))
-                  `(sml/modes     ((t :inherit sml/global :foreground ,sml/active-foreground-color)))))
-    ('light (custom-theme-set-variables
-             'smart-mode-line
-             '(sml/active-foreground-color "black")
-             '(sml/active-background-color "grey85")
-             '(sml/inactive-foreground-color "grey20")
-             '(sml/inactive-background-color "#fdf6e3"))
-            (custom-theme-set-faces
-             'smart-mode-line
-             '(sml/global    ((t :foreground "gray20")))
-             '(sml/modes     ((t :inherit sml/global :foreground "Black")))
-             '(sml/filename  ((t :inherit sml/global :foreground "Blue" :weight bold)))
-             '(sml/prefix    ((t :inherit sml/global :foreground "#5b2507" :weight bold)))
-             '(sml/read-only ((t :inherit sml/global :foreground "DarkGreen" :weight bold)))))
-    ((dark t)
-     (custom-theme-set-variables
-      'smart-mode-line
-      '(sml/active-foreground-color "gray60")
-      '(sml/active-background-color "black")
-      '(sml/inactive-foreground-color "gray60")
-      '(sml/inactive-background-color "#404045"))
-     (custom-theme-set-faces
-      'smart-mode-line
-      '(sml/global    ((t :foreground "gray50")))
-      '(sml/modes     ((t :inherit sml/global :foreground "White")))
-      '(sml/filename  ((t :inherit sml/global :foreground "#eab700" :weight bold)))
-      '(sml/prefix    ((t :inherit sml/global :foreground "#bf6000")))
-      '(sml/read-only ((t :inherit sml/global :foreground "DeepSkyBlue"))))
-     (if (eq sml/theme t)
-         (message "[WARNING] smart-mode-line: setting `sml/override-theme' to t is obsolete.
+  (message "[sml] %s set to %s" 'sml/theme (or value theme))
+  (unless (eq sml/theme (or value theme))  
+    (if value (setq-default sml/theme value)
+      (if theme
+          (setq-default sml/theme theme)
+        (setq-default sml/theme 'respectful)))
+    (case sml/theme
+      ('respectful (custom-theme-set-variables
+                    'smart-mode-line
+                    `(sml/active-foreground-color ,sml/mode-line-active-foreground-original)
+                    `(sml/active-background-color ,sml/mode-line-active-background-original)
+                    `(sml/inactive-foreground-color ,sml/mode-line-inactive-foreground-original)
+                    `(sml/inactive-background-color ,sml/mode-line-inactive-background-original))
+                   (custom-theme-set-faces
+                    'smart-mode-line
+                    '(sml/global    ((t :inherit font-lock-preprocessor-face)))
+                    `(sml/filename  ((t :inherit (font-lock-function-name-face sml/global) :weight bold
+                                        :foreground ,(internal-get-lisp-face-attribute 'default :foreground))))
+                    '(sml/prefix    ((t :inherit (font-lock-variable-name-face sml/global))))
+                    '(sml/read-only ((t :inherit (font-lock-type-face sml/global))))
+                    `(sml/modes     ((t :inherit sml/global :foreground ,sml/active-foreground-color)))))
+      ('light (custom-theme-set-variables
+               'smart-mode-line
+               '(sml/active-foreground-color "black")
+               '(sml/active-background-color "grey85")
+               '(sml/inactive-foreground-color "grey20")
+               '(sml/inactive-background-color "#fdf6e3"))
+              (custom-theme-set-faces
+               'smart-mode-line
+               '(sml/global    ((t :foreground "gray20")))
+               '(sml/modes     ((t :inherit sml/global :foreground "Black")))
+               '(sml/filename  ((t :inherit sml/global :foreground "Blue" :weight bold)))
+               '(sml/prefix    ((t :inherit sml/global :foreground "#5b2507" :weight bold)))
+               '(sml/read-only ((t :inherit sml/global :foreground "DarkGreen" :weight bold)))))
+      ((dark t)
+       (custom-theme-set-variables
+        'smart-mode-line
+        '(sml/active-foreground-color "gray60")
+        '(sml/active-background-color "black")
+        '(sml/inactive-foreground-color "gray60")
+        '(sml/inactive-background-color "#404045"))
+       (custom-theme-set-faces
+        'smart-mode-line
+        '(sml/global    ((t :foreground "gray50")))
+        '(sml/modes     ((t :inherit sml/global :foreground "White")))
+        '(sml/filename  ((t :inherit sml/global :foreground "#eab700" :weight bold)))
+        '(sml/prefix    ((t :inherit sml/global :foreground "#bf6000")))
+        '(sml/read-only ((t :inherit sml/global :foreground "DeepSkyBlue"))))
+       (if (eq sml/theme t)
+           (message "[WARNING] smart-mode-line: setting `sml/override-theme' to t is obsolete.
 Use the `sml/theme' variable instead."))))
-  
-  (sml/set-mode-line-buffer-id-face)
-  (enable-theme 'user))
+    
+    (sml/set-mode-line-buffer-id-face)
+    (enable-theme 'user)))
 
 (defvaralias 'sml/show-encoding 'sml/mule-info)
 
