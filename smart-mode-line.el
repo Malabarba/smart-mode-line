@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.2.3
+;; Version: 2.3
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
@@ -143,6 +143,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.3     - 2013/12/03 - Mark boolean's as safe-local-variables.
 ;; 2.2.3   - 2013/12/03 - Fix possible recursion in sml/apply-theme.
 ;; 2.2.2   - 2013/11/27 - Fix sml/apply-theme to consider saved faces.
 ;; 2.2.1   - 2013/11/27 - Fix doc for sml/show-frame-identification.
@@ -247,8 +248,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.2.3" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 51 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.3" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 52 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -399,6 +400,7 @@ just set this to \"\" to save an extra char of space."
   "Whether to show an \"@\" for emacsclient frames."
   :type 'boolean
   :group 'smart-mode-line-others)
+(put 'sml/show-client 'safe-local-variable 'booleanp)
 
 (defcustom sml/modified-char (char-to-string (if (char-displayable-p ?×) ?× ?*))
   "String that indicates if buffer is modified. Should be one SINGLE char."
@@ -410,11 +412,13 @@ just set this to \"\" to save an extra char of space."
   "Whether the \"<N>\" suffix in buffer names should be displayed in the mode-line."
   :type 'boolean
   :group 'smart-mode-line-path&prefix)
+(put 'sml/show-trailing-N 'safe-local-variable 'booleanp)
 
 (defcustom sml/show-file-name t
   "Unless nil: show file name instead of buffer name on the mode-line."
   :type 'boolean
   :group 'smart-mode-line-path&prefix)
+(put 'sml/show-file-name 'safe-local-variable 'booleanp)
 
 (defcustom sml/fill-char ?\ 
   "The char to be used for filling."
@@ -495,6 +499,7 @@ When the buffer+directory name is longer than
   :type 'boolean
   :group 'smart-mode-line-path&prefix
   :set 'sml/set-shortener-func)
+(put 'sml/shorten-directory 'safe-local-variable 'booleanp)
 
 (defun sml/toggle-shorten-directory (&rest val)
   "Toggle the variable `sml/shorten-directory'.
@@ -564,6 +569,7 @@ When the modes list is longer than `sml/mode-width':
 	otherwise the list is shortened to fit."
   :type 'boolean
   :group 'smart-mode-line-mode-list)
+(put 'sml/shorten-modes 'safe-local-variable 'booleanp)
 
 (defcustom sml/battery-format " %p"
   "Format used to display the battery in the mode-line.
@@ -730,6 +736,7 @@ Use the `sml/theme' variable instead."))))
   "Whether to display the buffer EOL in the mode-line."
   :type 'boolean
   :group 'smart-mode-line-others)
+(put 'sml/show-eol 'safe-local-variable 'booleanp)
 
 (defcustom sml/outside-modified-char "M"
   "Char to display if buffer needs to be reverted."
@@ -761,6 +768,7 @@ Just set this to nil, and frame identification won't be displayed."
   :type 'boolean
   :group 'smart-mode-line-others
   :package-version '(smart-mode-line . "2.0.3"))
+(put 'sml/show-frame-identification 'safe-local-variable 'booleanp)
 
 (defcustom sml/vc-mode-show-backend nil
   "Whether to show or not the backend in vc-mode's mode-line description.
@@ -770,6 +778,7 @@ If you want it to show the backend, just set it to t."
   :type 'boolean
   :group 'smart-mode-line-others
   :package-version '(smart-mode-line . "1.22"))
+(put 'sml/vc-mode-show-backend 'safe-local-variable 'booleanp)
 
 
 (defvar sml/position-construct nil "Used for recycling position information.")
