@@ -143,6 +143,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.3     - 2013/12/04 - sml/show-frame-identification only t for terminals.
 ;; 2.3     - 2013/12/03 - Mark boolean's as safe-local-variables.
 ;; 2.2.3   - 2013/12/03 - Fix possible recursion in sml/apply-theme.
 ;; 2.2.2   - 2013/11/27 - Fix sml/apply-theme to consider saved faces.
@@ -757,8 +758,7 @@ Use the `sml/theme' variable instead."))))
   :group 'smart-mode-line-others
   :package-version '(smart-mode-line . "1.20"))
 
-(defcustom sml/show-frame-identification (or (null window-system)
-                                             (eq window-system 'pc))
+(defcustom sml/show-frame-identification (null window-system)
   "Whether to show frame identification or not.
 
 In some systems this doesn't even display anything. It's most useful
