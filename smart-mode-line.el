@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.3
+;; Version: 2.3.1
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
@@ -143,6 +143,8 @@
 ;;
 
 ;;; Change Log:
+;; 2.3.1   - 2013/12/04 - sml/show-frame-identification now always defaults to nil.
+;; 2.3.1   - 2013/12/04 - Fix for sml/show-client not working.
 ;; 2.3     - 2013/12/04 - sml/show-frame-identification only t for terminals.
 ;; 2.3     - 2013/12/03 - Mark boolean's as safe-local-variables.
 ;; 2.2.3   - 2013/12/03 - Fix possible recursion in sml/apply-theme.
@@ -249,8 +251,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.3" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 52 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.3.1" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 53 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -758,7 +760,7 @@ Use the `sml/theme' variable instead."))))
   :group 'smart-mode-line-others
   :package-version '(smart-mode-line . "1.20"))
 
-(defcustom sml/show-frame-identification (null window-system)
+(defcustom sml/show-frame-identification nil
   "Whether to show frame identification or not.
 
 In some systems this doesn't even display anything. It's most useful
@@ -805,6 +807,13 @@ If you want it to show the backend, just set it to t."
   "Regenerate buffer-identification after set-buffer-modified-p."
   (sml/generate-buffer-identification))
 
+(defvar sml/mode-line-client
+  `(sml/show-client
+    (:eval (if (frame-parameter nil 'client)
+               ,(propertize "@" 'face 'sml/client 'help-echo (purecopy "emacsclient frame"))
+             " ")))
+  "Construct that replaces `mode-line-client'.")
+
 ;;;###autoload
 (defun sml/setup (&optional arg)
   "Setup the mode-line to be smart and sexy.
@@ -829,7 +838,7 @@ this to make sure that we are loaded after any themes)."
   ;;;; And this is where the magic happens.
   ;; Remove elements we implement separately, and improve the ones not removed.
   (sml/filter-mode-line-list 'mode-line-mule-info)
-  (sml/filter-mode-line-list 'mode-line-client)
+  (setq-default mode-line-client sml/mode-line-client)
   (sml/filter-mode-line-list 'mode-line-modified)
   (sml/filter-mode-line-list 'mode-line-remote)
   (setq-default mode-line-frame-identification
