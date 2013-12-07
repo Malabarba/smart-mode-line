@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.3.1
+;; Version: 2.3.2
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
@@ -143,6 +143,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.3.2   - 2013/12/07 - Fix for themes which set :inverse-video t in the mode-line.
 ;; 2.3.1   - 2013/12/04 - sml/show-frame-identification now always defaults to nil.
 ;; 2.3.1   - 2013/12/04 - Fix for sml/show-client not working.
 ;; 2.3     - 2013/12/04 - sml/show-frame-identification only t for terminals.
@@ -251,8 +252,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.3.1" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 53 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.3.2" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 54 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -617,7 +618,7 @@ if you just want to fine-tune it)."
   :type 'color :group 'smart-mode-line-faces :set 'sml/set-face-color :initialize 'custom-initialize-default)
 
 ;; Face definitions
-(defface sml/global           '((t :foreground "gray50"))
+(defface sml/global           '((t :foreground "gray50" :inverse-video nil))
   "" :group 'smart-mode-line-faces)
 (defface sml/modes            '((t :inherit sml/global :foreground "White"))
   "" :group 'smart-mode-line-faces)
@@ -707,7 +708,7 @@ The second argument (VALUE) is for internal use only, don't use it."
                '(sml/inactive-background-color "#fdf6e3"))
               (custom-theme-set-faces
                'smart-mode-line
-               '(sml/global    ((t :foreground "gray20")))
+               '(sml/global    ((t :foreground "gray20" :inverse-video nil)))
                '(sml/modes     ((t :inherit sml/global :foreground "Black")))
                '(sml/filename  ((t :inherit sml/global :foreground "Blue" :weight bold)))
                '(sml/prefix    ((t :inherit sml/global :foreground "#5b2507" :weight bold)))
@@ -721,7 +722,7 @@ The second argument (VALUE) is for internal use only, don't use it."
         '(sml/inactive-background-color "#404045"))
        (custom-theme-set-faces
         'smart-mode-line
-        '(sml/global    ((t :foreground "gray50")))
+        '(sml/global    ((t :foreground "gray50" :inverse-video nil)))
         '(sml/modes     ((t :inherit sml/global :foreground "White")))
         '(sml/filename  ((t :inherit sml/global :foreground "#eab700" :weight bold)))
         '(sml/prefix    ((t :inherit sml/global :foreground "#bf6000")))
@@ -1369,9 +1370,11 @@ regexp in `sml/prefix-regexp'."
 (defun sml/set-face-color (&optional sym val)
   (if sym (set-default sym val))
   (set-face-attribute 'mode-line nil
+                      :inverse-video nil
                       :foreground sml/active-foreground-color
                       :background sml/active-background-color)
   (set-face-attribute 'mode-line-inactive nil
+                      :inverse-video nil
                       :background sml/inactive-background-color
                       :foreground sml/inactive-foreground-color)
   (sml/set-mode-line-buffer-id-face))
