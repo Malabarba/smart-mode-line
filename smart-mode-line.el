@@ -1291,12 +1291,15 @@ duplicated buffer names) from being displayed."
 
 (defun sml/get-directory ()
   "Decide if we want directory shown. If so, return it."
-  (abbreviate-file-name
-   (cond ((buffer-file-name) (file-name-directory (buffer-file-name)))
-         ((and (listp mode-name) (stringp (car mode-name))
-               (string-match "Dired" (car mode-name)))
-          (replace-regexp-in-string "/[^/]*/$" "/" default-directory))
-         (t ""))))
+  (let ((dir (cond
+	      ;; If the file is attached to an email, then buffer-file-name is
+	      ;; non-nil, yet there's no parent directory.  So this form
+	      ;; returns nil in this case.
+	      ((buffer-file-name) (file-name-directory (buffer-file-name)))
+	      ((and (listp mode-name) (stringp (car mode-name))
+		    (string-match "Dired" (car mode-name)))
+	       (replace-regexp-in-string "/[^/]*/$" "/" default-directory)))))
+    (if dir (abbreviate-file-name dir) "")))
 
 (defun sml/set-battery-font ()
   "Set `sml/battery' face depending on battery state."
