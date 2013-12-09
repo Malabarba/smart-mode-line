@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.3.2
+;; Version: 2.3.3
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
@@ -143,6 +143,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.3.3   - 2013/12/09 - Fix sml/get-directory for files attached to mails - Thanks tsdh.
 ;; 2.3.2   - 2013/12/07 - Fix for themes which set :inverse-video t in the mode-line.
 ;; 2.3.1   - 2013/12/04 - sml/show-frame-identification now always defaults to nil.
 ;; 2.3.1   - 2013/12/04 - Fix for sml/show-client not working.
@@ -252,8 +253,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.3.2" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 54 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.3.3" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 55 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -1291,15 +1292,15 @@ duplicated buffer names) from being displayed."
 
 (defun sml/get-directory ()
   "Decide if we want directory shown. If so, return it."
-  (let ((dir (cond
-	      ;; If the file is attached to an email, then buffer-file-name is
-	      ;; non-nil, yet there's no parent directory.  So this form
-	      ;; returns nil in this case.
-	      ((buffer-file-name) (file-name-directory (buffer-file-name)))
-	      ((and (listp mode-name) (stringp (car mode-name))
-		    (string-match "Dired" (car mode-name)))
-	       (replace-regexp-in-string "/[^/]*/$" "/" default-directory)))))
-    (if dir (abbreviate-file-name dir) "")))
+  (abbreviate-file-name
+   (cond
+    ;; In email attachments, buffer-file-name is non-nil, but
+    ;; file-name-directory returns nil
+    ((buffer-file-name) (or (file-name-directory (buffer-file-name)) ""))
+    ((and (listp mode-name) (stringp (car mode-name))
+          (string-match "Dired" (car mode-name)))
+     (replace-regexp-in-string "/[^/]*/$" "/" default-directory))
+    (t ""))))
 
 (defun sml/set-battery-font ()
   "Set `sml/battery' face depending on battery state."
