@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.3.4
+;; Version: 2.3.5
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
@@ -143,6 +143,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.3.5   - 2013/12/14 - sml/generate-position-help runs less often now.
 ;; 2.3.4   - 2013/12/14 - Remove lag-inducing advice.
 ;; 2.3.3   - 2013/12/09 - Fix sml/get-directory for files attached to mails - Thanks tsdh.
 ;; 2.3.2   - 2013/12/07 - Fix for themes which set :inverse-video t in the mode-line.
@@ -254,8 +255,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.3.4" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 56 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.3.5" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 57 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -861,7 +862,8 @@ this to make sure that we are loaded after any themes)."
   
   (setq-default mode-line-front-space '((sml/position-help-text
                                          nil
-                                         (:eval (sml/generate-position-help)))
+                                         (:eval (let ((sml/-this-buffer-changed-p t))
+                                                  (sml/generate-position-help))))
                                         (sml/position-construct
                                          sml/position-construct
                                          (:eval (sml/compile-position-construct)))))
@@ -870,7 +872,8 @@ this to make sure that we are loaded after any themes)."
   (ad-activate 'rename-buffer)
   (ad-activate 'set-visited-file-name)
   ;; (ad-activate 'set-buffer-modified-p)
-  (add-hook 'after-change-functions 'sml/generate-position-help)
+  (add-hook 'after-change-functions 'sml/-this-buffer-changed)
+  (add-hook 'post-command-hook 'sml/generate-position-help)
 
   ;; This is to ensure fixed name width. The reason we do this manually
   ;; is that some major-modes change `mode-line-buffer-identification'
@@ -895,7 +898,6 @@ this to make sure that we are loaded after any themes)."
       ;;;; these are just needed for coloring.
 
   ;; Display time
-  
   (add-hook 'display-time-hook 'sml/propertize-time-string)
 
   ;; ;; Small thing to help powerline support
@@ -979,9 +981,18 @@ Might implement a quick flash eventually."
                (null erc-track-position-in-mode-line))
     (setq erc-track-position-in-mode-line t)))
 
+(defvar sml/-this-buffer-changed-p nil
+  "t if buffer was changed since last help-text update.")
+(make-variable-buffer-local 'sml/-this-buffer-changed-p)
+
+(defun sml/-this-buffer-changed (&rest ignored)
+  (setq sml/-this-buffer-changed-p t) nil)
+
 (defun sml/generate-position-help (&rest ignored)
   "Set the string describing various buffer content information."
-  (when (get-buffer-window (current-buffer))
+  (when (and sml/-this-buffer-changed-p
+             (get-buffer-window (current-buffer)))
+    (setq sml/-this-buffer-changed-p nil)
     (setq sml/position-help-text
           (format-mode-line
            (concat "Buffer size:\n\t%IB\n"
@@ -1229,14 +1240,14 @@ duplicated buffer names) from being displayed."
 
 (defconst sml/propertized-shorten-mode-string
   '(:propertize sml/shorten-mode-string
-              help-echo "mouse-1: Shorten minor modes"
-              local-map (keymap (mode-line keymap (mouse-1 . sml/toggle-shorten-modes)))
-              mouse-face mode-line-highlight))
+                help-echo "mouse-1: Shorten minor modes"
+                local-map (keymap (mode-line keymap (mouse-1 . sml/toggle-shorten-modes)))
+                mouse-face mode-line-highlight))
 (defconst sml/propertized-full-mode-string
   '(:propertize sml/full-mode-string
-              help-echo "mouse-1: Show all modes"
-              local-map (keymap (mode-line keymap (mouse-1 . sml/toggle-shorten-modes)))
-              mouse-face mode-line-highlight))
+                help-echo "mouse-1: Show all modes"
+                local-map (keymap (mode-line keymap (mouse-1 . sml/toggle-shorten-modes)))
+                mouse-face mode-line-highlight))
 
 (defun sml/count-occurrences-starting-at (regex string start)
   "Count occurrences of REGEX in STRING starting at index START."
