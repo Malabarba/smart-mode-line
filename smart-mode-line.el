@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.3.3
+;; Version: 2.3.4
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
@@ -143,6 +143,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.3.4   - 2013/12/14 - Remove lag-inducing advice.
 ;; 2.3.3   - 2013/12/09 - Fix sml/get-directory for files attached to mails - Thanks tsdh.
 ;; 2.3.2   - 2013/12/07 - Fix for themes which set :inverse-video t in the mode-line.
 ;; 2.3.1   - 2013/12/04 - sml/show-frame-identification now always defaults to nil.
@@ -253,8 +254,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.3.3" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 55 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.3.4" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 56 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -805,9 +806,9 @@ If you want it to show the backend, just set it to t."
 (defadvice set-visited-file-name (after sml/after-set-visited-file-name-advice ())
   "Regenerate buffer-identification after set-visited-file-name."
   (sml/generate-buffer-identification))
-(defadvice set-buffer-modified-p (after sml/after-set-buffer-modified-p-advice ())
-  "Regenerate buffer-identification after set-buffer-modified-p."
-  (sml/generate-buffer-identification))
+;; (defadvice set-buffer-modified-p (after sml/after-set-buffer-modified-p-advice ())
+;;   "Regenerate buffer-identification after set-buffer-modified-p."
+;;   (sml/generate-buffer-identification))
 
 (defvar sml/mode-line-client
   `(sml/show-client
@@ -868,7 +869,7 @@ this to make sure that we are loaded after any themes)."
   (add-hook 'after-save-hook 'sml/generate-buffer-identification)
   (ad-activate 'rename-buffer)
   (ad-activate 'set-visited-file-name)
-  (ad-activate 'set-buffer-modified-p)
+  ;; (ad-activate 'set-buffer-modified-p)
   (add-hook 'after-change-functions 'sml/generate-position-help)
 
   ;; This is to ensure fixed name width. The reason we do this manually
