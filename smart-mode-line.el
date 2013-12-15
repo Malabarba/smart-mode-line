@@ -263,32 +263,32 @@
   (browse-url "https://github.com/Bruce-Connor/smart-mode-line/issues/new")
   (message "Your sml/version is: %s, and your emacs version is: %s.\nPlease include this in your report!" sml/version emacs-version))
 (defun sml/customize ()
-  "Open the customization menu the `smart-mode-line' group."
+  "Open the customization group for the `smart-mode-line' package."
   (interactive)
   (customize-group 'smart-mode-line t))
 (defun sml/customize-faces ()
-  "Open the customization menu the `smart-mode-line-faces' group."
+  "Open the customization group for faces used by the `smart-mode-line' package."
   (interactive)
   (customize-group 'smart-mode-line-faces t))
 
 (defgroup smart-mode-line '()
-  "Customization group for the `smart-mode-line.el' package."
+  "Customization group for the `smart-mode-line' package."
   :group 'convenience
   :prefix 'sml)
 (defgroup smart-mode-line-position '()
-  "Group for editing the major/minor mode list."
+  "Showing the point position in the smart mode line."
   :group 'smart-mode-line
   :prefix 'sml)
-(defgroup smart-mode-line-path&prefix '()
-  "Group for editing the path, buffer-name, and prefix."
+(defgroup smart-mode-line-path-and-prefix '()
+  "Showing the path, buffer-name, and prefix in the smart mode line."
   :group 'smart-mode-line
   :prefix 'sml)
 (defgroup smart-mode-line-mode-list '()
-  "Group for editing the major/minor mode list."
+  "Showing major/minor modes in the smart mode line."
   :group 'smart-mode-line
   :prefix 'sml)
 (defgroup smart-mode-line-others '()
-  "Group for editing the major/minor mode list."
+  "Showing other data in the smart mode line."
   :group 'smart-mode-line
   :prefix 'sml)
 
