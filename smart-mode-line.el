@@ -464,7 +464,7 @@ usually want to add them to the back (thus the `t' at the end).
 You can also set custom colors (faces) for these prefixes, just
 set `sml/prefix-face-list' accordingly."
   :type '(repeat (list regexp string))
-  :group 'smart-mode-line-path&prefix
+  :group 'smart-mode-line-path-and-prefix
   :package-version '(smart-mode-line . "1.22"))
 
 (defcustom sml/prefix-regexp '(":\\(.*:\\)" "~/")
@@ -474,7 +474,7 @@ A prefix is anything at the begining of a line that matches any
 of these regexps. Don't start these regexps with \"^\", the
 parser applies that for you."
   :type '(repeat regexp)
-  :group 'smart-mode-line-path&prefix)
+  :group 'smart-mode-line-path-and-prefix)
 
 (defcustom sml/prefix-face-list '((":SU:" sml/sudo)
                                   (":G" sml/git)
@@ -486,7 +486,7 @@ colored according to this list. The elements are checked one by
 one and, if the prefix contains the STRING part of the pair, then
 FACE is applied to it (and checking stops there)."
   :type '(repeat (list string face))
-  :group 'smart-mode-line-path&prefix)
+  :group 'smart-mode-line-path-and-prefix)
 
 (defcustom sml/name-width 44
   "Minimum and maximum size of the file name in the mode-line.
@@ -494,7 +494,7 @@ FACE is applied to it (and checking stops there)."
 If `sml/shorten-directory' is nil, this is the minimum width.
 Otherwise, this is both the minimum and maximum width."
   :type 'integer
-  :group 'smart-mode-line-path&prefix)
+  :group 'smart-mode-line-path-and-prefix)
 
 (defcustom sml/shorten-directory t
   "Should directory name be shortened to fit width?
@@ -504,7 +504,7 @@ When the buffer+directory name is longer than
 	if nil the rest of the mode-line is pushed right;
 	otherwise the directory name is shortened to fit."
   :type 'boolean
-  :group 'smart-mode-line-path&prefix
+  :group 'smart-mode-line-path-and-prefix
   :set 'sml/set-shortener-func)
 (put 'sml/shorten-directory 'safe-local-variable 'booleanp)
 
