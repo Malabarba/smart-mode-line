@@ -1327,9 +1327,29 @@ duplicated buffer names) from being displayed."
   (sml/set-battery-font))
 
 (defun sml/replacer (in)
-  "Runs the replacements specified in `sml/replacer-regexp-list'.
+  "Runs the replacements specified in `sml/replacer-regexp-list',
+first on the given path, and if that doesn't have any affect,
+runs them again on a version of the given path with all symlinks
+expanded via `file-truename'.  If neither run succeeds in making
+any replacements, returns the path originally given.
 
 Used by `sml/strip-prefix' and `sml/get-prefix'."
+  ;; First try replacing on the original path
+  (let ((out (sml/replacer-raw in)))
+    (if (not (string= out in))
+        out
+      ;; If no replacements were made, try again after expanding all
+      ;; symlinks in the path.
+      (let* ((expanded (abbreviate-file-name (file-truename in)))
+             (out (sml/replacer-raw expanded)))
+        (if (string= out expanded)
+            in
+          ;; If still no replacements were made, return the original
+          ;; unexpanded form.
+          out)))))
+
+(defun sml/replacer-raw (in)
+  "Runs the replacements specified in `sml/replacer-regexp-list'."
   (let ((out in))
     (dolist (cur sml/replacer-regexp-list)
       (setq out (replace-regexp-in-string
