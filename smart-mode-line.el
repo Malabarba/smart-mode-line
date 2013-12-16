@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.3.5
+;; Version: 2.3.6
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
@@ -143,6 +143,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.3.6   - 2013/12/16 - Fix filling and name on the very first update of non-file buffers.
 ;; 2.3.5   - 2013/12/14 - sml/generate-position-help runs less often now.
 ;; 2.3.4   - 2013/12/14 - Remove lag-inducing advice.
 ;; 2.3.3   - 2013/12/09 - Fix sml/get-directory for files attached to mails - Thanks tsdh.
@@ -255,8 +256,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.3.5" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 57 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.3.6" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 58 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -884,7 +885,8 @@ this to make sure that we are loaded after any themes)."
   (add-to-list 'mode-line-position
                '(sml/buffer-identification-filling
                  sml/buffer-identification-filling
-                 (:eval (sml/generate-buffer-identification))))
+                 (:eval (progn (sml/generate-buffer-identification)
+                               sml/buffer-identification-filling))))
 
   ;; Remove some annoying big spaces
   
