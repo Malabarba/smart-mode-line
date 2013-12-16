@@ -143,6 +143,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.3.6   - 2013/12/16 - sml/replacer follows symlinks.
 ;; 2.3.6   - 2013/12/16 - Fix filling and name on the very first update of non-file buffers.
 ;; 2.3.5   - 2013/12/14 - sml/generate-position-help runs less often now.
 ;; 2.3.4   - 2013/12/14 - Remove lag-inducing advice.
@@ -1341,10 +1342,11 @@ Used by `sml/strip-prefix' and `sml/get-prefix'."
     (if (not (string= out in))
         out
       ;; If no replacements were made, try again after expanding all
-      ;; symlinks in the path.
-      (let* ((expanded (abbreviate-file-name (file-truename in)))
-             (out (sml/replacer-raw expanded)))
-        (if (string= out expanded)
+      ;; symlinks in the path (unless the expansion is trivial).
+      (let* ((expanded (abbreviate-file-name (file-truename in))))
+        (if (or (string= expanded out)  ;(no expansion)
+                (string= expanded       ;(no replacements)
+                         (setq out (sml/replacer-raw expanded))))
             in
           ;; If still no replacements were made, return the original
           ;; unexpanded form.
