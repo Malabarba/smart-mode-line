@@ -1089,7 +1089,8 @@ L must be a symbol! We asign right back to it"
   "Return fully propertized prefix+path+buffername."
   (if (equal 'sml/buffer-identification
              (car-safe mode-line-buffer-identification))
-      (setq sml/buffer-identification
+      (setq sml/buffer-identification-filling ""
+            sml/buffer-identification
             (let* ((prefix (sml/get-prefix (sml/replacer (sml/get-directory))))
                    (bufname (sml/buffer-name))
                    (dirsize (max 0 (- (abs sml/name-width) (length prefix) (length bufname))))
@@ -1102,10 +1103,8 @@ L must be a symbol! We asign right back to it"
                           'help-echo (format "%s\n\nmouse-1: Previous buffer\nmouse-3: Next buffer"
                                              (or (buffer-file-name) (buffer-name)))
                           'mouse-face 'mode-line-highlight
-                          'local-map   mode-line-buffer-identification-keymap))
-            sml/buffer-identification-filling "")
-    (setq sml/buffer-identification-filling (sml/fill-for-buffer-identification)))
-  nil)
+                          'local-map   mode-line-buffer-identification-keymap)))
+    (setq sml/buffer-identification-filling (sml/fill-for-buffer-identification))))
 
 (defun sml/parse-mode-line-elements (el)
   "Propertize or delete EL.
