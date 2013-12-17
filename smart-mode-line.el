@@ -1338,19 +1338,21 @@ any replacements, returns the path originally given.
 
 Used by `sml/strip-prefix' and `sml/get-prefix'."
   ;; First try replacing on the original path
-  (let ((out (sml/replacer-raw in)))
-    (if (not (string= out in))
-        out
-      ;; If no replacements were made, try again after expanding all
-      ;; symlinks in the path (unless the expansion is trivial).
-      (let* ((expanded (abbreviate-file-name (file-truename in))))
-        (if (or (string= expanded out)  ;(no expansion)
-                (string= expanded       ;(no replacements)
-                         (setq out (sml/replacer-raw expanded))))
-            in
-          ;; If still no replacements were made, return the original
-          ;; unexpanded form.
-          out)))))
+  (if (string= in "")
+      in
+    (let ((out (sml/replacer-raw in)))
+      (if (not (string= out in))
+          out
+        ;; If no replacements were made, try again after expanding all
+        ;; symlinks in the path (unless the expansion is trivial).
+        (let* ((expanded (abbreviate-file-name (file-truename in))))
+          (if (or (string= expanded out) ;(no expansion)
+                  (string= expanded      ;(no replacements)
+                           (setq out (sml/replacer-raw expanded))))
+              in
+            ;; If still no replacements were made, return the original
+            ;; unexpanded form.
+            out))))))
 
 (defun sml/replacer-raw (in)
   "Runs the replacements specified in `sml/replacer-regexp-list'."
