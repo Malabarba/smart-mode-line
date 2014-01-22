@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.3.6
+;; Version: 2.3.7
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
@@ -143,6 +143,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.3.7   - 2014/01/21 - Adapt sml/generate-buffer-identification .
 ;; 2.3.6   - 2013/12/16 - sml/replacer follows symlinks.
 ;; 2.3.6   - 2013/12/16 - Fix filling and name on the very first update of non-file buffers.
 ;; 2.3.5   - 2013/12/14 - sml/generate-position-help runs less often now.
@@ -257,8 +258,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.3.6" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 58 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.3.7" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 59 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -820,6 +821,10 @@ If you want it to show the backend, just set it to t."
              " ")))
   "Construct that replaces `mode-line-client'.")
 
+(defvar sml/mode-line-buffer-identification
+  '(sml/buffer-identification sml/buffer-identification (:eval (sml/generate-buffer-identification)))
+  "Replace the default `mode-line-buffer-identification' with our own.")
+
 ;;;###autoload
 (defun sml/setup (&optional arg)
   "Setup the mode-line to be smart and sexy.
@@ -853,9 +858,7 @@ this to make sure that we are loaded after any themes)."
   ;; (setq-default mode-line-buffer-identification '("%b"))
   
   (setq-default mode-line-buffer-identification
-                '(sml/buffer-identification
-                  sml/buffer-identification
-                  (:eval (sml/generate-buffer-identification))))
+                sml/mode-line-buffer-identification)
   (sml/filter-mode-line-list 'mode-line-position)
   (sml/filter-mode-line-list 'mode-line-modes)
   (setq-default mode-line-end-spaces nil)
@@ -1087,8 +1090,9 @@ L must be a symbol! We asign right back to it"
 
 (defun sml/generate-buffer-identification ()
   "Return fully propertized prefix+path+buffername."
-  (if (equal 'sml/buffer-identification
-             (car-safe mode-line-buffer-identification))
+  (if (or
+       (equal sml/mode-line-buffer-identification mode-line-buffer-identification)
+       (member sml/mode-line-buffer-identification mode-line-buffer-identification))
       (setq sml/buffer-identification-filling ""
             sml/buffer-identification
             (let* ((prefix (sml/get-prefix (sml/replacer (sml/get-directory))))
