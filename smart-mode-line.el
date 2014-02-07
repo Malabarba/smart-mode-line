@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.3.7
+;; Version: 2.3.8
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
@@ -143,7 +143,8 @@
 ;;
 
 ;;; Change Log:
-;; 2.3.7   - 2014/01/21 - Adapt sml/generate-buffer-identification .
+;; 2.3.8   - 2014/02/07 - sml/apply-theme customizes helm-candidate-number.
+;; 2.3.7   - 2014/01/21 - Adapt sml/generate-buffer-identification.
 ;; 2.3.6   - 2013/12/16 - sml/replacer follows symlinks.
 ;; 2.3.6   - 2013/12/16 - Fix filling and name on the very first update of non-file buffers.
 ;; 2.3.5   - 2013/12/14 - sml/generate-position-help runs less often now.
@@ -258,8 +259,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.3.7" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 59 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.3.8" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 60 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -705,7 +706,8 @@ The second argument (VALUE) is for internal use only, don't use it."
                                         :foreground ,(internal-get-lisp-face-attribute 'default :foreground))))
                     '(sml/prefix    ((t :inherit (font-lock-variable-name-face sml/global))))
                     '(sml/read-only ((t :inherit (font-lock-type-face sml/global))))
-                    `(sml/modes     ((t :inherit sml/global :foreground ,sml/active-foreground-color)))))
+                    `(sml/modes     ((t :inherit sml/global :foreground ,sml/active-foreground-color)))
+                    '(helm-candidate-number nil)))
       ('light (custom-theme-set-variables
                'smart-mode-line
                '(sml/active-foreground-color "black")
@@ -718,7 +720,8 @@ The second argument (VALUE) is for internal use only, don't use it."
                '(sml/modes     ((t :inherit sml/global :foreground "Black")))
                '(sml/filename  ((t :inherit sml/global :foreground "Blue" :weight bold)))
                '(sml/prefix    ((t :inherit sml/global :foreground "#5b2507" :weight bold)))
-               '(sml/read-only ((t :inherit sml/global :foreground "DarkGreen" :weight bold)))))
+               '(sml/read-only ((t :inherit sml/global :foreground "DarkGreen" :weight bold)))
+               '(helm-candidate-number nil)))
       ((dark t)
        (custom-theme-set-variables
         'smart-mode-line
@@ -732,7 +735,8 @@ The second argument (VALUE) is for internal use only, don't use it."
         '(sml/modes     ((t :inherit sml/global :foreground "White")))
         '(sml/filename  ((t :inherit sml/global :foreground "#eab700" :weight bold)))
         '(sml/prefix    ((t :inherit sml/global :foreground "#bf6000")))
-        '(sml/read-only ((t :inherit sml/global :foreground "DeepSkyBlue"))))
+        '(sml/read-only ((t :inherit sml/global :foreground "DeepSkyBlue")))
+        '(helm-candidate-number ((t :foreground nil :background nil :inherit sml/filename))))
        (if (eq sml/theme t)
            (message "[WARNING] smart-mode-line: setting `sml/override-theme' to t is obsolete.
 Use the `sml/theme' variable instead."))))
