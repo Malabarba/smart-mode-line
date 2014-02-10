@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.3.8
+;; Version: 2.3.9
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
@@ -143,6 +143,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.3.9   - 2014/02/10 - sml/hidden-modes allows regexps.
 ;; 2.3.8   - 2014/02/07 - Buffer identification width auto-updates when sml/name-width changes.
 ;; 2.3.8   - 2014/02/07 - sml/apply-theme customizes helm-candidate-number.
 ;; 2.3.7   - 2014/01/21 - Adapt sml/generate-buffer-identification.
@@ -260,8 +261,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.3.8" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 60 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.3.9" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 61 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -538,14 +539,22 @@ setting the variable with `setq'."
   (force-mode-line-update))
 
 (defcustom sml/hidden-modes '(" hl-p")
-  "List of minor modes you want to hide, or empty.
+  "List of minor modes you want to hide from the mode-line.
 
-If empty (or nil), all minor modes are shown in the
-mode-line. Otherwise this is a list of minor mode names that will be
-hidden in the minor-modes list.
+If empty (or nil), all minor modes are shown in the mode-line.
+Otherwise this is a list of minor mode names that will be hidden
+in the minor-modes list.
 
-Don't forget to start with a blank space."
-  :type '(repeat string)
+The elements are strings. If you want to use REGEXPs instead, you
+can set this variable to a single string (instead of a list) and
+this will be compared to each minor-mode lighter as a regexp.
+If you'd like to use a list of regexps, simply use something like the following:
+    (setq sml/hidden-modes (mapconcat 'identity list-of-regexps \"\\\\|\"))
+
+Don't forget to start each string with a blank space, as most
+minor-mode lighters start with a space."
+  :type '(choice (repeat string)
+                 (regexp :tag "Regular expression."))
   :group 'smart-mode-line-mode-list)
 
 (defcustom sml/mode-width 30
@@ -1290,11 +1299,7 @@ duplicated buffer names) from being displayed."
                                "\n\n" sml/major-help-echo))
            needs-removing)
       ;; Remove hidden-modes
-      (setq nameList
-            (remove
-             nil
-             (mapcar (lambda (x) (unless (and (stringp x) (member x sml/hidden-modes)) x))
-                     nameList)))
+      (setq nameList (sml/remove-hidden-modes nameList))
       ;; Truncate
       (setq finalNameList (mapconcat 'format-mode-line  nameList ""))
       (when (and sml/shorten-modes (> (length finalNameList) size))
@@ -1318,6 +1323,20 @@ duplicated buffer names) from being displayed."
                   'mouse-face 'mode-line-highlight
                   'face 'sml/folder
                   'local-map mode-line-minor-mode-keymap)))))
+
+(defun sml/remove-hidden-modes (li)
+  "Return LI removing any elements that match `sml/hidden-modes'."
+  (remove
+   nil
+   (if (listp sml/hidden-modes)
+       (mapcar (lambda (x) (unless (and (stringp x)
+                                   (member x sml/hidden-modes))
+                        x))
+               li)
+     (mapcar (lambda (x) (unless (and (stringp x)
+                                 (string-match sml/hidden-modes x))
+                      x))
+             li))))
 
 (defun sml/propertize-prefix (prefix)
   "Set the color of the prefix according to its contents."
