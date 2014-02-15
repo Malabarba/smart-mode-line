@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.3.10
+;; Version: 2.3.11
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
@@ -143,6 +143,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.3.11  - 2014/02/15 - Silent sml/apply-theme.
 ;; 2.3.10  - 2014/02/15 - Fix sml/setup ignoring sml/theme.
 ;; 2.3.9   - 2014/02/10 - sml/hidden-modes allows regexps.
 ;; 2.3.8   - 2014/02/07 - Buffer identification width auto-updates when sml/name-width changes.
@@ -262,8 +263,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.3.10" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 62 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.3.11" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 63 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -688,7 +689,7 @@ if you just want to fine-tune it)."
      :underline  (internal-get-lisp-face-attribute 'sml/filename :underline)
      :overline   (internal-get-lisp-face-attribute 'sml/filename :overline))))
 
-(defun sml/apply-theme (theme &optional value)
+(defun sml/apply-theme (theme &optional value silent)
   "Apply THEME.
 
 THEME can be one of the symbols: respectful, dark, or light.
@@ -697,7 +698,7 @@ This also sets the `sml/theme' variable, see its documentation
 for more information on each value.
 
 The second argument (VALUE) is for internal use only, don't use it."
-  (message "[sml] %s set to %s" 'sml/theme (or value theme))
+  (unless silent (message "[sml] %s set to %s" 'sml/theme (or value theme)))
   (unless (eq sml/theme (or value theme))  
     (if value (setq-default sml/theme value)
       (if theme
@@ -864,7 +865,7 @@ this to make sure that we are loaded after any themes)."
   ;; Set the theme the user requested.
   (let ((set-theme sml/theme))
     (setq sml/theme 'initializing)    
-    (sml/apply-theme set-theme))
+    (sml/apply-theme set-theme nil :silent))
 
   ;; Make sure the user's theme doesn't override the main faces
   ;; (mode-line and mode-line-inactive)
