@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.3.9
+;; Version: 2.3.10
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
@@ -143,6 +143,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.3.10  - 2014/02/15 - Fix sml/setup ignoring sml/theme.
 ;; 2.3.9   - 2014/02/10 - sml/hidden-modes allows regexps.
 ;; 2.3.8   - 2014/02/07 - Buffer identification width auto-updates when sml/name-width changes.
 ;; 2.3.8   - 2014/02/07 - sml/apply-theme customizes helm-candidate-number.
@@ -261,8 +262,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.3.9" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 61 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.3.10" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 62 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -861,7 +862,9 @@ this to make sure that we are loaded after any themes)."
   (setq battery-mode-line-format sml/battery-format)
 
   ;; Set the theme the user requested.
-  (sml/apply-theme sml/theme)
+  (let ((set-theme sml/theme))
+    (setq sml/theme 'initializing)    
+    (sml/apply-theme set-theme))
 
   ;; Make sure the user's theme doesn't override the main faces
   ;; (mode-line and mode-line-inactive)
