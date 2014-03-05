@@ -435,19 +435,19 @@ just set this to \"\" to save an extra char of space."
 (defcustom sml/show-trailing-N t
   "Whether the \"<N>\" suffix in buffer names should be displayed in the mode-line."
   :type 'boolean
-  :group 'smart-mode-line-path&prefix)
+  :group 'smart-mode-line-path-and-prefix)
 (put 'sml/show-trailing-N 'safe-local-variable 'booleanp)
 
 (defcustom sml/show-file-name t
   "Unless nil: show file name instead of buffer name on the mode-line."
   :type 'boolean
-  :group 'smart-mode-line-path&prefix)
+  :group 'smart-mode-line-path-and-prefix)
 (put 'sml/show-file-name 'safe-local-variable 'booleanp)
 
 (defcustom sml/fill-char ?\ 
   "The char to be used for filling."
   :type 'char
-  :group 'smart-mode-line-path&prefix)
+  :group 'smart-mode-line-path-and-prefix)
 
 (defcustom sml/replacer-regexp-list
   `((,(concat "^" (if (boundp 'org-directory) (regexp-quote org-directory) "~/org/")) ":Org:")
