@@ -143,7 +143,8 @@
 ;;
 
 ;;; Change Log:
-;; 2.3.12  - 2014/03/05 - Support showing tramp state.
+;; 2.3.12  - 2014/03/05 - Use sml/show-remote to hide/show the "@" symbol. .
+;; 2.3.12  - 2014/03/05 - Support showing tramp state (remote buffer).
 ;; 2.3.12  - 2014/02/27 - sml/apply-theme avoids nesting.
 ;; 2.3.11  - 2014/02/15 - Silent sml/apply-theme.
 ;; 2.3.10  - 2014/02/15 - Fix sml/setup ignoring sml/theme.
@@ -413,6 +414,12 @@ just set this to \"\" to save an extra char of space."
   :type 'string
   :group 'smart-mode-line-position)
 
+(defcustom sml/show-remote t
+  "Whether to show an \"@\" for emacsclient frames."
+  :type 'boolean
+  :group 'smart-mode-line-others)
+(put 'sml/show-remote 'safe-local-variable 'booleanp)
+
 (defcustom sml/show-client nil
   "Whether to show an \"@\" for emacsclient frames."
   :type 'boolean
@@ -655,7 +662,7 @@ if you just want to fine-tune it)."
   "" :group 'smart-mode-line-faces)
 
 (defface sml/line-number         '((t :inherit sml/modes :weight bold))               "" :group 'smart-mode-line-faces)
-(defface sml/remote              '((t :inherit sml/modes :weight bold))               "" :group 'smart-mode-line-faces)
+(defface sml/remote              '((t :inherit sml/global))                           "" :group 'smart-mode-line-faces)
 (defface sml/position-percentage '((t :inherit sml/prefix :weight normal))            "" :group 'smart-mode-line-faces)
 (defface sml/col-number          '((t :inherit sml/global))                           "" :group 'smart-mode-line-faces)
 (defface sml/numbers-separator   '((t :inherit sml/col-number))                       "" :group 'smart-mode-line-faces)
@@ -1158,10 +1165,11 @@ To be used in mapcar and accumulate results."
                  (:eval (unless (display-graphic-p) "-%-"))
                  (:eval (mode-line-frame-control))))
     nil)
-   ((and (stringp el) (string= el "%1@"))
-    `(:propertize ,el face sml/remote))
    ((member (car-safe el) '(line-number-mode column-number-mode size-indication-mode current-input-method)) nil)
-
+   ;; mode-line-remote
+   ((and (stringp el) (string= el "%1@"))
+    `(sml/show-remote
+      (:propertize ,el face sml/remote)))
    ;; mode-line-client
    ((equal el '("" (:propertize ("" (:eval (if (frame-parameter nil 'client) "@" "")))
                                 help-echo "emacsclient frame")))
