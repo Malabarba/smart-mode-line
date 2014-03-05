@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.3.12
+;; Version: 2.3.13
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
@@ -143,6 +143,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.3.13  - 2014/03/05 - sml/apply-theme forces our foreground/background colors.
 ;; 2.3.12  - 2014/03/05 - Use sml/show-remote to hide/show the "@" symbol. .
 ;; 2.3.12  - 2014/03/05 - Support showing tramp state (remote buffer).
 ;; 2.3.12  - 2014/02/27 - sml/apply-theme avoids nesting.
@@ -266,8 +267,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.3.12" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 64 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.3.13" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 65 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -699,6 +700,19 @@ if you just want to fine-tune it)."
      :underline  (internal-get-lisp-face-attribute 'sml/filename :underline)
      :overline   (internal-get-lisp-face-attribute 'sml/filename :overline))))
 
+(defun sml/set-face-color (&optional sym val)
+  "Re-apply our fore/background faces because theme may have changed it."
+  (if sym (set-default sym val))
+  (set-face-attribute 'mode-line nil
+                      :inverse-video nil
+                      :foreground sml/active-foreground-color
+                      :background sml/active-background-color)
+  (set-face-attribute 'mode-line-inactive nil
+                      :inverse-video nil
+                      :background sml/inactive-background-color
+                      :foreground sml/inactive-foreground-color)
+  (sml/set-mode-line-buffer-id-face))
+
 (defvar sml/-apply-theme-is-running nil "Avoid nesting in `sml/apply-theme'.")
 
 (defun sml/apply-theme (theme &optional value silent)
@@ -765,9 +779,10 @@ The second argument (VALUE) is for internal use only, don't use it."
         (if (eq sml/theme t)
             (message "[WARNING] smart-mode-line: setting `sml/override-theme' to t is obsolete.
 Use the `sml/theme' variable instead.")))))
-    
-    (sml/set-mode-line-buffer-id-face)
-    (enable-theme 'user)))
+    ;; Respect the user's configurations.
+    (enable-theme 'user)
+    ;; Re-apply our fore/background faces because theme may have changed it.
+    (sml/set-face-color)))
 
 (defvaralias 'sml/show-encoding 'sml/mule-info)
 
@@ -1468,18 +1483,6 @@ regexp in `sml/prefix-regexp'."
         (when path
           (setq output (concat ".../" output)))
         output))))
-
-(defun sml/set-face-color (&optional sym val)
-  (if sym (set-default sym val))
-  (set-face-attribute 'mode-line nil
-                      :inverse-video nil
-                      :foreground sml/active-foreground-color
-                      :background sml/active-background-color)
-  (set-face-attribute 'mode-line-inactive nil
-                      :inverse-video nil
-                      :background sml/inactive-background-color
-                      :foreground sml/inactive-foreground-color)
-  (sml/set-mode-line-buffer-id-face))
 
 ;; Backup the original configs, just in case.
 (defconst sml/format-backup mode-line-format
