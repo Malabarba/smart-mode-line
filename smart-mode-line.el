@@ -143,6 +143,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.3.12  - 2014/03/05 - Support showing tramp state.
 ;; 2.3.12  - 2014/02/27 - sml/apply-theme avoids nesting.
 ;; 2.3.11  - 2014/02/15 - Silent sml/apply-theme.
 ;; 2.3.10  - 2014/02/15 - Fix sml/setup ignoring sml/theme.
@@ -654,6 +655,7 @@ if you just want to fine-tune it)."
   "" :group 'smart-mode-line-faces)
 
 (defface sml/line-number         '((t :inherit sml/modes :weight bold))               "" :group 'smart-mode-line-faces)
+(defface sml/remote              '((t :inherit sml/modes :weight bold))               "" :group 'smart-mode-line-faces)
 (defface sml/position-percentage '((t :inherit sml/prefix :weight normal))            "" :group 'smart-mode-line-faces)
 (defface sml/col-number          '((t :inherit sml/global))                           "" :group 'smart-mode-line-faces)
 (defface sml/numbers-separator   '((t :inherit sml/col-number))                       "" :group 'smart-mode-line-faces)
@@ -1151,11 +1153,13 @@ L must be a symbol! We asign right back to it"
 To be used in mapcar and accumulate results."
   (cond
    ;; These are implemented separately
-   ((member el '("%1+" "(" ")" "%1@" (t erc-modified-channels-object)
+   ((member el '("%1+" "(" ")" (t erc-modified-channels-object)
                  (:eval (if (display-graphic-p) " " "-"))
                  (:eval (unless (display-graphic-p) "-%-"))
                  (:eval (mode-line-frame-control))))
     nil)
+   ((and (stringp el) (string= el "%1@"))
+    `(:propertize ,el face sml/remote))
    ((member (car-safe el) '(line-number-mode column-number-mode size-indication-mode current-input-method)) nil)
 
    ;; mode-line-client
