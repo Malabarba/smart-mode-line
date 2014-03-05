@@ -415,7 +415,7 @@ just set this to \"\" to save an extra char of space."
   :group 'smart-mode-line-position)
 
 (defcustom sml/show-remote t
-  "Whether to show an \"@\" for emacsclient frames."
+  "Whether to show an \"@\" for remote buffers."
   :type 'boolean
   :group 'smart-mode-line-others)
 (put 'sml/show-remote 'safe-local-variable 'booleanp)
