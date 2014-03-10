@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.3.13
+;; Version: 2.4
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
@@ -143,6 +143,8 @@
 ;;
 
 ;;; Change Log:
+;; 2.4     - 2014/03/10 - Tested against 24.4.
+;; 2.4     - 2014/03/10 - Ditch total number of lines count.
 ;; 2.3.13  - 2014/03/05 - sml/apply-theme forces our foreground/background colors.
 ;; 2.3.12  - 2014/03/05 - Use sml/show-remote to hide/show the "@" symbol. .
 ;; 2.3.12  - 2014/03/05 - Support showing tramp state (remote buffer).
@@ -267,8 +269,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.3.13" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 65 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.4" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 66 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -1060,8 +1062,9 @@ Might implement a quick flash eventually."
     (setq sml/position-help-text
           (format-mode-line
            (concat "Buffer size:\n\t%IB\n"
-                   "Number of Lines:\n\t"
-                   (int-to-string (line-number-at-pos (point-max)))
+                   ;; ;; This is way too slow, unfortunately.
+                   ;; "Number of Lines:\n\t"
+                   ;; (int-to-string (line-number-at-pos (point-max)))
                    "\nmouse-1: Display Line and Column Mode Menu")))
     nil))
 
