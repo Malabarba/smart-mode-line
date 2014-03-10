@@ -1152,15 +1152,16 @@ L must be a symbol! We asign right back to it"
 (defun sml/generate-buffer-identification (&rest ignored)
   "Return fully propertized prefix+path+buffername."
   (setq sml/name-width-old sml/name-width)
-  (if (or
+  (if (or ;; Only calculate all this if it will actually be used
        (equal sml/mode-line-buffer-identification mode-line-buffer-identification)
        (member sml/mode-line-buffer-identification mode-line-buffer-identification))
       (setq sml/buffer-identification-filling ""
             sml/buffer-identification
-            (let* ((prefix (sml/get-prefix (sml/replacer (sml/get-directory))))
+            (let* ((got-directory (sml/get-directory))
+                   (prefix (sml/get-prefix (sml/replacer got-directory)))
                    (bufname (sml/buffer-name))
                    (dirsize (max 0 (- (abs sml/name-width) (length prefix) (length bufname))))
-                   (dirstring (funcall sml/shortener-func (sml/get-directory) dirsize)))
+                   (dirstring (funcall sml/shortener-func got-directory dirsize)))
 
               (propertize (concat (sml/propertize-prefix (replace-regexp-in-string "%" "%%" prefix))
                                   (propertize (replace-regexp-in-string "%" "%%" dirstring) 'face 'sml/folder)
@@ -1390,8 +1391,7 @@ duplicated buffer names) from being displayed."
     ;; In email attachments, buffer-file-name is non-nil, but
     ;; file-name-directory returns nil
     ((buffer-file-name) (or (file-name-directory (buffer-file-name)) ""))
-    ((and (listp mode-name) (stringp (car mode-name))
-          (string-match "Dired" (car mode-name)))
+    ((eq major-mode 'dired-mode)
      (replace-regexp-in-string "/[^/]*/$" "/" default-directory))
     ((and (symbolp major-mode)
           (member major-mode '(shell-mode eshell-mode)))
