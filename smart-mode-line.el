@@ -143,6 +143,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.4     - 2014/03/10 - Change the order of line/column numbers with sml/order-of-line-and-column.
 ;; 2.4     - 2014/03/10 - Take over dired's buffer-identification. We will undo this if dired ever does anything special with this variable.
 ;; 2.4     - 2014/03/10 - Show current-directory in Shell and eshell.
 ;; 2.4     - 2014/03/10 - Tested against 24.4.
@@ -1082,6 +1083,22 @@ respect their changes."
                    "\nmouse-1: Display Line and Column Mode Menu")))
     nil))
 
+(defcustom sml/order-of-line-and-column nil
+  "Decide the order of line-number and column-number display.
+
+When both `line-number-mode' and `column-number-mode' are
+enabled, this variable decides which gets displayed on the left,
+and which gets displayed on the right. If either one of the modes
+is not enabled, this variable has no effect (obviously).
+
+It can only be t or nil.
+    t means column-number:line-number
+    nil means line-number:column-number"
+  :type '(choice (const :tag "column-number:line-number" t)
+                 (const :tag "line-number:column-number" nil))
+  :group 'smart-mode-line-position
+  :package-version '(smart-mode-line . "2.4"))
+
 (defun sml/compile-position-construct (&optional symbol value)
   "Recompile the `sml/position-construct' after one of the formats was edited."
   (when (and symbol value) (set symbol value))
@@ -1093,12 +1110,19 @@ respect their changes."
                         'help-echo 'sml/position-help-text
                         'mouse-face 'mode-line-highlight
                         'local-map mode-line-column-line-number-mode-map))
-          (column-number-mode
-           ,(propertize sml/col-number-format
-                        'face 'sml/col-number
-                        'help-echo 'sml/position-help-text
-                        'mouse-face 'mode-line-highlight
-                        'local-map mode-line-column-line-number-mode-map))
+          (sml/order-of-line-and-column
+           (column-number-mode
+            ,(propertize sml/col-number-format
+                         'face 'sml/col-number
+                         'help-echo 'sml/position-help-text
+                         'mouse-face 'mode-line-highlight
+                         'local-map mode-line-column-line-number-mode-map))
+           (line-number-mode
+            ,(propertize sml/line-number-format
+                         'face 'sml/line-number
+                         'help-echo 'sml/position-help-text
+                         'mouse-face 'mode-line-highlight
+                         'local-map mode-line-column-line-number-mode-map)))
           (column-number-mode
            (line-number-mode
             ,(propertize sml/numbers-separator
@@ -1106,12 +1130,19 @@ respect their changes."
                          'help-echo 'sml/position-help-text
                          'mouse-face 'mode-line-highlight
                          'local-map mode-line-column-line-number-mode-map)))
-          (line-number-mode
-           ,(propertize sml/line-number-format
-                        'face 'sml/line-number
-                        'help-echo 'sml/position-help-text
-                        'mouse-face 'mode-line-highlight
-                        'local-map mode-line-column-line-number-mode-map)))))
+          (sml/order-of-line-and-column
+           (line-number-mode
+            ,(propertize sml/line-number-format
+                         'face 'sml/line-number
+                         'help-echo 'sml/position-help-text
+                         'mouse-face 'mode-line-highlight
+                         'local-map mode-line-column-line-number-mode-map))
+           (column-number-mode
+            ,(propertize sml/col-number-format
+                         'face 'sml/col-number
+                         'help-echo 'sml/position-help-text
+                         'mouse-face 'mode-line-highlight
+                         'local-map mode-line-column-line-number-mode-map))))))
 
 (defun sml/generate-modified-status ()
   "Return a string describing the modified status of the buffer."
