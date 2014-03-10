@@ -953,7 +953,6 @@ this to make sure that we are loaded after any themes)."
                                sml/buffer-identification-filling))))
 
   ;; Remove some annoying big spaces
-  
   (setq-default mode-line-format
                 (mapcar
                  (lambda (x) (if (and (stringp x) (string-match "\\` +\\'" x))
@@ -974,7 +973,6 @@ this to make sure that we are loaded after any themes)."
   ;;     (setq sml/shorten-directory nil)))
   
   ;; Battery support
-  
   (eval-after-load 'battery
     '(defadvice battery-update (after sml/after-battery-update-advice () activate)
        "Change battery color."
@@ -984,7 +982,6 @@ this to make sure that we are loaded after any themes)."
                            'face 'sml/battery)))))
 
   ;; Perspective support
-  
   (eval-after-load "perspective"
     '(progn
        (defcustom sml/persp-selected-color "Green"
@@ -994,7 +991,6 @@ this to make sure that we are loaded after any themes)."
        (set-face-foreground 'persp-selected-face sml/persp-selected-color)))
 
   ;; vc-mode
-  
   (eval-after-load "vc-hooks"
     '(defadvice vc-mode-line (after sml/after-vc-mode-line-advice () activate)
        "Color `vc-mode'."
@@ -1007,7 +1003,6 @@ this to make sure that we are loaded after any themes)."
                                          ((string-match "^ [!\\?]" noback) 'sml/modified))))))))
 
   ;; Mew support
-  
   (eval-after-load "mew-net"
     '(progn
        (defgroup smart-mode-line-mew '() "Group for editing the mew-support variables." :group 'smart-mode-line)
