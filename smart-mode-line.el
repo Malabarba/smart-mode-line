@@ -143,6 +143,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.4     - 2014/03/10 - Show current-directory in Shell and eshell.
 ;; 2.4     - 2014/03/10 - Tested against 24.4.
 ;; 2.4     - 2014/03/10 - Ditch total number of lines count.
 ;; 2.3.13  - 2014/03/05 - sml/apply-theme forces our foreground/background colors.
@@ -962,6 +963,10 @@ this to make sure that we are loaded after any themes)."
       ;;;; And here comes support for a bunch of extra stuff. Some of
       ;;;; these are just needed for coloring.
 
+  ;; Shell and eshell support
+  (add-hook 'comint-output-filter-functions 'sml/generate-buffer-identification)
+  (add-hook 'eshell-directory-change-hook 'sml/generate-buffer-identification)
+
   ;; Display time
   (add-hook 'display-time-hook 'sml/propertize-time-string)
 
@@ -1144,7 +1149,7 @@ L must be a symbol! We asign right back to it"
   (make-string (max (- sml/name-width (length (format-mode-line mode-line-buffer-identification)))
                     0) sml/fill-char))
 
-(defun sml/generate-buffer-identification ()
+(defun sml/generate-buffer-identification (&rest ignored)
   "Return fully propertized prefix+path+buffername."
   (setq sml/name-width-old sml/name-width)
   (if (or
@@ -1388,6 +1393,9 @@ duplicated buffer names) from being displayed."
     ((and (listp mode-name) (stringp (car mode-name))
           (string-match "Dired" (car mode-name)))
      (replace-regexp-in-string "/[^/]*/$" "/" default-directory))
+    ((and (symbolp major-mode)
+          (member major-mode '(shell-mode eshell-mode)))
+     default-directory)
     (t ""))))
 
 (defun sml/set-battery-font ()
