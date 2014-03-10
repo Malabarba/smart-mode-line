@@ -143,6 +143,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.4     - 2014/03/10 - Take over dired's buffer-identification. We will undo this if dired ever does anything special with this variable.
 ;; 2.4     - 2014/03/10 - Show current-directory in Shell and eshell.
 ;; 2.4     - 2014/03/10 - Tested against 24.4.
 ;; 2.4     - 2014/03/10 - Ditch total number of lines count.
@@ -967,6 +968,11 @@ this to make sure that we are loaded after any themes)."
   (add-hook 'comint-output-filter-functions 'sml/generate-buffer-identification)
   (add-hook 'eshell-directory-change-hook 'sml/generate-buffer-identification)
 
+  ;; Dired overrides the buffer-identification (which we would
+  ;; normally respect) but doesn't actually do anything useful with
+  ;; it, so we overoverride back.
+  (add-hook 'dired-mode-hook 'sml/set-buffer-identification)
+  
   ;; Display time
   (add-hook 'display-time-hook 'sml/propertize-time-string)
 
@@ -1046,6 +1052,14 @@ Might implement a quick flash eventually."
   (unless (and (boundp 'erc-track-position-in-mode-line)
                (null erc-track-position-in-mode-line))
     (setq erc-track-position-in-mode-line t)))
+
+
+(defun sml/set-buffer-identification (&rest ignored)
+  "Setq the buffer-identification of this buffer back to ours.
+
+Currently, we only this for dired. For other modes (like info) we
+respect their changes."
+  (setq mode-line-buffer-identification sml/mode-line-buffer-identification))
 
 (defvar sml/-this-buffer-changed-p nil
   "t if buffer was changed since last help-text update.")
