@@ -143,6 +143,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.4     - 2014/03/10 - Projectile integration! To disable it, set sml/use-projectile-p.
 ;; 2.4     - 2014/03/10 - Change the order of line/column numbers with sml/order-of-line-and-column.
 ;; 2.4     - 2014/03/10 - Take over dired's buffer-identification. We will undo this if dired ever does anything special with this variable.
 ;; 2.4     - 2014/03/10 - Show current-directory in Shell and eshell.
@@ -883,6 +884,8 @@ If you want it to show the backend, just set it to t."
   '(sml/buffer-identification sml/buffer-identification (:eval (sml/generate-buffer-identification)))
   "Replace the default `mode-line-buffer-identification' with our own.")
 
+(defvar sml/projectile-loaded-p nil "t if projectile has been loaded.")
+
 ;;;###autoload
 (defun sml/setup (&optional arg)
   "Setup the mode-line to be smart and sexy.
@@ -993,6 +996,26 @@ this to make sure that we are loaded after any themes)."
                (propertize battery-mode-line-string
                            'face 'sml/battery)))))
 
+  ;; Projectile support
+  (eval-after-load "projectile"
+    '(progn
+       (setq sml/projectile-loaded-p t)
+       (defcustom sml/projectile-replacement-format "[P/%s]"
+         "Format used for replacements derived from projectile."
+         :type 'string
+         :group 'smart-mode-line-others
+         :package-version '(smart-mode-line . "2.4"))
+       (defcustom sml/use-projectile-p t
+         "Whether we should use projectile to guess path prefixes."
+         :type 'boolean
+         :group 'smart-mode-line-others
+         :package-version '(smart-mode-line . "2.4"))
+       (defface sml/projectile '((t :inherit sml/git)) "" :group 'smart-mode-line-faces)
+       (add-to-list 'sml/prefix-regexp (format (regexp-quote sml/projectile-replacement-format) ".*"))
+       (add-to-list 'sml/prefix-face-list
+                    (list (format (regexp-quote sml/projectile-replacement-format) ".*")
+                          'sml/projectile))))
+  
   ;; Perspective support
   (eval-after-load "perspective"
     '(progn
@@ -1481,8 +1504,18 @@ Used by `sml/strip-prefix' and `sml/get-prefix'."
             out))))))
 
 (defun sml/replacer-raw (in)
-  "Runs the replacements specified in `sml/replacer-regexp-list'."
-  (let ((out in))
+  "Runs the replacements specified in `sml/replacer-regexp-list'.
+
+If projectile is loaded, also performs replacements specified by
+project name first."
+  (let ((out in) 
+        proj)
+    (when (and sml/projectile-loaded-p sml/use-projectile-p
+               (setq proj (projectile-project-p)))
+      (setq out (replace-regexp-in-string
+                 (concat "^" (abbreviate-file-name proj)) 
+                 (format sml/projectile-replacement-format (projectile-project-name))
+                 out)))
     (dolist (cur sml/replacer-regexp-list)
       (setq out (replace-regexp-in-string
                  (car cur) (car (cdr cur)) out)))
