@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.4
+;; Version: 2.4.1
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
@@ -143,6 +143,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.4.1   - 2014/03/11 - Small fix to dired-mode with uniquify.
 ;; 2.4     - 2014/03/10 - Projectile integration! To disable it, set sml/use-projectile-p.
 ;; 2.4     - 2014/03/10 - Change the order of line/column numbers with sml/order-of-line-and-column.
 ;; 2.4     - 2014/03/10 - Take over dired's buffer-identification. We will undo this if dired ever does anything special with this variable.
@@ -273,8 +274,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.4" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 66 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.4.1" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 67 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -1334,9 +1335,11 @@ Unless `sml/strip-N' is nil, prevents the \"<N>\" (used in
 duplicated buffer names) from being displayed."
   (if (and sml/show-file-name (buffer-file-name))
       (file-name-nondirectory (buffer-file-name))
-    (if sml/show-trailing-N
-        (buffer-name)
-      (replace-regexp-in-string "<[0-9]+>$" "" (buffer-name)))))
+    (if (eq major-mode 'dired-mode)
+        (file-name-nondirectory (directory-file-name default-directory))
+     (if sml/show-trailing-N
+         (buffer-name)
+       (replace-regexp-in-string "<[0-9]+>$" "" (buffer-name))))))
 
 (defun sml/fill-width-available ()
   "Return the size available for filling."
