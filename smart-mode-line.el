@@ -144,7 +144,7 @@
 
 ;;; Change Log:
 ;; 2.4.2   - 2014/03/13 - Perspective support simplified to sml/apply-theme.
-;; 2.4.2   - 2014/03/13 - More passive projectile integration.
+;; 2.4.2   - 2014/03/13 - Projectile integration only applies after the user replacements (to change, see sml/use-projectile-p).
 ;; 2.4.1   - 2014/03/11 - Small fix to dired-mode with uniquify.
 ;; 2.4     - 2014/03/10 - Projectile integration! To disable it, set sml/use-projectile-p.
 ;; 2.4     - 2014/03/10 - Change the order of line/column numbers with sml/order-of-line-and-column.
@@ -786,7 +786,7 @@ The second argument (VALUE) is for internal use only, don't use it."
           '(sml/filename  ((t :inherit sml/global :foreground "#eab700" :weight bold)))
           '(sml/prefix    ((t :inherit sml/global :foreground "#bf6000")))
           '(sml/read-only ((t :inherit sml/global :foreground "DeepSkyBlue")))
-          '(persp-selected-face ((t :foreground "Green" :inherit sml/global)))
+          '(persp-selected-face ((t :foreground "ForestGreen" :inherit sml/filename)))
           '(helm-candidate-number ((t :foreground nil :background nil :inherit sml/filename))))
          (if (eq sml/theme t)
              (message "[WARNING] smart-mode-line: setting `sml/override-theme' to t is obsolete.
