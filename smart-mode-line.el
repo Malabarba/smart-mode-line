@@ -143,6 +143,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.4.2   - 2014/03/13 - Perspective support simplified to sml/apply-theme.
 ;; 2.4.2   - 2014/03/13 - More passive projectile integration.
 ;; 2.4.1   - 2014/03/11 - Small fix to dired-mode with uniquify.
 ;; 2.4     - 2014/03/10 - Projectile integration! To disable it, set sml/use-projectile-p.
@@ -735,57 +736,60 @@ The second argument (VALUE) is for internal use only, don't use it."
   (unless silent (message "[sml] %s set to %s" 'sml/theme (or value theme)))
   (unless sml/-apply-theme-is-running
     (let ((sml/-apply-theme-is-running t)) ;Avoid nesting.
-     (if value (setq-default sml/theme value)
-       (if theme
-           (setq-default sml/theme theme)
-         (setq-default sml/theme 'respectful)))
-     (case sml/theme
-       ('respectful (custom-theme-set-variables
-                     'smart-mode-line
-                     `(sml/active-foreground-color ,sml/mode-line-active-foreground-original)
-                     `(sml/active-background-color ,sml/mode-line-active-background-original)
-                     `(sml/inactive-foreground-color ,sml/mode-line-inactive-foreground-original)
-                     `(sml/inactive-background-color ,sml/mode-line-inactive-background-original))
-                    (custom-theme-set-faces
-                     'smart-mode-line
-                     '(sml/global    ((t :inherit font-lock-preprocessor-face)))
-                     `(sml/filename  ((t :inherit (font-lock-function-name-face sml/global) :weight bold
-                                         :foreground ,(internal-get-lisp-face-attribute 'default :foreground))))
-                     '(sml/prefix    ((t :inherit (font-lock-variable-name-face sml/global))))
-                     '(sml/read-only ((t :inherit (font-lock-type-face sml/global))))
-                     `(sml/modes     ((t :inherit sml/global :foreground ,sml/active-foreground-color)))
-                     '(helm-candidate-number nil)))
-       ('light (custom-theme-set-variables
-                'smart-mode-line
-                '(sml/active-foreground-color "black")
-                '(sml/active-background-color "grey85")
-                '(sml/inactive-foreground-color "grey20")
-                '(sml/inactive-background-color "#fdf6e3"))
-               (custom-theme-set-faces
-                'smart-mode-line
-                '(sml/global    ((t :foreground "gray20" :inverse-video nil)))
-                '(sml/modes     ((t :inherit sml/global :foreground "Black")))
-                '(sml/filename  ((t :inherit sml/global :foreground "Blue" :weight bold)))
-                '(sml/prefix    ((t :inherit sml/global :foreground "#5b2507" :weight bold)))
-                '(sml/read-only ((t :inherit sml/global :foreground "DarkGreen" :weight bold)))
-                '(helm-candidate-number nil)))
-       ((dark t)
-        (custom-theme-set-variables
-         'smart-mode-line
-         '(sml/active-foreground-color "gray60")
-         '(sml/active-background-color "black")
-         '(sml/inactive-foreground-color "gray60")
-         '(sml/inactive-background-color "#404045"))
-        (custom-theme-set-faces
-         'smart-mode-line
-         '(sml/global    ((t :foreground "gray50" :inverse-video nil)))
-         '(sml/modes     ((t :inherit sml/global :foreground "White")))
-         '(sml/filename  ((t :inherit sml/global :foreground "#eab700" :weight bold)))
-         '(sml/prefix    ((t :inherit sml/global :foreground "#bf6000")))
-         '(sml/read-only ((t :inherit sml/global :foreground "DeepSkyBlue")))
-         '(helm-candidate-number ((t :foreground nil :background nil :inherit sml/filename))))
-        (if (eq sml/theme t)
-            (message "[WARNING] smart-mode-line: setting `sml/override-theme' to t is obsolete.
+      (if value (setq-default sml/theme value)
+        (if theme
+            (setq-default sml/theme theme)
+          (setq-default sml/theme 'respectful)))
+      (case sml/theme
+        ('respectful (custom-theme-set-variables
+                      'smart-mode-line
+                      `(sml/active-foreground-color ,sml/mode-line-active-foreground-original)
+                      `(sml/active-background-color ,sml/mode-line-active-background-original)
+                      `(sml/inactive-foreground-color ,sml/mode-line-inactive-foreground-original)
+                      `(sml/inactive-background-color ,sml/mode-line-inactive-background-original))
+                     (custom-theme-set-faces
+                      'smart-mode-line
+                      '(sml/global    ((t :inherit font-lock-preprocessor-face)))
+                      `(sml/filename  ((t :inherit (font-lock-function-name-face sml/global) :weight bold
+                                          :foreground ,(internal-get-lisp-face-attribute 'default :foreground))))
+                      '(sml/prefix    ((t :inherit (font-lock-variable-name-face sml/global))))
+                      '(sml/read-only ((t :inherit (font-lock-type-face sml/global))))
+                      `(sml/modes     ((t :inherit sml/global :foreground ,sml/active-foreground-color)))
+                      '(persp-selected-face nil)
+                      '(helm-candidate-number nil)))
+        ('light (custom-theme-set-variables
+                 'smart-mode-line
+                 '(sml/active-foreground-color "black")
+                 '(sml/active-background-color "grey85")
+                 '(sml/inactive-foreground-color "grey20")
+                 '(sml/inactive-background-color "#fdf6e3"))
+                (custom-theme-set-faces
+                 'smart-mode-line
+                 '(sml/global    ((t :foreground "gray20" :inverse-video nil)))
+                 '(sml/modes     ((t :inherit sml/global :foreground "Black")))
+                 '(sml/filename  ((t :inherit sml/global :foreground "Blue" :weight bold)))
+                 '(sml/prefix    ((t :inherit sml/global :foreground "#5b2507" :weight bold)))
+                 '(sml/read-only ((t :inherit sml/global :foreground "DarkGreen" :weight bold)))
+                 '(persp-selected-face nil)
+                 '(helm-candidate-number nil)))
+        ((dark t)
+         (custom-theme-set-variables
+          'smart-mode-line
+          '(sml/active-foreground-color "gray60")
+          '(sml/active-background-color "black")
+          '(sml/inactive-foreground-color "gray60")
+          '(sml/inactive-background-color "#404045"))
+         (custom-theme-set-faces
+          'smart-mode-line
+          '(sml/global    ((t :foreground "gray50" :inverse-video nil)))
+          '(sml/modes     ((t :inherit sml/global :foreground "White")))
+          '(sml/filename  ((t :inherit sml/global :foreground "#eab700" :weight bold)))
+          '(sml/prefix    ((t :inherit sml/global :foreground "#bf6000")))
+          '(sml/read-only ((t :inherit sml/global :foreground "DeepSkyBlue")))
+          '(persp-selected-face ((t :foreground "Green" :inherit sml/global)))
+          '(helm-candidate-number ((t :foreground nil :background nil :inherit sml/filename))))
+         (if (eq sml/theme t)
+             (message "[WARNING] smart-mode-line: setting `sml/override-theme' to t is obsolete.
 Use the `sml/theme' variable instead.")))))
     ;; Respect the user's configurations.
     (enable-theme 'user)
@@ -1021,15 +1025,6 @@ found to match the current file path."
                     (list (format (regexp-quote sml/projectile-replacement-format) ".*")
                           'sml/projectile))))
   
-  ;; Perspective support
-  (eval-after-load "perspective"
-    '(progn
-       (defcustom sml/persp-selected-color "Green"
-         "Replace `persp-selected-color', otherwise it's unreadable."
-         :type 'string
-         :group 'smart-mode-line-others)
-       (set-face-foreground 'persp-selected-face sml/persp-selected-color)))
-
   ;; vc-mode
   (eval-after-load "vc-hooks"
     '(defadvice vc-mode-line (after sml/after-vc-mode-line-advice () activate)
