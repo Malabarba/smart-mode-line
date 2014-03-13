@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.4.1
+;; Version: 2.4.2
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
@@ -143,6 +143,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.4.2   - 2014/03/13 - More passive projectile integration.
 ;; 2.4.1   - 2014/03/11 - Small fix to dired-mode with uniquify.
 ;; 2.4     - 2014/03/10 - Projectile integration! To disable it, set sml/use-projectile-p.
 ;; 2.4     - 2014/03/10 - Change the order of line/column numbers with sml/order-of-line-and-column.
@@ -274,8 +275,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.4.1" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 67 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.4.2" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 68 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -999,11 +1000,21 @@ this to make sure that we are loaded after any themes)."
          :type 'string
          :group 'smart-mode-line-others
          :package-version '(smart-mode-line . "2.4"))
-       (defcustom sml/use-projectile-p t
-         "Whether we should use projectile to guess path prefixes."
-         :type 'boolean
+       (defcustom sml/use-projectile-p 'after-prefixes
+         "Whether we should use projectile to guess path prefixes.
+
+If this is non-nil, and if current buffer is inside a project (as
+defined by projectile), we use the project's name as a
+prefix (with the `sml/projectile-replacement-format' variable).
+
+If this is 'after-prefix, then this replacement will only be used
+if no other prefixes (defined in `sml/replacer-regexp-list') were
+found to match the current file path."
+         :type '(choice (const :tag "Use projectile only if current path doesn't match any prefixes." after-prefixes)
+                        (const :tag "Use projectile before checking prefixes." before-prefixes)
+                        (const :tag "Don't use projectile." nil))
          :group 'smart-mode-line-others
-         :package-version '(smart-mode-line . "2.4"))
+         :package-version '(smart-mode-line . "2.4.1"))
        (defface sml/projectile '((t :inherit sml/git)) "" :group 'smart-mode-line-faces)
        (add-to-list 'sml/prefix-regexp (format (regexp-quote sml/projectile-replacement-format) ".*"))
        (add-to-list 'sml/prefix-face-list
@@ -1506,16 +1517,24 @@ If projectile is loaded, also performs replacements specified by
 project name first."
   (let ((out in) 
         proj)
-    (when (and sml/projectile-loaded-p sml/use-projectile-p
-               (setq proj (projectile-project-p)))
-      (setq out (replace-regexp-in-string
-                 (concat "^" (abbreviate-file-name proj)) 
-                 (format sml/projectile-replacement-format (projectile-project-name))
-                 out)))
+    (when (and sml/projectile-loaded-p (eq sml/use-projectile-p 'before-prefixes))
+      (setq out (sml/perform-projectile-replacement out)))
     (dolist (cur sml/replacer-regexp-list)
       (setq out (replace-regexp-in-string
                  (car cur) (car (cdr cur)) out)))
+    (when (and sml/projectile-loaded-p (eq sml/use-projectile-p 'after-prefixes))
+      (setq out (sml/perform-projectile-replacement out)))
     out))
+
+(defun sml/perform-projectile-replacement (in)
+  "If inside a project, use its name as a prefix."
+  (let ((proj (projectile-project-p)))
+    (if (stringp proj)
+        (replace-regexp-in-string
+         (concat "^" (abbreviate-file-name proj)) 
+         (format sml/projectile-replacement-format (projectile-project-name))
+         in)
+      in)))
 
 (defun sml/regexp-composer (getter)
   "Prepares the actual regexp using `sml/prefix-regexp'."
