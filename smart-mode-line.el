@@ -579,7 +579,7 @@ minor-mode lighters start with a space."
   :group 'smart-mode-line-mode-list)
 
 (defcustom sml/mode-width 30
-  "Integer or symbol representing the maximum and/or minimum size of the modes list in the mode-line.
+  "Maximum and/or minimum size of the modes list in the mode-line.
 
 If it is an integer, then the modes list width is that many
 characters.
@@ -634,7 +634,8 @@ name."
   "Mouse-1: Mode Menu.\nMouse-2: Mode Help.\nMouse-3: Toggle Minor Modes.")
 
 (defcustom sml/extra-filler 0
-  "The number of extra filling chars to use. It comes into play when `sml/mode-width' is set to 'full.
+  "The number of extra filling chars to use.
+It comes into play when `sml/mode-width' is set to 'full.
 
 This is necessary because the mode-line width (which we need but
 don't have acess to) is larger than the window-width (which we
