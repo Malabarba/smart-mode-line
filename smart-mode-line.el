@@ -373,7 +373,7 @@ either `sml/apply-theme' or the customization interface
 instead (M-x customize-variable RET sml/theme RET)."
   :type '(choice (const :tag "Use a dark color-theme. (Default)" dark)
                  (const :tag "Use a light color-theme." light)
-                 (const :tag "Respect the color-theme's colors." nil))
+                 (const :tag "Respect the color-theme's colors." respectful))
   :set 'sml/apply-theme
   :initialize 'custom-initialize-default
   :group 'smart-mode-line-faces :group 'smart-mode-line)
