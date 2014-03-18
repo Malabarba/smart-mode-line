@@ -1227,6 +1227,10 @@ L must be a symbol! We asign right back to it"
       (setq sml/buffer-identification-filling ""
             sml/buffer-identification
             (let* ((got-directory (sml/get-directory))
+                   (sml/use-projectile-p (if (or (not sml/projectile-loaded-p)
+                                                (file-remote-p got-directory))
+                                             nil
+                                           sml/use-projectile-p))
                    (prefix (sml/get-prefix (sml/replacer got-directory)))
                    (bufname (sml/buffer-name))
                    (dirsize (max 0 (- (abs sml/name-width) (length prefix) (length bufname))))
