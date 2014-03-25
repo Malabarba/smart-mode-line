@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.4.2
+;; Version: 2.4.3
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
@@ -143,6 +143,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.4.3   - 2014/03/25 - sml/mode-line-buffer-identification fix for ggtags.
 ;; 2.4.2   - 2014/03/13 - Perspective support simplified to sml/apply-theme.
 ;; 2.4.2   - 2014/03/13 - Projectile integration only applies after the user replacements (to change, see sml/use-projectile-p).
 ;; 2.4.1   - 2014/03/11 - Small fix to dired-mode with uniquify.
@@ -276,8 +277,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.4.2" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 68 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.4.3" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 69 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -888,7 +889,9 @@ If you want it to show the backend, just set it to t."
   "Construct that replaces `mode-line-client'.")
 
 (defvar sml/mode-line-buffer-identification
-  '(sml/buffer-identification sml/buffer-identification (:eval (sml/generate-buffer-identification)))
+  '("" (sml/buffer-identification
+        sml/buffer-identification
+        (:eval (sml/generate-buffer-identification))))
   "Replace the default `mode-line-buffer-identification' with our own.")
 
 (defvar sml/projectile-loaded-p nil "t if projectile has been loaded.")
@@ -1223,6 +1226,7 @@ L must be a symbol! We asign right back to it"
   (setq sml/name-width-old sml/name-width)
   (if (or ;; Only calculate all this if it will actually be used
        (equal sml/mode-line-buffer-identification mode-line-buffer-identification)
+       (member (cadr sml/mode-line-buffer-identification) mode-line-buffer-identification)
        (member sml/mode-line-buffer-identification mode-line-buffer-identification))
       (setq sml/buffer-identification-filling ""
             sml/buffer-identification
