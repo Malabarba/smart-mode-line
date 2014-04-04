@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.4.3
+;; Version: 2.4.4
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: faces frames
 ;; Prefix: sml
@@ -277,8 +277,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.4.3" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 69 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.4.4" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 70 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -1217,9 +1217,14 @@ L must be a symbol! We asign right back to it"
     (error "l must be a symbol to a list!")))
 
 (defun sml/fill-for-buffer-identification ()
-  "Returns a string of spaces so that `mode-line-buffer-identification' is fixed-width."
-  (make-string (max (- sml/name-width (length (format-mode-line mode-line-buffer-identification)))
-                    0) sml/fill-char))
+  "Returns a string of spaces so that `mode-line-buffer-identification' is fixed-width.
+In buffers where `mode-line-buffer-identification' is nil, we
+don't do any filling. That's because the given mode probably
+doesn't want any buffer-id."
+  (if mode-line-buffer-identification
+      (make-string (max (- sml/name-width (length (format-mode-line mode-line-buffer-identification)))
+                        0) sml/fill-char)
+    ""))
 
 (defun sml/generate-buffer-identification (&rest ignored)
   "Return fully propertized prefix+path+buffername."
@@ -1232,7 +1237,7 @@ L must be a symbol! We asign right back to it"
             sml/buffer-identification
             (let* ((got-directory (sml/get-directory))
                    (sml/use-projectile-p (if (or (not sml/projectile-loaded-p)
-                                                (file-remote-p got-directory))
+                                                 (file-remote-p got-directory))
                                              nil
                                            sml/use-projectile-p))
                    (prefix (sml/get-prefix (sml/replacer got-directory)))
