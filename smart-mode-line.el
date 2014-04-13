@@ -6,7 +6,7 @@
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
 ;; Version: 2.4.4
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
-;; Keywords: faces frames
+;; Keywords: mode-line faces theme themes
 ;; Prefix: sml
 ;; Separator: /
 
