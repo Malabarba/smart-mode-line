@@ -143,6 +143,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.4.5   - 2014/04/24 - Changed default value of sml/mode-width back to 'full.
 ;; 2.4.3   - 2014/03/25 - sml/mode-line-buffer-identification fix for ggtags.
 ;; 2.4.2   - 2014/03/13 - Perspective support simplified to sml/apply-theme.
 ;; 2.4.2   - 2014/03/13 - Projectile integration only applies after the user replacements (to change, see sml/use-projectile-p).
@@ -579,7 +580,7 @@ minor-mode lighters start with a space."
                  (regexp :tag "Regular expression."))
   :group 'smart-mode-line-mode-list)
 
-(defcustom sml/mode-width 30
+(defcustom sml/mode-width 'full
   "Maximum and/or minimum size of the modes list in the mode-line.
 
 If it is an integer, then the modes list width is that many
@@ -592,7 +593,8 @@ indenting right anything after the mode-list).
 If `sml/shorten-modes' is nil, this is the minimum width.
 Otherwise, this is both the minimum and maximum width."
   :type '(choice integer symbol)
-  :group 'smart-mode-line-mode-list)
+  :group 'smart-mode-line-mode-list
+  :package-version '(smart-mode-line . "2.4.5"))
 
 (defcustom sml/full-mode-string " +"
   "String that's appended to the minor-mode list when it's full."
