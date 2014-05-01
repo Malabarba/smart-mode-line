@@ -1378,7 +1378,7 @@ duplicated buffer names) from being displayed."
            (kdr (cdr ml)))
        (case (type-of kar)
          ('symbol
-          (let ((val (symbol-value kar))
+          (let ((val (when (boundp kar) (symbol-value kar)))
                 (kadr (if (listp kdr) (car kdr) nil)))
             (case val
               (:eval (sml/mode-list-to-string-list (eval kadr)))
