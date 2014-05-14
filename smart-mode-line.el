@@ -159,6 +159,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.5     - 2014/05/14 - sml/mode-width: New possible value: 'right.
 ;; 2.5     - 2014/05/14 - Themes engine completely redone.
 ;; 2.5     - 2014/05/14 - sml/apply-theme is interactive.
 ;; 2.4.5   - 2014/04/24 - Changed default value of sml/mode-width back to 'full.
@@ -607,6 +608,9 @@ characters.
 If it is the symbol `full', then the mode-list fills all the
 empty space is available in the mode-line (this has the effect of
 indenting right anything after the mode-list).
+
+If it is the symbol `right', then it behaves like `full', but the
+minor-modes list is moved al the way to the right.
 
 If `sml/shorten-modes' is nil, this is the minimum width.
 Otherwise, this is both the minimum and maximum width."
@@ -1368,10 +1372,10 @@ duplicated buffer names) from being displayed."
       ""
     (let* ((nameList (sml/mode-list-to-string-list minor-mode-alist))
            (finalNameList (mapconcat 'format-mode-line  nameList ""))
-           (size (if (equal sml/mode-width 'full) (sml/fill-width-available) sml/mode-width))
+           (size (if (member sml/mode-width '(full right)) (sml/fill-width-available) sml/mode-width))
            (helpString (concat "Full list:" (replace-regexp-in-string " " "\n    " finalNameList)
                                "\n\n" sml/major-help-echo))
-           needs-removing)
+           needs-removing filling finalList)
       ;; Remove hidden-modes
       (setq nameList (sml/remove-hidden-modes nameList))
       ;; Truncate
@@ -1391,12 +1395,20 @@ duplicated buffer names) from being displayed."
       (unless sml/shorten-modes
         (add-to-list 'nameList sml/propertized-shorten-mode-string t))
 
-      (list size ;; Padding
-            (list ':propertize nameList
+      ;; Padding
+      (setq filling (- size (length (format-mode-line nameList))))
+      (setq filling (make-string (max 0 filling) sml/fill-char))
+      (setq finalList
+            (list :propertize nameList
                   'help-echo helpString
                   'mouse-face 'mode-line-highlight
                   'face 'sml/folder
-                  'local-map mode-line-minor-mode-keymap)))))
+                  'local-map mode-line-minor-mode-keymap))
+      (if (eq sml/mode-width 'right)
+          (list (propertize filling 'face 'sml/modes)
+                'sml/pre-minor-modes-separator finalList)
+        (list "" 'sml/pre-minor-modes-separator finalList 
+              (propertize filling 'face 'sml/folder))))))
 
 (defun sml/remove-hidden-modes (li)
   "Return LI removing any elements that match `sml/hidden-modes'."
