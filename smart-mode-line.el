@@ -678,49 +678,23 @@ if you just want to fine-tune it)."
 (defface sml/discharging         '((t :inherit sml/global :foreground "Red"))         "" :group 'smart-mode-line-faces)
 (defface sml/time                '((t :inherit sml/modes))                            "" :group 'smart-mode-line-faces)
 
-;;; For changing between themes.
-(defconst sml/mode-line-active-foreground-original (internal-get-lisp-face-attribute 'mode-line :foreground))
-(defconst sml/mode-line-active-background-original (internal-get-lisp-face-attribute 'mode-line :background))
-(defconst sml/mode-line-inactive-foreground-original (internal-get-lisp-face-attribute 'mode-line-inactive :foreground))
-(defconst sml/mode-line-inactive-background-original (internal-get-lisp-face-attribute 'mode-line-inactive :background))
-
-(defun sml/set-mode-line-buffer-id-face ()
-  "Re-apply our face to major-modes that change mode-line-buffer-id."
-  ;; Our buffer-file-name display.
-  ;; For buffers which edit mode-line-identification, make sure they use OUR color.
-  (ignore-errors
-    (set-face-attribute
-     'mode-line-buffer-id nil
-     :foreground (internal-get-lisp-face-attribute 'sml/filename :foreground)
-     :background (internal-get-lisp-face-attribute 'sml/filename :background)
-     :weight     (internal-get-lisp-face-attribute 'sml/filename :weight)
-     :underline  (internal-get-lisp-face-attribute 'sml/filename :underline)
-     :overline   (internal-get-lisp-face-attribute 'sml/filename :overline))))
-
-(defun sml/set-face-color (&optional sym val)
-  "Re-apply our fore/background faces because theme may have changed it."
-  (if sym (set-default sym val))
-  (set-face-attribute 'mode-line nil
-                      :inverse-video nil
-                      :foreground sml/active-foreground-color
-                      :background sml/active-background-color)
-  (set-face-attribute 'mode-line-inactive nil
-                      :inverse-video nil
-                      :background sml/inactive-background-color
-                      :foreground sml/inactive-foreground-color)
-  (sml/set-mode-line-buffer-id-face))
-
 (defvar sml/-apply-theme-is-running nil "Avoid nesting in `sml/apply-theme'.")
 
 (defun sml/apply-theme (theme &optional value silent)
-  "Apply THEME.
+  "Apply the theme called smart-mode-line-THEME.
 
-THEME can be one of the symbols: respectful, dark, or light.
+THEME is usually one of the symbols: respectful, dark, or light;
+but it can be something else if there are other smart-mode-line
+themes defined.
+
+This function will call `disable-theme' on any enabled themes
+whose name starts with \"smart-mode-line-\", then it will call
+`load-theme' on the theme called \"smart-mode-line-THEME\".
 
 This also sets the `sml/theme' variable, see its documentation
 for more information on each value.
 
-The second argument (VALUE) is for internal use only, don't use it."
+The second argument (VALUE) is for internal use only, DON'T USE IT."
   (unless silent (message "[sml] %s set to %s" 'sml/theme (or value theme)))
   (unless sml/-apply-theme-is-running
     (let ((sml/-apply-theme-is-running t)) ;Avoid nesting.
@@ -847,12 +821,6 @@ this to make sure that we are loaded after any themes)."
     (setq sml/theme 'initializing)    
     (sml/apply-theme set-theme nil :silent))
 
-  ;; Make sure the user's theme doesn't override the main faces
-  ;; (mode-line and mode-line-inactive)
-  (if after-init-time
-      (sml/set-face-color)
-    (add-hook 'after-init-hook 'sml/set-face-color))
-  
   ;;;; And this is where the magic happens.
   ;; Remove elements we implement separately, and improve the ones not removed.
   (sml/filter-mode-line-list 'mode-line-mule-info)
@@ -1531,8 +1499,6 @@ regexp in `sml/prefix-regexp'."
   "Backs up the `mode-line-format' before SML was required.")
 (defconst sml/battery-format-backup (if (boundp 'battery-mode-line-format) battery-mode-line-format "")
   "Backs up the `battery-mode-line-format' before SML was required.")
-(copy-face 'mode-line 'sml/active-backup)
-(copy-face 'mode-line-inactive 'sml/inactive-backup)
 
 (provide 'smart-mode-line)
 ;;; smart-mode-line.el ends here
