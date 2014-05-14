@@ -37,7 +37,7 @@
  '(sml/modes     ((t :inherit sml/global :foreground "Black")))
  '(sml/filename  ((t :inherit sml/global :foreground "Blue"      :weight bold)))
  '(sml/prefix    ((t :inherit sml/global :foreground "#5b2507"   :weight bold)))
- '(sml/read-only ((t :inherit sml/global :foreground "DarkGreen" :weight bold))))
+ '(sml/read-only ((t :inherit sml/not-modified :foreground "DarkGreen" :weight bold))))
 
 ;;;###autoload
 (when load-file-name

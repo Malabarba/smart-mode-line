@@ -672,14 +672,15 @@ if you just want to fine-tune it)."
 (defface sml/modes            '((t :inherit sml/global)) "" :group 'smart-mode-line-faces)
 (defface sml/filename         '((t :inherit sml/global :weight bold)) "" :group 'smart-mode-line-faces)
 (defface sml/prefix           '((t :inherit sml/global)) "" :group 'smart-mode-line-faces)
-(defface sml/read-only        '((t :inherit sml/global)) "" :group 'smart-mode-line-faces)
-(defface sml/modified         '((t :inherit sml/global :foreground "Red" :weight bold))
+(defface sml/read-only        '((t :inherit sml/not-modified)) "" :group 'smart-mode-line-faces)
+(defface sml/modified         '((t :inherit sml/not-modified :foreground "Red" :weight bold))
   "" :group 'smart-mode-line-faces)
-(defface sml/outside-modified '((t :inherit sml/global :foreground "#ffffff" :background "#c82829"))
+(defface sml/outside-modified '((t :inherit sml/not-modified :foreground "#ffffff" :background "#c82829"))
   "" :group 'smart-mode-line-faces)
 
 (defface sml/line-number         '((t :inherit sml/modes :weight bold))               "" :group 'smart-mode-line-faces)
 (defface sml/remote              '((t :inherit sml/global))                           "" :group 'smart-mode-line-faces)
+(defface sml/name-filling        '((t :inherit sml/position-percentage))              "" :group 'smart-mode-line-faces)
 (defface sml/position-percentage '((t :inherit sml/prefix :weight normal))            "" :group 'smart-mode-line-faces)
 (defface sml/col-number          '((t :inherit sml/global))                           "" :group 'smart-mode-line-faces)
 (defface sml/numbers-separator   '((t :inherit sml/col-number))                       "" :group 'smart-mode-line-faces)
@@ -687,7 +688,7 @@ if you just want to fine-tune it)."
 (defface sml/not-modified        '((t :inherit sml/global))                           "" :group 'smart-mode-line-faces)
 (defface sml/mule-info           '((t :inherit sml/global))                           "" :group 'smart-mode-line-faces)
 (defface sml/sudo                '((t :inherit sml/outside-modified))                 "" :group 'smart-mode-line-faces)
-(defface sml/git                 '((t :inherit sml/read-only))                        "" :group 'smart-mode-line-faces)
+(defface sml/git                 '((t :inherit (sml/read-only sml/prefix)))           "" :group 'smart-mode-line-faces)
 (defface sml/folder              '((t :inherit sml/global :weight normal))            "" :group 'smart-mode-line-faces)
 (defface sml/process             '((t :inherit sml/prefix))                           "" :group 'smart-mode-line-faces)
 (defface sml/vc                  '((t :inherit sml/git))                              "" :group 'smart-mode-line-faces)
@@ -717,18 +718,17 @@ The second argument (VALUE) is for internal use only, DON'T USE IT."
    (list
     (intern
      (completing-read
-      "Load custom theme: "
+      "Load smart-mode-line theme: "
       (mapcar
        (lambda (x) (replace-regexp-in-string "\\`smart-mode-line-" "" (symbol-name x)))
        (-filter 'sml/theme-p (custom-available-themes)))))
     nil nil))
-  (unless silent (message "[sml] %s set to %s" 'sml/theme (or value theme)))
+  (when (eq theme (intern "")) (setq theme nil))
+  (unless silent (message "[sml] %s set to %s" 'sml/theme (or value theme)))  
   (unless sml/-apply-theme-is-running
     (let ((sml/-apply-theme-is-running t)) ;Avoid nesting.
       (if value (setq-default sml/theme value)
-        (if theme
-            (setq-default sml/theme theme)
-          (setq-default sml/theme 'respectful)))
+        (setq-default sml/theme theme))
       ;; Disable any previous smart-mode-line themes.
       (mapc (lambda (x) (when (sml/theme-p x) (disable-theme x))) custom-enabled-themes)
       ;; Load the theme requested.
@@ -1118,7 +1118,7 @@ It can only be t or nil.
 
 (defun sml/generate-modified-status ()
   "Return a string describing the modified status of the buffer."
-  (cond ;; ((file-remote-p (buffer-file-name)) "%1+")
+  (cond
    ((not (or (and (buffer-file-name) (file-remote-p buffer-file-name))
              (verify-visited-file-modtime (current-buffer))))
     (propertize sml/outside-modified-char 'face 'sml/outside-modified
@@ -1135,7 +1135,7 @@ It can only be t or nil.
                                 (nth 5 (file-attributes (buffer-file-name))))
                              "Buffer Modified")
                 'local-map '(keymap (mode-line keymap (mouse-1 . save-buffer)))))
-   (t " ")))
+   (t (propertize " " 'face 'sml/not-modified))))
 
 (defmacro sml/propertize-position (s face help)
   "Propertize string S as a line/column number, using FACE and help-echo HELP."
@@ -1206,7 +1206,7 @@ doesn't want any buffer-id."
 To be used in mapcar and accumulate results."
   (cond
    ;; These are implemented separately
-   ((member el '("%1+" "(" ")" (t erc-modified-channels-object)
+   ((member el '("%[" "%]" "%1+" "(" ")" (t erc-modified-channels-object)
                  (:eval (if (display-graphic-p) " " "-"))
                  (:eval (unless (display-graphic-p) "-%-"))
                  (:eval (mode-line-frame-control))))
@@ -1244,6 +1244,7 @@ mouse-1: Display Line and Column Mode Menu"))))
    ((and (stringp el) (string-match "\\s-*%[-0-9]*z" el))
     `(sml/mule-info ((1 (current-input-method
                          (:propertize ("" current-input-method-title)
+                                      face sml/mule-info
                                       help-echo (concat
                                                  ,(purecopy "Current input method: ")
                                                  current-input-method
@@ -1253,6 +1254,7 @@ mouse-3: Describe current input method"))
                                       local-map ,mode-line-input-method-map
                                       mouse-face mode-line-highlight)))
                      (:propertize (:eval sml/mule-info)
+                                  face sml/mule-info
                                   help-echo mode-line-mule-info-help-echo
                                   mouse-face mode-line-highlight
                                   local-map ,mode-line-coding-system-map))))
@@ -1260,7 +1262,7 @@ mouse-3: Describe current input method"))
    ((equal el '(:eval (mode-line-eol-desc)))
     '(sml/show-eol (:eval (mode-line-eol-desc))))
 
-   ;;;; mode-line-mods
+   ;;;; mode-line-modes
    ;; Color the mode line process
    ((or (equal el '("" mode-line-process))
         (equal (car (cdr-safe el)) '("" mode-line-process)))
@@ -1269,12 +1271,15 @@ mouse-3: Describe current input method"))
    ((and (listp el)
          (equal (car el) :propertize)
          (equal (cadr el) '("" mode-name)))
+    (setf (cadr el) '("" "%[" mode-name "%]"))
     (append el '(face sml/modes)))
    ;; Completely replace the minor modes (so we can truncate)
    ((and (listp el)
          (equal (car el) :propertize)
          (equal (cadr el) '("" minor-mode-alist)))
-    '(:eval (sml/generate-minor-modes)))
+    '("" 
+      (:eval (sml/generate-minor-modes))
+      sml/pos-minor-modes-separator))
    ;; If it's something we don't recognize, just leave it as-is.
    (t el)))
 
@@ -1346,6 +1351,7 @@ duplicated buffer names) from being displayed."
                 mouse-face mode-line-highlight))
 (defconst sml/propertized-full-mode-string
   '(:propertize sml/full-mode-string
+                face sml/folder
                 help-echo "mouse-1: Show all modes"
                 local-map (keymap (mode-line keymap (mouse-1 . sml/toggle-shorten-modes)))
                 mouse-face mode-line-highlight))
