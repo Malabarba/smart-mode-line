@@ -695,6 +695,15 @@ This also sets the `sml/theme' variable, see its documentation
 for more information on each value.
 
 The second argument (VALUE) is for internal use only, DON'T USE IT."
+  (interactive
+   (list
+    (intern
+     (completing-read
+      "Load custom theme: "
+      (mapcar
+       (lambda (x) (replace-regexp-in-string "\\`smart-mode-line-" "" (symbol-name x)))
+       (-filter 'sml/theme-p (custom-available-themes)))))
+    nil nil))
   (unless silent (message "[sml] %s set to %s" 'sml/theme (or value theme)))
   (unless sml/-apply-theme-is-running
     (let ((sml/-apply-theme-is-running t)) ;Avoid nesting.
@@ -702,9 +711,20 @@ The second argument (VALUE) is for internal use only, DON'T USE IT."
         (if theme
             (setq-default sml/theme theme)
           (setq-default sml/theme 'respectful)))
-      (case sml/theme
-        ((respectful light dark) (load-theme sml/theme))
-        (t (message "Unknown sml theme: %s" sml/theme))))))
+      ;; Disable any previous smart-mode-line themes.
+      (mapc (lambda (x) (when (sml/theme-p x) (disable-theme x))) custom-enabled-themes)
+      ;; Load the theme requested.
+      (when sml/theme
+        (load-theme
+         (if (sml/theme-p sml/theme)
+             sml/theme
+           (intern (format "smart-mode-line-%s" sml/theme))))))))
+
+
+(defun sml/theme-p (theme)
+  "Return non-nil if theme named THEME is a smart-mode-line theme.
+Takes symbols and strings."
+  (string-match "\\`smart-mode-line-" (if (symbolp theme) (symbol-name theme) theme)))
 
 (defvaralias 'sml/show-encoding 'sml/mule-info)
 
