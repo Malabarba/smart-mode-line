@@ -699,7 +699,6 @@ if you just want to fine-tune it)."
 (defconst sml/mode-line-inactive-foreground-original (internal-get-lisp-face-attribute 'mode-line-inactive :foreground))
 (defconst sml/mode-line-inactive-background-original (internal-get-lisp-face-attribute 'mode-line-inactive :background))
 
-(deftheme smart-mode-line)
 (defun sml/set-mode-line-buffer-id-face ()
   "Re-apply our face to major-modes that change mode-line-buffer-id."
   ;; Our buffer-file-name display.
@@ -745,60 +744,8 @@ The second argument (VALUE) is for internal use only, don't use it."
             (setq-default sml/theme theme)
           (setq-default sml/theme 'respectful)))
       (case sml/theme
-        ('respectful (custom-theme-set-variables
-                      'smart-mode-line
-                      `(sml/active-foreground-color ,sml/mode-line-active-foreground-original)
-                      `(sml/active-background-color ,sml/mode-line-active-background-original)
-                      `(sml/inactive-foreground-color ,sml/mode-line-inactive-foreground-original)
-                      `(sml/inactive-background-color ,sml/mode-line-inactive-background-original))
-                     (custom-theme-set-faces
-                      'smart-mode-line
-                      '(sml/global    ((t :inherit font-lock-preprocessor-face)))
-                      `(sml/filename  ((t :inherit (font-lock-function-name-face sml/global) :weight bold
-                                          :foreground ,(internal-get-lisp-face-attribute 'default :foreground))))
-                      '(sml/prefix    ((t :inherit (font-lock-variable-name-face sml/global))))
-                      '(sml/read-only ((t :inherit (font-lock-type-face sml/global))))
-                      `(sml/modes     ((t :inherit sml/global :foreground ,sml/active-foreground-color)))
-                      '(persp-selected-face nil)
-                      '(helm-candidate-number nil)))
-        ('light (custom-theme-set-variables
-                 'smart-mode-line
-                 '(sml/active-foreground-color "black")
-                 '(sml/active-background-color "grey85")
-                 '(sml/inactive-foreground-color "grey20")
-                 '(sml/inactive-background-color "#fdf6e3"))
-                (custom-theme-set-faces
-                 'smart-mode-line
-                 '(sml/global    ((t :foreground "gray20" :inverse-video nil)))
-                 '(sml/modes     ((t :inherit sml/global :foreground "Black")))
-                 '(sml/filename  ((t :inherit sml/global :foreground "Blue" :weight bold)))
-                 '(sml/prefix    ((t :inherit sml/global :foreground "#5b2507" :weight bold)))
-                 '(sml/read-only ((t :inherit sml/global :foreground "DarkGreen" :weight bold)))
-                 '(persp-selected-face nil)
-                 '(helm-candidate-number nil)))
-        ((dark t)
-         (custom-theme-set-variables
-          'smart-mode-line
-          '(sml/active-foreground-color "gray60")
-          '(sml/active-background-color "black")
-          '(sml/inactive-foreground-color "gray60")
-          '(sml/inactive-background-color "#404045"))
-         (custom-theme-set-faces
-          'smart-mode-line
-          '(sml/global    ((t :foreground "gray50" :inverse-video nil)))
-          '(sml/modes     ((t :inherit sml/global :foreground "White")))
-          '(sml/filename  ((t :inherit sml/global :foreground "#eab700" :weight bold)))
-          '(sml/prefix    ((t :inherit sml/global :foreground "#bf6000")))
-          '(sml/read-only ((t :inherit sml/global :foreground "DeepSkyBlue")))
-          '(persp-selected-face ((t :foreground "ForestGreen" :inherit sml/filename)))
-          '(helm-candidate-number ((t :foreground nil :background nil :inherit sml/filename))))
-         (if (eq sml/theme t)
-             (message "[WARNING] smart-mode-line: setting `sml/override-theme' to t is obsolete.
-Use the `sml/theme' variable instead.")))))
-    ;; Respect the user's configurations.
-    (enable-theme 'user)
-    ;; Re-apply our fore/background faces because theme may have changed it.
-    (sml/set-face-color)))
+        ((respectful light dark) (load-theme sml/theme))
+        (t (message "Unknown sml theme: %s" sml/theme))))))
 
 (defvaralias 'sml/show-encoding 'sml/mule-info)
 
