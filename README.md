@@ -1,21 +1,17 @@
 smart-mode-line [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GLZLRLW72Q8G2)
 ---------------
 
-Smart Mode Line is a sexy mode-line for Emacs, that aims to be easy to
-read from small to large monitors by using a *prefix feature* and
+Smart Mode Line is a sexy mode-line for Emacs. It aims to be easy to
+read from small to large monitors by using *colors*, a *prefix feature*, and
 *smart truncation*. 
 
-New in v2.1
+New in v2.5
 ===========
-- **Themes!** (yes, finally). Besides the usual dark theme, we now have
-light and a respectful theme. See `sml/theme`.
-- **Zero Compromise.** This means you don't have to
-give anything up in order to use this package. Every single bit of
-information which is displayed in the standard mode-line is present in
-`sml` (though some might need to be turned on). This includes 100%
-compatibility with other external packages which display information
-in the mode-line.
-- Performance improvements.
+- Emacs 24.4 compatible.
+- Integration with [Projectile](https://github.com/bbatsov/projectile)!
+- Display `current-directory` in Shell and eshell.
+- `sml/apply-theme` is interactive and has completion.
+- Smart-mode-line themes are now regular themes.
 
 Images
 ======
@@ -49,7 +45,7 @@ Its main features include:
  1. **Color coded**:  
     Highlights the most important information for you
     (buffer name, modified state, line number). Don't
-    like the colors? See item 5)!
+    like the colors? See item *5.*!
 
  2. **Fixed width** (if you want):  
     Lets you set a maxium width for the path name and mode names, and
@@ -67,7 +63,7 @@ Its main features include:
     over the abbreviated path will show you the full
     path. See below for examples.  	
 
- 4. **Hide minor-modes**:__
+ 4. **Hide minor-modes**:  
     Hidden-modes feature saves even more space. Select
     which minor modes you don't want to see listed by
     customizing the `sml/hidden-modes` variable. This will
@@ -81,7 +77,7 @@ Its main features include:
     manually with `sml/customize` and `sml/customize-faces`. There are
     *DOZENS* of variables to customize your mode-line, just pop over
     there and have a look!
-	
+
  6. **Compatible with absolutely anything**:  
     I'm serious. Versions 2.0 and above should be compatible with
     **any** other packages that display information in the mode-line
@@ -135,11 +131,11 @@ most important ones.
 
 Here go some more useful examples:
 
-    (add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/Projects/In-Development/" ":ProjDev:"))
-    (add-to-list 'sml/replacer-regexp-list '("^~/Documents/Work/" ":Work:"))
+    (add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/Projects/In-Development/" ":ProjDev:") t)
+    (add-to-list 'sml/replacer-regexp-list '("^~/Documents/Work/" ":Work:") t)
     
     ;; Added in the right order, they even work sequentially:
-    (add-to-list 'sml/replacer-regexp-list '("^:DB:Documents" ":DDocs:"))
-    (add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/" ":DB:"))
-    (add-to-list 'sml/replacer-regexp-list '("^:Git:\\(.*\\)/src/main/java/" ":G/\\1/SMJ:"))
-    (add-to-list 'sml/replacer-regexp-list '("^~/Git-Projects/" ":Git:"))
+    (add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/" ":DB:") t)
+    (add-to-list 'sml/replacer-regexp-list '("^:DB:Documents" ":DDocs:") t)
+    (add-to-list 'sml/replacer-regexp-list '("^~/Git-Projects/" ":Git:") t)
+    (add-to-list 'sml/replacer-regexp-list '("^:Git:\\(.*\\)/src/main/java/" ":G/\\1/SMJ:") t)
