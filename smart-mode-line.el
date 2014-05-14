@@ -1194,38 +1194,38 @@ In buffers where `mode-line-buffer-identification' is nil, we
 don't do any filling. That's because the given mode probably
 doesn't want any buffer-id."
   (if mode-line-buffer-identification
-      (make-string (max (- sml/name-width (length (format-mode-line mode-line-buffer-identification)))
-                        0) sml/fill-char)
+      (propertize
+       (make-string (max (- sml/name-width (length (format-mode-line mode-line-buffer-identification))) 0)
+                    sml/fill-char)
+       'face 'sml/name-filling)
     ""))
 
 (defun sml/generate-buffer-identification (&rest ignored)
   "Return fully propertized prefix+path+buffername."
   (setq sml/name-width-old sml/name-width)
-  (if (or ;; Only calculate all this if it will actually be used
-       (equal sml/mode-line-buffer-identification mode-line-buffer-identification)
-       (member (cadr sml/mode-line-buffer-identification) mode-line-buffer-identification)
-       (member sml/mode-line-buffer-identification mode-line-buffer-identification))
-      (setq sml/buffer-identification-filling ""
-            sml/buffer-identification
-            (let* ((got-directory (sml/get-directory))
-                   (sml/use-projectile-p (if (or (not sml/projectile-loaded-p)
-                                                 (file-remote-p got-directory))
-                                             nil
-                                           sml/use-projectile-p))
-                   (prefix (sml/get-prefix (sml/replacer got-directory)))
-                   (bufname (sml/buffer-name))
-                   (dirsize (max 0 (- (abs sml/name-width) (length prefix) (length bufname))))
-                   (dirstring (funcall sml/shortener-func got-directory dirsize)))
+  (setq sml/buffer-identification-filling nil)
+  (when (or ;; Only calculate all this if it will actually be used
+         (equal sml/mode-line-buffer-identification mode-line-buffer-identification)
+         (member (cadr sml/mode-line-buffer-identification) mode-line-buffer-identification)
+         (member sml/mode-line-buffer-identification mode-line-buffer-identification))
+    (setq sml/buffer-identification
+          (let* ((got-directory (sml/get-directory))
+                 (sml/use-projectile-p (if (or (not sml/projectile-loaded-p)
+                                               (file-remote-p got-directory))
+                                           nil
+                                         sml/use-projectile-p))
+                 (prefix (sml/get-prefix (sml/replacer got-directory)))
+                 (bufname (sml/buffer-name))
+                 (dirsize (max 0 (- (abs sml/name-width) (length prefix) (length bufname))))
+                 (dirstring (funcall sml/shortener-func got-directory dirsize)))
 
-              (propertize (concat (sml/propertize-prefix (replace-regexp-in-string "%" "%%" prefix))
-                                  (propertize (replace-regexp-in-string "%" "%%" dirstring) 'face 'sml/folder)
-                                  (propertize (replace-regexp-in-string "%" "%%" bufname) 'face 'sml/filename)
-                                  (make-string (max 0 (- dirsize (length dirstring))) ?\ ))
-                          'help-echo (format "%s\n\nmouse-1: Previous buffer\nmouse-3: Next buffer"
-                                             (or (buffer-file-name) (buffer-name)))
-                          'mouse-face 'mode-line-highlight
-                          'local-map   mode-line-buffer-identification-keymap)))
-    (setq sml/buffer-identification-filling (sml/fill-for-buffer-identification))))
+            (propertize (concat (sml/propertize-prefix (replace-regexp-in-string "%" "%%" prefix))
+                                (propertize (replace-regexp-in-string "%" "%%" dirstring) 'face 'sml/folder)
+                                (propertize (replace-regexp-in-string "%" "%%" bufname) 'face 'sml/filename))
+                        'help-echo (format "%s\n\nmouse-1: Previous buffer\nmouse-3: Next buffer"
+                                           (or (buffer-file-name) (buffer-name)))
+                        'mouse-face 'mode-line-highlight
+                        'local-map   mode-line-buffer-identification-keymap)))))
 
 (defun sml/parse-mode-line-elements (el)
   "Propertize or delete EL.
