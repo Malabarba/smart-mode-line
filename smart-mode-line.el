@@ -649,30 +649,15 @@ if you just want to fine-tune it)."
   :type 'integer
   :group 'smart-mode-line-mode-list)
 
-;; Color definitions
-(defcustom sml/active-foreground-color "gray60" "Foreground mode-line color for the active frame."
-  :type 'color :group 'smart-mode-line-faces :set 'sml/set-face-color :initialize 'custom-initialize-default)
-(defcustom sml/active-background-color "black" "Background mode-line color for the active frame."
-  :type 'color :group 'smart-mode-line-faces :set 'sml/set-face-color :initialize 'custom-initialize-default)
-(defcustom sml/inactive-foreground-color "gray60" "Foreground mode-line color for the inactive frame."
-  :type 'color :group 'smart-mode-line-faces :set 'sml/set-face-color :initialize 'custom-initialize-default)
-(defcustom sml/inactive-background-color "#404045" "Background mode-line color for the inactive frame."
-  :type 'color :group 'smart-mode-line-faces :set 'sml/set-face-color :initialize 'custom-initialize-default)
-
 ;; Face definitions
-(defface sml/global           '((t :foreground "gray50" :inverse-video nil :font-family "Monospace"))
-  "" :group 'smart-mode-line-faces)
-(defface sml/modes            '((t :inherit sml/global :foreground "White"))
-  "" :group 'smart-mode-line-faces)
-(defface sml/filename         '((t :inherit sml/global :foreground "#eab700" :weight bold))
-  "" :group 'smart-mode-line-faces)
-(defface sml/prefix           '((t :inherit sml/global :foreground "#bf6000"))
-  "" :group 'smart-mode-line-faces)
-(defface sml/read-only        '((t :inherit sml/global :foreground "DeepSkyBlue"))
+(defface sml/global           '((t :inverse-video nil)) "" :group 'smart-mode-line-faces)
+(defface sml/modes            '((t :inherit sml/global)) "" :group 'smart-mode-line-faces)
+(defface sml/filename         '((t :inherit sml/global :weight bold)) "" :group 'smart-mode-line-faces)
+(defface sml/prefix           '((t :inherit sml/global)) "" :group 'smart-mode-line-faces)
+(defface sml/read-only        '((t :inherit sml/global)) "" :group 'smart-mode-line-faces)
+(defface sml/modified         '((t :inherit sml/global :foreground "Red" :weight bold))
   "" :group 'smart-mode-line-faces)
 (defface sml/outside-modified '((t :inherit sml/global :foreground "#ffffff" :background "#c82829"))
-  "" :group 'smart-mode-line-faces)
-(defface sml/modified         '((t :inherit sml/global :foreground "Red" :weight bold))
   "" :group 'smart-mode-line-faces)
 
 (defface sml/line-number         '((t :inherit sml/modes :weight bold))               "" :group 'smart-mode-line-faces)
