@@ -31,21 +31,13 @@
 Tries to respect the colors chosen by your global theme.
 Results may vary.")
 
-(custom-theme-set-variables
- 'smart-mode-line-respectful
- `(sml/active-foreground-color ,sml/mode-line-active-foreground-original)
- `(sml/active-background-color ,sml/mode-line-active-background-original)
- `(sml/inactive-foreground-color ,sml/mode-line-inactive-foreground-original)
- `(sml/inactive-background-color ,sml/mode-line-inactive-background-original))
 (custom-theme-set-faces
- 'smart-mode-line
+ 'smart-mode-line-respectful
  '(sml/global    ((t :inherit font-lock-preprocessor-face)))
- `(sml/filename  ((t :inherit (mode-line sml/global) :weight bold)))
+ '(sml/filename  ((t :inherit mode-line-buffer-id)))
  '(sml/prefix    ((t :inherit (font-lock-variable-name-face sml/global))))
  '(sml/read-only ((t :inherit (font-lock-type-face sml/global))))
- `(sml/modes     ((t :inherit (mode-line sml/global))))
- '(persp-selected-face nil)
- '(helm-candidate-number nil))
+ '(sml/modes     ((t :foreground nil :inherit sml/filename :weight normal))))
 
 ;;;###autoload
 (when load-file-name

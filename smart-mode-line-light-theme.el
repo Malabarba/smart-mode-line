@@ -26,23 +26,18 @@
 ;; 0.1a - 2014/05/14 - Created File.
 ;;; Code:
 
-(deftheme smart-mode-line-light "Light theme for smart-mode-line")
+(deftheme smart-mode-line-light "Light theme for smart-mode-line.")
 
-(custom-theme-set-variables
- 'smart-mode-line-light
- '(sml/active-foreground-color "black")
- '(sml/active-background-color "grey85")
- '(sml/inactive-foreground-color "grey20")
- '(sml/inactive-background-color "#fdf6e3"))
 (custom-theme-set-faces
  'smart-mode-line-light
+ '(mode-line-buffer-id ((t :inherit sml/filename :foreground nil :background nil))) 
+ '(mode-line-inactive ((t :foreground "grey20" :background "#fdf6e3")))
+ '(mode-line     ((t :foreground "black" :background "grey85")))
  '(sml/global    ((t :foreground "gray20" :inverse-video nil)))
  '(sml/modes     ((t :inherit sml/global :foreground "Black")))
- '(sml/filename  ((t :inherit sml/global :foreground "Blue" :weight bold)))
- '(sml/prefix    ((t :inherit sml/global :foreground "#5b2507" :weight bold)))
- '(sml/read-only ((t :inherit sml/global :foreground "DarkGreen" :weight bold)))
- '(persp-selected-face nil)
- '(helm-candidate-number nil))
+ '(sml/filename  ((t :inherit sml/global :foreground "Blue"      :weight bold)))
+ '(sml/prefix    ((t :inherit sml/global :foreground "#5b2507"   :weight bold)))
+ '(sml/read-only ((t :inherit sml/global :foreground "DarkGreen" :weight bold))))
 
 ;;;###autoload
 (when load-file-name

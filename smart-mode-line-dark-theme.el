@@ -26,16 +26,13 @@
 ;; 0.1a - 2014/05/14 - Created File.
 ;;; Code:
 
-(deftheme smart-mode-line-dark "Dark theme for smart-mode-line")
+(deftheme smart-mode-line-dark "Dark theme for smart-mode-line.")
 
-(custom-theme-set-variables
- 'smart-mode-line-dark
- '(sml/active-foreground-color "gray60")
- '(sml/active-background-color "black")
- '(sml/inactive-foreground-color "gray60")
- '(sml/inactive-background-color "#404045"))
 (custom-theme-set-faces
  'smart-mode-line-dark
+ '(mode-line-buffer-id ((t :inherit sml/filename :foreground nil :background nil))) 
+ '(mode-line-inactive ((t :foreground "gray60" :background "#404045")))
+ '(mode-line     ((t :foreground "gray60" :background "black")))
  '(sml/global    ((t :foreground "gray50" :inverse-video nil)))
  '(sml/modes     ((t :inherit sml/global :foreground "White")))
  '(sml/filename  ((t :inherit sml/global :foreground "#eab700" :weight bold)))
