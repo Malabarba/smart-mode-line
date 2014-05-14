@@ -851,6 +851,22 @@ If you want it to show the backend, just set it to t."
 
 (defvar sml/projectile-loaded-p nil "t if projectile has been loaded.")
 
+(defcustom sml/post-id-separator " "
+  "Miscellaneous mode-line construct.")
+(put 'sml/post-id-separator 'risky-local-variable t)
+(defcustom sml/pre-modes-separator " "
+  "Miscellaneous mode-line construct.")
+(put 'sml/pre-modes-separator 'risky-local-variable t)
+(defcustom sml/pre-id-separator ""
+  "Miscellaneous mode-line construct.")
+(put 'sml/pre-id-separator 'risky-local-variable t)
+(defcustom sml/pre-minor-modes-separator ""
+  "Miscellaneous mode-line construct.")
+(put 'sml/pre-minor-modes-separator 'risky-local-variable t)
+(defcustom sml/pos-minor-modes-separator ""
+  "Miscellaneous mode-line construct.")
+(put 'sml/pos-minor-modes-separator 'risky-local-variable t)
+
 ;;;###autoload
 (defun sml/setup (&optional arg)
   "Setup the mode-line to be smart and sexy.
@@ -914,14 +930,21 @@ this to make sure that we are loaded after any themes)."
   (add-to-list 'mode-line-position
                '(sml/buffer-identification-filling
                  sml/buffer-identification-filling
-                 (:eval (progn (sml/generate-buffer-identification)
-                               sml/buffer-identification-filling))))
+                 (:eval (setq sml/buffer-identification-filling
+                              (sml/fill-for-buffer-identification)))))
 
   ;; Remove some annoying big spaces
   (setq-default mode-line-format
                 (mapcar
-                 (lambda (x) (if (and (stringp x) (string-match "\\` +\\'" x))
-                                 " " x))
+                 (lambda (x) (cond 
+                         ((and (stringp x) (string= x "   "))
+                          'sml/post-id-separator)
+                         ((and (stringp x) (string= x "  "))
+                          'sml/pre-modes-separator)
+                         ((equal x sml/post-id-separator)
+                          (message "oi")
+                          'sml/post-id-separator)
+                         (t x)))
                  mode-line-format))
 
       ;;;; And here comes support for a bunch of extra stuff. Some of
@@ -1230,7 +1253,8 @@ To be used in mapcar and accumulate results."
 
    ;; mode-line-modified
    ((and (stringp el) (string-match "%[0-9-]*\\*" el))
-    '(:eval (sml/generate-modified-status)))
+    '("" (:eval (sml/generate-modified-status))
+      sml/pre-id-separator))
 
    ;;;; mode-line-position
    ;; Color the position percentage
