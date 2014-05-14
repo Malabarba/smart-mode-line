@@ -720,6 +720,11 @@ The second argument (VALUE) is for internal use only, DON'T USE IT."
              sml/theme
            (intern (format "smart-mode-line-%s" sml/theme))))))))
 
+(defadvice enable-theme (after sml/after-enable-theme-advice (theme) activate)
+  "Make sure smart-mode-line themes take priority over global themes."
+  (unless (or (eq theme 'user)
+              (sml/theme-p theme))
+    (mapc 'enable-theme (-filter 'sml/theme-p custom-enabled-themes))))
 
 (defun sml/theme-p (theme)
   "Return non-nil if theme named THEME is a smart-mode-line theme.
