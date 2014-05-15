@@ -1,10 +1,11 @@
-;;; smart-mode-line-powerline-theme.el --- Powerline theme for smart-mode-line
+;;; smart-mode-line-powerline-theme.el --- smart-mode-line theme that mimics the powerline appearance.
 
 ;; Copyright (C) 2014 Artur Malabarba <bruce.connor.am@gmail.com>
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
 ;; Version: 0.1a
+;; Package-Requires: ((emacs "24.3") (powerline "2.3") (smart-mode-line "2.5"))
 ;; Separator: -
 
 ;;; License:
@@ -23,6 +24,7 @@
 ;; 
 
 ;;; Change Log:
+;; 0.1a - 2014/05/15 - powerline-theme essentially finished.
 ;; 0.1a - 2014/05/14 - Created File.
 ;;; Code:
 
@@ -32,21 +34,24 @@ Mimics the appearance of powerline.")
 
 (require 'powerline)
 
-(let ((l0 "Black")
-      (l1 "grey10")
-      (l2 "grey20")
-      (l3 "grey30")
-      (l4 "grey40")
-      (l5 "grey50")
-      (l6 "grey60")
-      (l7 "grey70")
-      (l8 "grey80")
-      (l9 "grey90")
-      (l10 "grey100"))
+(let ((l0 "black")
+      (l3 (or (face-background 'powerline-active1) "Grey30"))
+      (l8 (or (face-background 'powerline-active2) "Grey80"))
+      (separator-left 
+       '(intern (format "powerline-%s-%s"
+                        powerline-default-separator
+                        (car powerline-default-separator-dir))))
+      (separator-right 
+       '(intern (format "powerline-%s-%s"
+                        powerline-default-separator
+                        (cdr powerline-default-separator-dir)))))
   (custom-theme-set-faces
    'smart-mode-line-powerline
    `(mode-line-buffer-id ((t :inherit sml/filename :foreground nil :background nil))) 
-   `(mode-line-inactive ((t :foreground "gray60" :background "Black" :slant italic :box (:line-width -2 :color "white"))))
+   `(mode-line-inactive ((((background dark)) :foreground "gray60" :background "Black"
+                          :slant italic :box (:line-width -3 :color "black"))
+                         (((background light)) :foreground "gray60" :background "Black"
+                          :slant italic :box (:line-width -2 :color "white"))))
    `(mode-line     ((t :foreground "gray60" :background "black" :box (:line-width -1 :color "Black"))))
    `(sml/global    ((t :foreground "gray50" :inverse-video nil)))
    
@@ -69,11 +74,11 @@ Mimics the appearance of powerline.")
    
    ;; 8
    `(sml/name-filling        ((t :background ,l8 :inherit sml/prefix :weight normal)))
-   `(sml/position-percentage ((t :background ,l8 :inherit sml/prefix :weight normal)))
+   `(sml/position-percentage ((t :background ,l8 :inherit sml/prefix :weight normal :foreground "#330000")))
    `(sml/modes               ((t :background ,l8 :inherit sml/global :foreground "Black")))
    `(sml/process             ((t :background ,l8 :inherit sml/prefix)))
-   `(sml/vc                  ((t :background ,l8 :inherit sml/git)))
-   `(sml/vc-edited           ((t :background ,l8 :inherit sml/prefix)))
+   `(sml/vc                  ((t :background ,l8 :inherit sml/git :foreground "#0000aa")))
+   `(sml/vc-edited           ((t :background ,l8 :inherit sml/prefix :foreground "#330000")))
 
    ;; 3
    ;; minor modes
@@ -86,15 +91,15 @@ Mimics the appearance of powerline.")
    `(helm-candidate-number ((t :foreground nil :background nil :inherit sml/filename))))
   (custom-theme-set-variables
    'smart-mode-line-powerline
-   '(sml/mode-width 'right)
-   '(sml/post-id-separator                                     
-     '(:eval (propertize "x" 'display (powerline-arrow-left 'sml/filename 'sml/position-percentage))))
-   '(sml/pre-id-separator  
-     '(:eval (propertize " " 'display (powerline-arrow-left 'sml/not-modified 'sml/filename))))
-   '(sml/pre-minor-modes-separator
-     '(:eval (propertize " " 'display (powerline-arrow-right 'sml/position-percentage 'sml/folder))))
-   '(sml/pos-minor-modes-separator
-     '(:eval (propertize " " 'display (powerline-arrow-right 'sml/folder nil))))
+   '(sml/mode-width (if (eq powerline-default-separator 'arrow) 'right 'full))
+   `(sml/pre-id-separator
+     '(:eval (propertize " " 'display (funcall ,separator-left nil 'powerline-active1))))
+   `(sml/pos-id-separator
+     '(:eval (propertize " " 'display (funcall ,separator-left 'powerline-active1 'powerline-active2))))
+   `(sml/pre-minor-modes-separator
+     '(:eval (propertize " " 'display (funcall ,separator-right 'powerline-active2 'powerline-active1))))
+   `(sml/pos-minor-modes-separator
+     '(:eval (propertize " " 'display (funcall ,separator-right 'powerline-active1 nil))))
    '(sml/pre-modes-separator
      (propertize " " 'face 'sml/modes))))
 

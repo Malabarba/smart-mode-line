@@ -874,9 +874,9 @@ If you want it to show the backend, just set it to t."
 
 (defvar sml/projectile-loaded-p nil "t if projectile has been loaded.")
 
-(defcustom sml/post-id-separator " "
+(defcustom sml/pos-id-separator " "
   "Miscellaneous mode-line construct.")
-(put 'sml/post-id-separator 'risky-local-variable t)
+(put 'sml/pos-id-separator 'risky-local-variable t)
 (defcustom sml/pre-modes-separator " "
   "Miscellaneous mode-line construct.")
 (put 'sml/pre-modes-separator 'risky-local-variable t)
@@ -974,12 +974,9 @@ this to make sure that we are loaded after any themes)."
                          ;; ((eq x 'mode-line-buffer-identification)
                          ;;  '(:propertize mode-line-buffer-identification face sml/id))
                          ((and (stringp x) (string= x "   "))
-                          'sml/post-id-separator)
+                          'sml/pos-id-separator)
                          ((and (stringp x) (string= x "  "))
                           'sml/pre-modes-separator)
-                         ((equal x sml/post-id-separator)
-                          (message "oi")
-                          'sml/post-id-separator)
                          (t x)))
                  mode-line-format))
 
@@ -1354,9 +1351,7 @@ mouse-3: Describe current input method"))
    ((and (listp el)
          (equal (car el) :propertize)
          (equal (cadr el) '("" minor-mode-alist)))
-    '("" 
-      (:eval (sml/generate-minor-modes))
-      sml/pos-minor-modes-separator))
+    '(:eval (sml/generate-minor-modes)))
    
    ;; ;;; Propertize misc-info
    ;; ((memq (car-safe el) '(which-func-mode global-mode-string))
@@ -1428,6 +1423,7 @@ duplicated buffer names) from being displayed."
 
 (defconst sml/propertized-shorten-mode-string
   '(:propertize sml/shorten-mode-string
+                face sml/folder
                 help-echo "mouse-1: Shorten minor modes"
                 local-map (keymap (mode-line keymap (mouse-1 . sml/toggle-shorten-modes)))
                 mouse-face mode-line-highlight))
@@ -1484,9 +1480,10 @@ duplicated buffer names) from being displayed."
                   'local-map mode-line-minor-mode-keymap))
       (if (eq sml/mode-width 'right)
           (list (propertize filling 'face 'sml/modes)
-                'sml/pre-minor-modes-separator finalList)
+                'sml/pre-minor-modes-separator finalList
+                'sml/pos-minor-modes-separator)
         (list "" 'sml/pre-minor-modes-separator finalList 
-              (propertize filling 'face 'sml/folder))))))
+              'sml/pos-minor-modes-separator filling)))))
 
 (defun sml/remove-hidden-modes (li)
   "Return LI removing any elements that match `sml/hidden-modes'."
