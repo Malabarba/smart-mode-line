@@ -1270,17 +1270,19 @@ mouse-1: Display Line and Column Mode Menu"))))
    ;;;; mode-line-mule-info
    ;; Partially hide some MULE info
    ((and (stringp el) (string-match "\\s-*%[-0-9]*z" el))
-    `(sml/mule-info ((1 (current-input-method
-                         (:propertize ("" current-input-method-title)
-                                      face sml/mule-info
-                                      help-echo (concat
-                                                 ,(purecopy "Current input method: ")
-                                                 current-input-method
-                                                 ,(purecopy "\n\
+    `(sml/mule-info ((1 (:propertize 
+                         (current-input-method
+                          ("" current-input-method-title)
+                          " ")
+                         face sml/mule-info
+                         help-echo (concat
+                                    ,(purecopy "Current input method: ")
+                                    current-input-method
+                                    ,(purecopy "\n\
 mouse-2: Disable input method\n\
 mouse-3: Describe current input method"))
-                                      local-map ,mode-line-input-method-map
-                                      mouse-face mode-line-highlight)))
+                         local-map ,mode-line-input-method-map
+                         mouse-face mode-line-highlight))
                      (:propertize (:eval sml/mule-info)
                                   face sml/mule-info
                                   help-echo mode-line-mule-info-help-echo
