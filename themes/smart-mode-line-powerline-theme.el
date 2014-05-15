@@ -46,8 +46,8 @@ Mimics the appearance of powerline.")
   (custom-theme-set-faces
    'smart-mode-line-powerline
    `(mode-line-buffer-id ((t :inherit sml/filename :foreground nil :background nil))) 
-   `(mode-line-inactive ((t :foreground "gray60" :background "#404045")))
-   `(mode-line     ((t :foreground "gray60" :background "black")))
+   `(mode-line-inactive ((t :foreground "gray60" :background "Black" :slant italic :box (:line-width -2 :color "white"))))
+   `(mode-line     ((t :foreground "gray60" :background "black" :box (:line-width -1 :color "Black"))))
    `(sml/global    ((t :foreground "gray50" :inverse-video nil)))
    
    ;; Layer 0
@@ -62,7 +62,7 @@ Mimics the appearance of powerline.")
 
    ;; 3
    `(sml/prefix    ((t :background ,l3 :inherit sml/global :foreground "#bf6000")))
-   `(sml/filename  ((t :background ,l3 :inherit sml/global :foreground "#eab700" :weight bold)))
+   `(sml/filename  ((t :background ,l3 :inherit sml/global :foreground "gold" :weight bold)))
    `(sml/sudo      ((t :background ,l3 :inherit sml/outside-modified)))
    `(sml/git       ((t :background ,l3 :inherit (sml/read-only sml/prefix))))
    `(sml/folder    ((t :background ,l3 :inherit sml/global :weight normal :foreground "Black")))
@@ -88,13 +88,13 @@ Mimics the appearance of powerline.")
    'smart-mode-line-powerline
    '(sml/mode-width 'right)
    '(sml/post-id-separator                                     
-     (propertize "x" 'display (powerline-arrow-left 'sml/filename 'sml/position-percentage)))
+     '(:eval (propertize "x" 'display (powerline-arrow-left 'sml/filename 'sml/position-percentage))))
    '(sml/pre-id-separator  
-     (propertize " " 'display (powerline-arrow-left 'sml/not-modified 'sml/filename)))
+     '(:eval (propertize " " 'display (powerline-arrow-left 'sml/not-modified 'sml/filename))))
    '(sml/pre-minor-modes-separator
-     (propertize " " 'display (powerline-arrow-right 'sml/position-percentage 'sml/folder)))
+     '(:eval (propertize " " 'display (powerline-arrow-right 'sml/position-percentage 'sml/folder))))
    '(sml/pos-minor-modes-separator
-     (propertize " " 'display (powerline-arrow-right 'sml/folder nil)))
+     '(:eval (propertize " " 'display (powerline-arrow-right 'sml/folder nil))))
    '(sml/pre-modes-separator
      (propertize " " 'face 'sml/modes))))
 

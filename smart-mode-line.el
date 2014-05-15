@@ -11,7 +11,7 @@
 ;; Separator: /
 
 ;;; Commentary:
-;;
+;; 
 ;; Smart Mode Line is a sexy mode-line for Emacs. It aims to be easy to
 ;; read from small to large monitors by using *colors*, a *prefix feature*, and
 ;; *smart truncation*. 
@@ -21,6 +21,7 @@
 ;; - Emacs 24.4 compatible.
 ;; - Integration with [Projectile](https://github.com/bbatsov/projectile)!
 ;; - Display `current-directory' in Shell and eshell.
+;; - New value for `sml/theme': `automatic' (highly recommended).
 ;; - `sml/apply-theme' is interactive and has completion.
 ;; - Smart-mode-line themes are now regular themes.
 ;; 
@@ -29,18 +30,22 @@
 ;; **smart-mode-line** is available on Melpa, and that's the recommended
 ;; way of installing it. If you do that, you can simply activate it with:
 ;; 
-;;     (setq sml/theme 'dark)
 ;;     (sml/setup)
 ;; 
-;; To install it manually, you need **emacs-version >= 24.3.**. First
+;; To install it manually, you need **emacs-version >= 24.3**. First
 ;; make sure you install [dash.el](https://github.com/magnars/dash.el)
 ;; (which is a dependency), then make sure "smart-mode-line.el" is in
 ;; your load path, and finally place this code in your `.emacs' file:
 ;; 
-;;     (setq sml/theme 'dark)
 ;;     (require 'smart-mode-line)
 ;;     (sml/setup)
-;;     
+;; 
+;; To change the color theme, do one of the following:
+;; 
+;;     (sml/apply-theme 'dark)
+;;     (sml/apply-theme 'light)
+;;     (sml/apply-theme 'respectful)
+;; 
 ;; Features
 ;; ===
 ;; Its main features include:
@@ -159,6 +164,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.5     - 2014/05/15 - sml/theme: New possible values: 'automatic (highly recommended) or nil.
 ;; 2.5     - 2014/05/14 - sml/mode-width: New possible value: 'right.
 ;; 2.5     - 2014/05/14 - Themes engine completely redone.
 ;; 2.5     - 2014/05/14 - sml/apply-theme is interactive.
@@ -369,32 +375,49 @@ function (which are the only ways you should change it).")
 (define-obsolete-variable-alias 'sml/show-time 'display-time-mode)
 (define-obsolete-variable-alias 'sml/override-theme 'sml/theme)
 
-(defcustom sml/theme 'dark
+(defcustom sml/theme 'automatic
   "Defines which theme `smart-mode-line' should use.
 
-This can be 'dark, 'light or 'respectful.
+This is usually one of the symbols:
+'automatic, 'respectful, 'dark, 'light or nil;
+but it can be something else if there are other smart-mode-line
+themes defined.
 
 Setting this to 'light and 'dark will apply some predefined
 colors to the mode-line, which are designed to be easy to read.
 
+Setting this to nil will apply almost no colors. Use this if your
+global color theme already customizes sml faces (flatui-theme is
+an example).
+
+Setting this to 'automatic will let sml decide between 'light or
+'dark or nil, to best match the global theme that is active when
+`sml/setup' is called.
+
 Setting it to 'respectful will try to use the colors defined by
-your current emacs theme (emphasis on the \"try\"). This will
-make the mode-line colors more consistent with buffer colors, but
-it's a bit of a shot in the dark. The result will vary for each
-color theme, and you may get colors that don't read well.
+your current emacs theme (emphasis on the \"try\"). Use this if
+you color theme does NOT customize sml faces, AND if you're not
+happy with 'light or 'dark.
+This option will make the mode-line colors more consistent with
+buffer colors (when compared to 'light or 'dark, which have fixed
+colors) , but it's a bit of a shot in the dark. The result will
+vary for each color theme, and you may get colors that don't read
+well.
 
 But don't forget, ALL COLORS ARE CUSTOMIZABLE!
 `sml/customize-faces'
 Any color you change manually won't get affected by this
 variable.
 
-Setting this variable via `setq' only has effect BEFORE loading
-`smart-mode-line'. If smart-mode-line is already loaded, use
-either `sml/apply-theme' or the customization interface
-instead (M-x customize-variable RET sml/theme RET)."
-  :type '(choice (const :tag "Use a dark color-theme. (Default)" dark)
+Setting this variable via `setq' only has effect BEFORE calling
+`sml/setup'. If smart-mode-line is already loaded, use
+ `sml/apply-theme' instead (or the customization interface)."
+  :type '(choice (const :tag "Automatically choose between 'light, 'dark, or nil during setup. (Default and Recommended)" automatic)
+                 (const :tag "Don't use a theme." nil)
+                 (const :tag "Use a dark color-theme." dark)
                  (const :tag "Use a light color-theme." light)
-                 (const :tag "Respect the color-theme's colors." respectful))
+                 (const :tag "Respect the color-theme's colors." respectful)
+                 (symbol :tag "Other smart-mode-line theme you installed."))
   :set 'sml/apply-theme
   :initialize 'custom-initialize-default
   :group 'smart-mode-line-faces :group 'smart-mode-line)
@@ -709,6 +732,7 @@ if you just want to fine-tune it)."
 THEME is usually one of the symbols: respectful, dark, or light;
 but it can be something else if there are other smart-mode-line
 themes defined.
+See the `sml/theme' variable for the meaning of each symbol.
 
 This function will call `disable-theme' on any enabled themes
 whose name starts with \"smart-mode-line-\", then it will call
@@ -736,17 +760,16 @@ The second argument (VALUE) is for internal use only, DON'T USE IT."
       ;; Disable any previous smart-mode-line themes.
       (mapc (lambda (x) (when (sml/theme-p x) (disable-theme x))) custom-enabled-themes)
       ;; Load the theme requested.
-      (when sml/theme
+      (when (and sml/theme (null (eq sml/theme 'automatic)))
         (load-theme
          (if (sml/theme-p sml/theme)
              sml/theme
            (intern (format "smart-mode-line-%s" sml/theme))))))))
 
 (defadvice enable-theme (after sml/after-enable-theme-advice (theme) activate)
-  "Make sure smart-mode-line themes take priority over global themes."
-  (unless (or (eq theme 'user)
-              (sml/theme-p theme))
-    (mapc 'enable-theme (-filter 'sml/theme-p custom-enabled-themes))))
+  "Make sure smart-mode-line themes take priority over global themes that don't customize sml faces."
+  (unless (or (eq theme 'user) (sml/faces-from-theme theme))
+    (mapc 'enable-theme (reverse (-filter 'sml/faces-from-theme custom-enabled-themes)))))
 
 (defun sml/theme-p (theme)
   "Return non-nil if theme named THEME is a smart-mode-line theme.
@@ -880,9 +903,19 @@ this to make sure that we are loaded after any themes)."
   (setq battery-mode-line-format sml/battery-format)
 
   ;; Set the theme the user requested.
-  (let ((set-theme sml/theme))
-    (setq sml/theme 'initializing)    
-    (sml/apply-theme set-theme nil :silent))
+  (when sml/theme
+    (let ((set-theme sml/theme))
+      (setq sml/theme nil)
+      (when (eq set-theme 'automatic)
+        (if (sml/global-theme-support-sml-p)
+            (setq set-theme nil)
+          (let ((bg (or (face-background 'mode-line nil t)
+                        (face-background 'default nil t))))
+            (setq set-theme
+                  (if (and (stringp bg)
+                           (> (color-distance "white" bg) (color-distance "black" bg)))
+                      'dark 'light)))))
+      (sml/apply-theme set-theme nil :silent)))
 
   ;;;; And this is where the magic happens.
   ;; Remove elements we implement separately, and improve the ones not removed.
@@ -891,7 +924,8 @@ this to make sure that we are loaded after any themes)."
   (sml/filter-mode-line-list 'mode-line-modified)
   (sml/filter-mode-line-list 'mode-line-remote)
   (setq-default mode-line-frame-identification
-                '(sml/show-frame-identification "%F"))
+                '("" (sml/show-frame-identification "%F")
+                  sml/pre-id-separator))
 
   ;; (setq-default mode-line-buffer-identification '("%b"))
   
@@ -936,7 +970,9 @@ this to make sure that we are loaded after any themes)."
   ;; Remove some annoying big spaces
   (setq-default mode-line-format
                 (mapcar
-                 (lambda (x) (cond 
+                 (lambda (x) (cond
+                         ;; ((eq x 'mode-line-buffer-identification)
+                         ;;  '(:propertize mode-line-buffer-identification face sml/id))
                          ((and (stringp x) (string= x "   "))
                           'sml/post-id-separator)
                          ((and (stringp x) (string= x "  "))
@@ -1053,6 +1089,18 @@ Might implement a quick flash eventually."
                (null erc-track-position-in-mode-line))
     (setq erc-track-position-in-mode-line t)))
 
+(defun sml/global-theme-support-sml-p ()
+  "Non-nil if any of the enabled themes supports smart-mode-line."
+  (--filter
+   (null (sml/theme-p it))
+   (-filter
+    'sml/faces-from-theme
+    custom-enabled-themes)))
+
+(defun sml/faces-from-theme (theme)
+  "Returns the sml faces that THEME customizes."
+  (--filter (string-match "\\`sml/" (symbol-name it))
+            (mapcar 'cadr (get theme 'theme-settings))))
 
 (defun sml/set-buffer-identification (&rest ignored)
   "Setq the buffer-identification of this buffer back to ours.
@@ -1253,8 +1301,7 @@ To be used in mapcar and accumulate results."
 
    ;; mode-line-modified
    ((and (stringp el) (string-match "%[0-9-]*\\*" el))
-    '("" (:eval (sml/generate-modified-status))
-      sml/pre-id-separator))
+    '(:eval (sml/generate-modified-status)))
 
    ;;;; mode-line-position
    ;; Color the position percentage
@@ -1310,6 +1357,11 @@ mouse-3: Describe current input method"))
     '("" 
       (:eval (sml/generate-minor-modes))
       sml/pos-minor-modes-separator))
+   
+   ;; ;;; Propertize misc-info
+   ;; ((memq (car-safe el) '(which-func-mode global-mode-string))
+   ;;  `(:eval (add-text-properties (format-mode-line ',el))))
+
    ;; If it's something we don't recognize, just leave it as-is.
    (t el)))
 

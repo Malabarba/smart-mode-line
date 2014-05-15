@@ -10,6 +10,7 @@ New in v2.5
 - Emacs 24.4 compatible.
 - Integration with [Projectile](https://github.com/bbatsov/projectile)!
 - Display `current-directory` in Shell and eshell.
+- New value for `sml/theme`: `automatic` (highly recommended).
 - `sml/apply-theme` is interactive and has completion.
 - Smart-mode-line themes are now regular themes.
 
@@ -26,18 +27,22 @@ Installation
 **smart-mode-line** is available on Melpa, and that's the recommended
 way of installing it. If you do that, you can simply activate it with:
 
-    (setq sml/theme 'dark)
     (sml/setup)
 
-To install it manually, you need **emacs-version >= 24.3.**. First
+To install it manually, you need **emacs-version >= 24.3**. First
 make sure you install [dash.el](https://github.com/magnars/dash.el)
 (which is a dependency), then make sure *"smart-mode-line.el"* is in
 your load path, and finally place this code in your `.emacs` file:
 
-    (setq sml/theme 'dark)
     (require 'smart-mode-line)
     (sml/setup)
-    
+
+To change the color theme, do one of the following:
+
+    (sml/apply-theme 'dark)
+    (sml/apply-theme 'light)
+    (sml/apply-theme 'respectful)
+
 Features
 ===
 Its main features include:
