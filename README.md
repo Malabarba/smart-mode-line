@@ -5,7 +5,7 @@ Smart Mode Line is a sexy mode-line for Emacs. It aims to be easy to
 read from small to large monitors by using *colors*, a *prefix feature*, and
 *smart truncation*. 
 
-New in v2.5
+[New in v2.5](https://github.com/Bruce-Connor/smart-mode-line/blob/master/news.md)
 ===========
 - Emacs 24.4 compatible.
 - Integration with [Projectile](https://github.com/bbatsov/projectile)!
@@ -13,6 +13,8 @@ New in v2.5
 - New value for `sml/theme`: `automatic` (highly recommended).
 - `sml/apply-theme` is interactive and has completion.
 - Smart-mode-line themes are now regular themes.
+
+[Further News](https://github.com/Bruce-Connor/smart-mode-line/blob/master/news.md)
 
 Images
 ======

@@ -5,7 +5,7 @@ New in v2.5
 - Display `current-directory` in Shell and eshell.
 - New value for `sml/theme`: `automatic` (highly recommended).
 - `sml/apply-theme` is interactive and has completion.
-- Smart-mode-line themes are now regular themes, which makes it easier to define new ones. You can activate them with `(load-theme 'smart-mode-line-light)`, though `(sml/apply-theme 'light)` still works.
+- Smart-mode-line themes are now regular themes, which makes it easier to define new ones. You can activate them with `(load-theme 'smart-mode-line-light)`, though `(sml/apply-theme 'light)` still works and has the advantages of disabling the previous theme.
 
 New in v2.1
 ===========
