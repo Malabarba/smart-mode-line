@@ -755,10 +755,12 @@ The second argument (VALUE) is for internal use only, DON'T USE IT."
   (unless silent (message "[sml] %s set to %s" 'sml/theme (or value theme)))  
   (unless sml/-apply-theme-is-running
     (let ((sml/-apply-theme-is-running t)) ;Avoid nesting.
-      (if value (setq-default sml/theme value)
-        (setq-default sml/theme theme))
+      ;; Set the variable
+      (setq-default sml/theme (or value theme))
+      
       ;; Disable any previous smart-mode-line themes.
       (mapc (lambda (x) (when (sml/theme-p x) (disable-theme x))) custom-enabled-themes)
+      
       ;; Load the theme requested.
       (when (and sml/theme (null (eq sml/theme 'automatic)))
         (load-theme
