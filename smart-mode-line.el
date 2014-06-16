@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.5
+;; Version: 2.5.1
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: mode-line faces theme themes
 ;; Prefix: sml
@@ -164,6 +164,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.5.1   - 2014/06/16 - sml/apply-theme no-confirm in daemon mode.
 ;; 2.5     - 2014/05/15 - sml/theme: New possible values: 'automatic (highly recommended) or nil.
 ;; 2.5     - 2014/05/14 - sml/mode-width: New possible value: 'right.
 ;; 2.5     - 2014/05/14 - Themes engine completely redone.
@@ -303,8 +304,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.5" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 72 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.5.1" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 73 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -766,7 +767,8 @@ The second argument (VALUE) is for internal use only, DON'T USE IT."
         (load-theme
          (if (sml/theme-p sml/theme)
              sml/theme
-           (intern (format "smart-mode-line-%s" sml/theme))))))))
+           (intern (format "smart-mode-line-%s" sml/theme)))
+         (and (daemonp) (memq sml/theme '(light dark respectful))))))))
 
 (defadvice enable-theme (after sml/after-enable-theme-advice (theme) activate)
   "Make sure smart-mode-line themes take priority over global themes that don't customize sml faces."
