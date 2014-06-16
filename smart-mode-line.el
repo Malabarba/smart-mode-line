@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.5.1
+;; Version: 2.5.2
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: mode-line faces theme themes
 ;; Prefix: sml
@@ -164,6 +164,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.5.2   - 2014/06/16 - sml/no-confirm-load-theme variable to skip theme confirmation.
 ;; 2.5.1   - 2014/06/16 - sml/apply-theme no-confirm in daemon mode.
 ;; 2.5     - 2014/05/15 - sml/theme: New possible values: 'automatic (highly recommended) or nil.
 ;; 2.5     - 2014/05/14 - sml/mode-width: New possible value: 'right.
@@ -304,8 +305,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.5.1" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 73 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.5.2" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 74 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -727,6 +728,16 @@ if you just want to fine-tune it)."
 
 (defvar sml/-apply-theme-is-running nil "Avoid nesting in `sml/apply-theme'.")
 
+(defcustom sml/no-confirm-load-theme nil
+  "If non-nil, `sml/apply-theme' will pass the NO-CONFIRM flag to load-theme.
+If you're having problems with emacs always asking for permission
+to load a theme (and not remembering your choice), you can set
+this to t to workaround the problem. But it's recommended that
+you try the problem instead."
+  :type 'boolean
+  :group 'smart-mode-line-faces
+  :package-version '(smart-mode-line . "2.5.2"))
+
 (defun sml/apply-theme (theme &optional value silent)
   "Apply the theme called smart-mode-line-THEME.
 
@@ -768,7 +779,7 @@ The second argument (VALUE) is for internal use only, DON'T USE IT."
          (if (sml/theme-p sml/theme)
              sml/theme
            (intern (format "smart-mode-line-%s" sml/theme)))
-         (and (daemonp) (memq sml/theme '(light dark respectful))))))))
+         sml/no-confirm-load-theme)))))
 
 (defadvice enable-theme (after sml/after-enable-theme-advice (theme) activate)
   "Make sure smart-mode-line themes take priority over global themes that don't customize sml faces."
