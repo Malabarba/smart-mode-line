@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.5.2
+;; Version: 2.5.3
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
 ;; Keywords: mode-line faces theme themes
 ;; Prefix: sml
@@ -164,6 +164,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.5.3   - 2014/06/18 - Fix custom-theme-load-path for manual installations.
 ;; 2.5.2   - 2014/06/16 - sml/no-confirm-load-theme variable to skip theme confirmation.
 ;; 2.5.1   - 2014/06/16 - sml/apply-theme no-confirm in daemon mode.
 ;; 2.5     - 2014/05/15 - sml/theme: New possible values: 'automatic (highly recommended) or nil.
@@ -305,8 +306,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.5.2" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 74 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.5.3" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 75 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your emacs and sml versions."
   (interactive)
@@ -737,6 +738,14 @@ you try the problem instead."
   :type 'boolean
   :group 'smart-mode-line-faces
   :package-version '(smart-mode-line . "2.5.2"))
+
+;;;###autoload
+(when load-file-name
+  (let ((dir (file-name-as-directory (file-name-directory load-file-name))))
+    (add-to-list 'custom-theme-load-path dir)
+    (when (file-directory-p (file-name-as-directory (concat dir "themes")))
+      (add-to-list 'custom-theme-load-path
+                   (file-name-as-directory (concat dir "themes"))))))
 
 (defun sml/apply-theme (theme &optional value silent)
   "Apply the theme called smart-mode-line-THEME.
