@@ -31,8 +31,8 @@
 (custom-theme-set-faces
  'smart-mode-line-light
  '(mode-line-buffer-id ((t :inherit sml/filename :foreground nil :background nil))) 
- '(mode-line-inactive ((t :foreground "grey20" :background "#fdf6e3")))
- '(mode-line     ((t :foreground "black" :background "grey85")))
+ '(mode-line-inactive ((t :foreground "grey20" :background "#fdf6e3" :inverse-video nil)))
+ '(mode-line     ((t :foreground "black" :background "grey85" :inverse-video nil)))
  '(sml/global    ((t :foreground "gray20" :inverse-video nil)))
  '(sml/modes     ((t :inherit sml/global :foreground "Black")))
  '(sml/filename  ((t :inherit sml/global :foreground "Blue"      :weight bold)))
