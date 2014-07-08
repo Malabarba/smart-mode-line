@@ -44,6 +44,16 @@ To change the color theme, do one of the following:
     (sml/apply-theme 'dark)
     (sml/apply-theme 'light)
     (sml/apply-theme 'respectful)
+    (sml/apply-theme 'automatic)
+
+#### Instalation Issues (FAQ) ####
+
+- **Problem:** If emacs keeps warning you that *"Loading themes can run
+lisp code"* and asking *"Would you like to mark this theme as safe for
+future sessions?"*. That is probably an issue with your `init.el` or
+`.emacs` file.
+- **Solution:** Make sure the `(custom-set-variables ...)` sexp is at
+  the very top of your `.emacs` file. That is the right place for it.
 
 Features
 ===
