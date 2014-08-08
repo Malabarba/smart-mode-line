@@ -1424,39 +1424,6 @@ duplicated buffer names) from being displayed."
              (let ((sml/simplified t))
                (length (format-mode-line mode-line-format)))))))
 
-(defun sml/mode-list-to-string-list (ml) ;;Credits to Constantin
-  "Try to read the mode-list and return a sensible list of strings.
-ML must be a listed formatted as a `minor-mode-list'."
-  (case (type-of ml)
-    ('string (list ml))
-    ('symbol
-     (if ml
-         (sml/mode-list-to-string-list (symbol-value ml))
-       nil))
-    (('function 'subr) (sml/mode-list-to-string-list (list (funcall ml))))
-    ('cons
-     (let ((kar (car ml))
-           (kdr (cdr ml)))
-       (case (type-of kar)
-         ('symbol
-          (let ((val (when (boundp kar) (symbol-value kar)))
-                (kadr (if (listp kdr) (car kdr) nil)))
-            (case val
-              (:eval (sml/mode-list-to-string-list (eval kadr)))
-              ;; properties now handled properly
-              (:propertize `((:propertize ,@(sml/mode-list-to-string-list kadr) ,@(cdr-safe kdr))))
-              (t
-               (if val
-                   (sml/mode-list-to-string-list kadr)
-                 (sml/mode-list-to-string-list (cdr kdr)))))))
-         ('integer
-          ;; heh, now do nothing, must reduce max width if < 0 or do padding if > 0
-          (sml/mode-list-to-string-list kdr))
-         (t (append (sml/mode-list-to-string-list kar) (sml/mode-list-to-string-list kdr))))))
-    ;; unknown
-    (t ;;(message "mode-list-to-string-error Unknown: type: %s;\nval: %s" ml (type-of ml))
-     (list (format "%s" ml)))))
-
 (defconst sml/propertized-shorten-mode-string
   '(:propertize sml/shorten-mode-string
                 face sml/folder
@@ -1470,6 +1437,10 @@ ML must be a listed formatted as a `minor-mode-list'."
                 local-map (keymap (mode-line keymap (mouse-1 . sml/toggle-shorten-modes)))
                 mouse-face mode-line-highlight))
 
+(defun sml/mode-list-as-string-list ()
+  "Return `minor-mode-list' as a simple list of strings."
+  (remove "" (mapcar 'format-mode-line minor-mode-alist)))
+
 (defun sml/count-occurrences-starting-at (regex string start)
   "Count occurrences of REGEX in STRING starting at index START."
   (if (string-match regex string start)
@@ -1480,26 +1451,34 @@ ML must be a listed formatted as a `minor-mode-list'."
   "Extracts all rich strings necessary for the minor mode list."
   (if sml/simplified
       ""
-    (let* ((nameList (sml/mode-list-to-string-list minor-mode-alist))
-           (finalNameList (mapconcat 'format-mode-line  nameList ""))
-           (size (if (member sml/mode-width '(full right)) (sml/fill-width-available) sml/mode-width))
-           (helpString (concat "Full list:" (replace-regexp-in-string " " "\n    " finalNameList)
+    (let* (;; The minor-mode-alist
+           (nameList (sml/mode-list-as-string-list))
+           ;; The size available
+           (size (if (member sml/mode-width '(full right))
+                     ;; Calculate how much width is available
+                     (sml/fill-width-available)
+                   ;; or use what the user requested.
+                   sml/mode-width))
+           ;; For help-echo
+           (helpString (concat "Full list:" (mapconcat 'identity nameList "\n   ")
                                "\n\n" sml/major-help-echo))
-           needs-removing filling finalList)
+           finalNameList needs-removing filling finalList)
+      
       ;; Remove hidden-modes
       (setq nameList (sml/remove-hidden-modes nameList))
-      ;; Truncate
-      (setq finalNameList (mapconcat 'format-mode-line  nameList ""))
+      (setq finalNameList (mapconcat 'identity  nameList ""))
+      
+      ;; Calculate whether truncation is necessary.
       (when (and sml/shorten-modes (> (length finalNameList) size))
-        ;; We need to remove 1+"the number of spaces found". We use
-        ;; 2+ because the car of the list element returned by `last'
-        ;; (below) won't actually be removed.
+        ;; We need to remove 1+ "the number of spaces found". 
         (setq needs-removing
-              (+ 2 (sml/count-occurrences-starting-at
-                    " " finalNameList (- size (length sml/full-mode-string))))))
+              (1+ 
+               (sml/count-occurrences-starting-at
+                " " finalNameList 
+                (- size (string-width sml/full-mode-string))))))
       ;; Add truncation string if necessary
       (when needs-removing
-        (setcdr (last nameList needs-removing)
+        (setcdr (last nameList (1+ needs-removing))
                 (list t sml/propertized-full-mode-string)))
       ;; If we're not shortenning, add " -" at the end.
       (unless sml/shorten-modes
