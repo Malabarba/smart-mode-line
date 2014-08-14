@@ -607,25 +607,6 @@ setting the variable with `setq'."
                             (not sml/shorten-modes)))
   (force-mode-line-update))
 
-(defcustom sml/hidden-modes '(" hl-p")
-  "List of minor modes you want to hide from the mode-line.
-
-If empty (or nil), all minor modes are shown in the mode-line.
-Otherwise this is a list of minor mode names that will be hidden
-in the minor-modes list.
-
-The elements are strings. If you want to use REGEXPs instead, you
-can set this variable to a single string (instead of a list) and
-this will be compared to each minor-mode lighter as a regexp.
-If you'd like to use a list of regexps, simply use something like the following:
-    (setq sml/hidden-modes (mapconcat 'identity list-of-regexps \"\\\\|\"))
-
-Don't forget to start each string with a blank space, as most
-minor-mode lighters start with a space."
-  :type '(choice (repeat string)
-                 (regexp :tag "Regular expression."))
-  :group 'smart-mode-line-mode-list)
-
 (defcustom sml/mode-width 'full
   "Maximum and/or minimum size of the modes list in the mode-line.
 
@@ -1437,10 +1418,6 @@ duplicated buffer names) from being displayed."
                 local-map (keymap (mode-line keymap (mouse-1 . sml/toggle-shorten-modes)))
                 mouse-face mode-line-highlight))
 
-(defun sml/mode-list-as-string-list ()
-  "Return `minor-mode-list' as a simple list of strings."
-  (remove "" (mapcar 'format-mode-line minor-mode-alist)))
-
 (defun sml/count-occurrences-starting-at (regex string start)
   "Count occurrences of REGEX in STRING starting at index START."
   (if (string-match regex string start)
@@ -1452,7 +1429,7 @@ duplicated buffer names) from being displayed."
   (if sml/simplified
       ""
     (let* (;; The minor-mode-alist
-           (nameList (sml/mode-list-as-string-list))
+           (nameList (rmm--mode-list-as-string-list))
            ;; The size available
            (size (if (member sml/mode-width '(full right))
                      ;; Calculate how much width is available
@@ -1465,7 +1442,6 @@ duplicated buffer names) from being displayed."
            finalNameList needs-removing filling finalList)
       
       ;; Remove hidden-modes
-      (setq nameList (sml/remove-hidden-modes nameList))
       (setq finalNameList (mapconcat 'identity  nameList ""))
       
       ;; Calculate whether truncation is necessary.
@@ -1499,20 +1475,6 @@ duplicated buffer names) from being displayed."
                 'sml/pos-minor-modes-separator)
         (list "" 'sml/pre-minor-modes-separator finalList
               'sml/pos-minor-modes-separator filling)))))
-
-(defun sml/remove-hidden-modes (li)
-  "Return LI removing any elements that match `sml/hidden-modes'."
-  (remove
-   nil
-   (if (listp sml/hidden-modes)
-       (mapcar (lambda (x) (unless (and (stringp x)
-                                   (member x sml/hidden-modes))
-                        x))
-               li)
-     (mapcar (lambda (x) (unless (and (stringp x)
-                                 (string-match sml/hidden-modes x))
-                      x))
-             li))))
 
 (defun sml/propertize-prefix (prefix)
   "Set the color of PREFIX according to its contents."
