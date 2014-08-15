@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 2.5.3
+;; Version: 2.6
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0") (rich-minority))
 ;; Keywords: mode-line faces theme themes
 ;; Prefix: sml
@@ -71,6 +71,15 @@
 ;;     over the abbreviated path will show you the full
 ;;     path. See below for examples.
 ;; 
+;;  4. **Hide or Highlight minor-modes**:  
+;;     The [rich-minority](https://github.com/Bruce-Connor/rich-minority)
+;;     package saves even more space. Select which minor modes you don't
+;;     want to see listed by adding them to the variable
+;;     `rm-excluded-modes', or even highlight the modes that are more
+;;     important with the variable `rm-text-properties'. This will filter
+;;     out the modes you don't care about and unclutter the modes list
+;;     (mousing over the modes list still shows the full list).
+;;  
 ;;  4. **Hide minor-modes**:
 ;;     Hidden-modes feature saves even more space. Select
 ;;     which minor modes you don't want to see listed by
@@ -164,6 +173,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.6     - 2014/08/15 - Delegated minor-mode filtering to rich-minority package.
 ;; 2.5.3   - 2014/06/18 - Fix custom-theme-load-path for manual installations.
 ;; 2.5.2   - 2014/06/16 - sml/no-confirm-load-theme variable to skip theme confirmation.
 ;; 2.5.1   - 2014/06/16 - sml/apply-theme no-confirm in daemon mode.
@@ -306,8 +316,8 @@
 (require 'custom)
 (require 'cus-face)
 
-(defconst sml/version "2.5.3" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 75 "Version of the smart-mode-line.el package, as an integer.")
+(defconst sml/version "2.6" "Version of the smart-mode-line.el package.")
+(defconst sml/version-int 76 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your Emacs and sml versions."
   (interactive)

@@ -54,7 +54,9 @@ future sessions?"*. That is probably an issue with your `init.el` or
 `.emacs` file.
 - **Solution:** Make sure the `(custom-set-variables ...)` sexp is at
   the very top of your `.emacs` file. That is the right place for it.
-
+  If that doesn't work, you can work around it with the code `(setq sml/no-confirm-load-theme t)`,
+  but we recommend you try to figure out what's wrong with your configs.
+  
 Features
 ===
 Its main features include:
@@ -80,13 +82,14 @@ Its main features include:
     over the abbreviated path will show you the full
     path. See below for examples.  	
 
- 4. **Hide minor-modes**:  
-    Hidden-modes feature saves even more space. Select
-    which minor modes you don't want to see listed by
-    customizing the `sml/hidden-modes` variable. This will
-    filter out the modes you don't care about and unclutter
-    the modes list (mousing over the modes list still shows
-    the full list).
+ 4. **Hide or Highlight minor-modes**:  
+    The [rich-minority](https://github.com/Bruce-Connor/rich-minority)
+    package saves even more space. Select which minor modes you don't
+    want to see listed by adding them to the variable
+    `rm-excluded-modes`, or even highlight the modes that are more
+    important with the variable `rm-text-properties`. This will filter
+    out the modes you don't care about and unclutter the modes list
+    (mousing over the modes list still shows the full list).
 
  5. **Very easy to configure**:  
     All colors and variables are customizable. You can change the
