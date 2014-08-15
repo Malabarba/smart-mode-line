@@ -5,7 +5,7 @@
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
 ;; Version: 2.5.3
-;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))
+;; Package-Requires: ((emacs "24.3") (dash "2.2.0") (rich-minority))
 ;; Keywords: mode-line faces theme themes
 ;; Prefix: sml
 ;; Separator: /
@@ -663,9 +663,6 @@ name."
   :type 'string
   :group 'smart-mode-line-others)
 
-(defconst sml/major-help-echo
-  "Mouse-1: Mode Menu.\nMouse-2: Mode Help.\nMouse-3: Toggle Minor Modes.")
-
 (defcustom sml/extra-filler 0
   "The number of extra filling chars to use.
 It comes into play when `sml/mode-width' is set to 'full.
@@ -910,6 +907,11 @@ to make sure that we are loaded after any themes)."
   (setq sml/simplified nil)
   (setq battery-mode-line-format sml/battery-format)
 
+  ;; Activate rich-minority, and configure it for us.
+  (require 'rich-minority)
+  (setq rm-base-text-properties
+        (append rm-base-text-properties '('face 'sml/folder)))
+  
   ;; Set the theme the user requested.
   (when sml/theme
     (let ((set-theme sml/theme))
@@ -1424,25 +1426,27 @@ duplicated buffer names) from being displayed."
       (+ 1 (sml/count-occurrences-starting-at regex string (match-end 0)))
     0))
 
+;;; Patch, in case the user is using the wrong variable.
+(when (boundp 'sml/hidden-modes)
+  (message "[smart-mode-line] Warning: `sml/hidden-modes' is obsolete. Use `rm-excluded-modes' instead.")
+  (setq rm-excluded-modes sml/hidden-modes))
+(define-obsolete-variable-alias 'sml/hidden-modes 'rm-excluded-modes)
+
 (defun sml/generate-minor-modes ()
   "Extracts all rich strings necessary for the minor mode list."
   (if sml/simplified
       ""
     (let* (;; The minor-mode-alist
-           (nameList (rmm--mode-list-as-string-list))
+           (nameList (rm--mode-list-as-string-list))
            ;; The size available
            (size (if (member sml/mode-width '(full right))
                      ;; Calculate how much width is available
                      (sml/fill-width-available)
                    ;; or use what the user requested.
                    sml/mode-width))
-           ;; For help-echo
-           (helpString (concat "Full list:" (mapconcat 'identity nameList "\n   ")
-                               "\n\n" sml/major-help-echo))
-           finalNameList needs-removing filling finalList)
-      
-      ;; Remove hidden-modes
-      (setq finalNameList (mapconcat 'identity  nameList ""))
+           ;; Used for counting size.
+           (finalNameList (mapconcat 'identity  nameList ""))
+           needs-removing filling)
       
       ;; Calculate whether truncation is necessary.
       (when (and sml/shorten-modes (> (length finalNameList) size))
@@ -1463,17 +1467,12 @@ duplicated buffer names) from being displayed."
       ;; Padding
       (setq filling (- size (length (format-mode-line nameList))))
       (setq filling (make-string (max 0 filling) sml/fill-char))
-      (setq finalList
-            (list :propertize nameList
-                  'help-echo helpString
-                  'mouse-face 'mode-line-highlight
-                  'face 'sml/folder
-                  'local-map mode-line-minor-mode-keymap))
+      
       (if (eq sml/mode-width 'right)
           (list (propertize filling 'face 'sml/modes)
-                'sml/pre-minor-modes-separator finalList
+                'sml/pre-minor-modes-separator nameList
                 'sml/pos-minor-modes-separator)
-        (list "" 'sml/pre-minor-modes-separator finalList
+        (list "" 'sml/pre-minor-modes-separator nameList
               'sml/pos-minor-modes-separator filling)))))
 
 (defun sml/propertize-prefix (prefix)
