@@ -173,6 +173,7 @@
 ;;
 
 ;;; Change Log:
+;; 2.6     - 2014/08/15 - Allow for sml/name-width to have different mininum and maximum values.
 ;; 2.6     - 2014/08/15 - Delegated minor-mode filtering to rich-minority package.
 ;; 2.5.3   - 2014/06/18 - Fix custom-theme-load-path for manual installations.
 ;; 2.5.2   - 2014/06/16 - sml/no-confirm-load-theme variable to skip theme confirmation.
@@ -577,8 +578,14 @@ FACE is applied to it (and checking stops there)."
   "Minimum and maximum size of the file name in the mode-line.
 
 If `sml/shorten-directory' is nil, this is the minimum width.
-Otherwise, this is both the minimum and maximum width."
-  :type 'integer
+Otherwise, this is both the minimum and maximum width.
+
+Alternatively, you can set the minimum and maximum widths
+separately, by setting this variable to a cons cell of integers:
+    (MIN-WIDTH . MAX-WIDTH)
+"
+  :type '(choice integer (cons (integer :tag "Minimum width")
+                               (integer :tag "Maximum width")))
   :group 'smart-mode-line-path-and-prefix)
 
 (defcustom sml/shorten-directory t
@@ -867,10 +874,14 @@ If you want it to show the backend, just set it to t."
 
 (defvar sml/name-width-old nil "Used for recalculating buffer identification filling only when necessary.")
 (make-variable-buffer-local 'sml/name-width-old)
+(defvar sml/shorten-directory-old nil "Used for recalculating buffer identification filling only when necessary.")
+(make-variable-buffer-local 'sml/shorten-directory-old)
 (defun sml/generate-buffer-identification-if-necessary ()
   "Call `sml/generate-buffer-identification' only if `sml/name-width' has changed."
-  (unless (equal sml/name-width-old sml/name-width)
+  (unless (and (equal sml/name-width-old sml/name-width)
+               (equal sml/shorten-directory-old sml/shorten-directory))
     (setq sml/name-width-old sml/name-width)
+    (setq sml/shorten-directory-old sml/shorten-directory)
     (sml/generate-buffer-identification))
   nil)
 
@@ -1266,7 +1277,9 @@ don't do any filling. That's because the given mode probably
 doesn't want any buffer-id."
   (if mode-line-buffer-identification
       (propertize
-       (make-string (max (- sml/name-width (length (format-mode-line mode-line-buffer-identification))) 0)
+       (make-string (max (- (or (car-safe sml/name-width) sml/name-width)
+                            (length (format-mode-line mode-line-buffer-identification))) 
+                         0)
                     sml/fill-char)
        'face 'sml/name-filling)
     ""))
@@ -1288,7 +1301,8 @@ Argument IGNORED is ignored."
                                          sml/use-projectile-p))
                  (prefix (sml/get-prefix (sml/replacer got-directory)))
                  (bufname (sml/buffer-name))
-                 (dirsize (max 0 (- (abs sml/name-width) (length prefix) (length bufname))))
+                 (dirsize (max 0 (- (abs (or (cdr-safe sml/name-width) sml/name-width))
+                                    (length prefix) (length bufname))))
                  (dirstring (funcall sml/shortener-func got-directory dirsize)))
 
             (propertize (concat (sml/propertize-prefix (replace-regexp-in-string "%" "%%" prefix))
