@@ -9,6 +9,9 @@ New in v2.6
   - Alternatively, modes can be filtered by a whitelist, using `rm-included-modes`.
   - Modes can also be propertized, using `rm-text-properties`.
 
+- The file-path display can have different minimum and maximum widths.
+  Just set `sml/name-width` to a cons cell `(MIN . MAX)`.
+
 New in v2.5
 ===========
 - Emacs 24.4 compatible.
