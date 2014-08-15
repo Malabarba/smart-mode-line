@@ -1,3 +1,14 @@
+New in v2.6
+===========
+- Filtering of minor modes is now delegated to the
+  [rich-minority](https://github.com/Bruce-Connor/rich-minority)
+  package. This has 3 effects:
+  - The original (black list) method of filtering is given by the
+    variable `rm-excluded-modes`. `sml/hidden-modes` still works, but
+    is obsolete.
+  - Alternatively, modes can be filtered by a whitelist, using `rm-included-modes`.
+  - Modes can also be propertized, using `rm-text-properties`.
+
 New in v2.5
 ===========
 - Emacs 24.4 compatible.
