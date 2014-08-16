@@ -5,7 +5,7 @@
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
 ;; Version: 2.6
-;; Package-Requires: ((emacs "24.3") (dash "2.2.0") (rich-minority))
+;; Package-Requires: ((emacs "24.3") (dash "2.2.0") (rich-minority "0.1"))
 ;; Keywords: mode-line faces theme themes
 ;; Prefix: sml
 ;; Separator: /
