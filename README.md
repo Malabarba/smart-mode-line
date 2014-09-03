@@ -46,7 +46,7 @@ To change the color theme, do one of the following:
     (sml/apply-theme 'respectful)
     (sml/apply-theme 'automatic)
 
-#### Instalation Issues (FAQ) ####
+#### Installation Issues (FAQ) ####
 
 - **Problem:** If emacs keeps warning you that *"Loading themes can run
 lisp code"* and asking *"Would you like to mark this theme as safe for
@@ -56,7 +56,8 @@ future sessions?"*. That is probably an issue with your `init.el` or
   the very top of your `.emacs` file. That is the right place for it.
   If that doesn't work, you can work around it with the code `(setq sml/no-confirm-load-theme t)`,
   but we recommend you try to figure out what's wrong with your configs.
-  
+- **Solution B:** `smart-mode-line` ships with multiple themes, and each must be separately marked as safe. And when `sml/apply-theme` is set to `automatic`, it may attempt to load a theme which you haven't previously loaded, causing the *"Would you like to mark this theme as safe..."* question to be asked again -- or, when launching `emacs-server` in daemon mode, causing inexplicably weird crashes. A workaround is to manually cycle through all the themes and say "yes" to mark each of them safe. Your goal is for the `(custom-set-variables ...)` sexp at the top of your `.emacs` to contain at least three different entries under `(custom-safe-themes ...)`.
+
 Features
 ===
 Its main features include:
