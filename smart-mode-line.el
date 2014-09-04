@@ -940,11 +940,14 @@ to make sure that we are loaded after any themes)."
       (when (eq set-theme 'automatic)
         (if (sml/global-theme-support-sml-p)
             (setq set-theme nil)
-          (let ((bg (or (face-background 'mode-line nil t)
-                        (face-background 'default nil t))))
+          (let ((bg (ignore-errors
+                      (or (face-background 'mode-line nil t)
+                          (face-background 'default nil t)))))
             (setq set-theme
-                  (if (and (stringp bg)
-                           (> (color-distance "white" bg) (color-distance "black" bg)))
+                  (if (ignore-errors
+                        (and (stringp bg)
+                             (> (color-distance "white" bg)
+                                (color-distance "black" bg))))
                       'dark 'light)))))
       (sml/apply-theme set-theme nil :silent)))
 
