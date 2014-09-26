@@ -34,6 +34,8 @@ Mimics the appearance of powerline.")
 
 (require 'powerline)
 
+(set-face-attribute 'powerline-active2 nil :inherit 'sml/global)
+(set-face-attribute 'powerline-active1 nil :inherit 'sml/global)
 (let ((l0 "black")
       (l3 (or (face-background 'powerline-active1) "Grey30"))
       (l8 (or (face-background 'powerline-active2) "Grey80"))
@@ -67,7 +69,7 @@ Mimics the appearance of powerline.")
 
    ;; 3
    `(sml/prefix    ((t :background ,l3 :inherit sml/global :foreground "#bf6000")))
-   `(sml/filename  ((t :background ,l3 :inherit sml/global :foreground "gold" :weight bold)))
+   `(sml/filename  ((t :background ,l3 :inherit sml/global :foreground "gold")))
    `(sml/sudo      ((t :background ,l3 :inherit sml/outside-modified)))
    `(sml/git       ((t :background ,l3 :inherit (sml/read-only sml/prefix))))
    `(sml/folder    ((t :background ,l3 :inherit sml/global :weight normal :foreground "Black")))
@@ -93,13 +95,23 @@ Mimics the appearance of powerline.")
    'smart-mode-line-powerline
    '(sml/mode-width (if (eq powerline-default-separator 'arrow) 'right 'full))
    `(sml/pre-id-separator
-     '(:eval (propertize " " 'display (funcall ,separator-left nil 'powerline-active1))))
+     '(""
+       (:propertize " " face sml/global)
+       (:eval (propertize " " 'display (funcall ,separator-left nil 'powerline-active1)))
+       (:propertize " " face powerline-active1)))
    `(sml/pos-id-separator
-     '(:eval (propertize " " 'display (funcall ,separator-left 'powerline-active1 'powerline-active2))))
+     '(""
+       (:propertize " " face powerline-active1)
+       (:eval (propertize " " 'display (funcall ,separator-left 'powerline-active1 'powerline-active2)))
+       (:propertize " " face powerline-active2)))
    `(sml/pre-minor-modes-separator
-     '(:eval (propertize " " 'display (funcall ,separator-right 'powerline-active2 'powerline-active1))))
+     '("" (:propertize " " face powerline-active2)
+       (:eval (propertize " " 'display (funcall ,separator-right 'powerline-active2 'powerline-active1)))
+       (:propertize " " face powerline-active1)))
    `(sml/pos-minor-modes-separator
-     '(:eval (propertize " " 'display (funcall ,separator-right 'powerline-active1 nil))))
+     '("" (:propertize " " face powerline-active1)
+       (:eval (propertize " " 'display (funcall ,separator-right 'powerline-active1 nil)))
+       (:propertize " " face sml/global)))
    '(sml/pre-modes-separator
      (propertize " " 'face 'sml/modes))))
 
