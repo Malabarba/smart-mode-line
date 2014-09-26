@@ -24,6 +24,9 @@ Images
 **Light Theme**  
 ![Light Theme Screenshot](https://raw.github.com/Bruce-Connor/smart-mode-line/master/screenshot-2013-11-11-light.png)
 
+**Powerline Theme**  
+![Powerline Theme Screenshot](https://raw.github.com/Bruce-Connor/smart-mode-line/master/screenshot-powerline-theme.png)
+
 Installation
 ===
 **smart-mode-line** is available on Melpa, and that's the recommended
