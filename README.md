@@ -27,6 +27,8 @@ Images
 **Powerline Theme**  
 ![Powerline Theme Screenshot](https://raw.github.com/Bruce-Connor/smart-mode-line/master/screenshot-powerline-theme.png)
 
+(Note: to use the powerline theme, install the "smart-mode-line-powerline-theme" package from MELPA)
+
 Installation
 ===
 **smart-mode-line** is available on Melpa, and that's the recommended
