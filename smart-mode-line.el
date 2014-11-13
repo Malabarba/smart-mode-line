@@ -1419,13 +1419,15 @@ Uses `sml/show-file-name' to decide between the two.
 
 Unless `sml/strip-N' is nil, prevents the \"<N>\" (used in
 duplicated buffer names) from being displayed."
-  (if (and sml/show-file-name (buffer-file-name))
-      (file-name-nondirectory (buffer-file-name))
-    (if (eq major-mode 'dired-mode)
-        (file-name-nondirectory (directory-file-name default-directory))
-     (if sml/show-trailing-N
-         (buffer-name)
-       (replace-regexp-in-string "<[0-9]+>$" "" (buffer-name))))))
+  (if (not (null (buffer-base-buffer)))
+      (buffer-name)
+    (if (and sml/show-file-name (buffer-file-name))
+	(file-name-nondirectory (buffer-file-name))
+      (if (eq major-mode 'dired-mode)
+	  (file-name-nondirectory (directory-file-name default-directory))
+	(if sml/show-trailing-N
+	    (buffer-name)
+	  (replace-regexp-in-string "<[0-9]+>$" "" (buffer-name)))))))
 
 (defun sml/fill-width-available ()
   "Return the size available for filling."
@@ -1522,6 +1524,8 @@ duplicated buffer names) from being displayed."
     ((and (symbolp major-mode)
           (member major-mode '(shell-mode eshell-mode)))
      default-directory)
+    ((buffer-base-buffer)
+     (with-current-buffer (buffer-base-buffer) (sml/get-directory)))
     (t ""))))
 
 (defun sml/set-battery-font ()
