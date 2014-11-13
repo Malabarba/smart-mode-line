@@ -871,6 +871,9 @@ If you want it to show the backend, just set it to t."
 (defadvice set-visited-file-name (after sml/after-set-visited-file-name-advice ())
   "Regenerate buffer-identification after `set-visited-file-name'."
   (sml/generate-buffer-identification))
+(defadvice clone-indirect-buffer (after sml/after-clone-indirect-buffer-advice ())
+  "Regenerate buffer-identification after `clone-indirect-buffer'"
+  (sml/generate-buffer-identification))
 
 (defvar sml/name-width-old nil "Used for recalculating buffer identification filling only when necessary.")
 (make-variable-buffer-local 'sml/name-width-old)
@@ -985,6 +988,7 @@ to make sure that we are loaded after any themes)."
   (add-hook 'after-save-hook 'sml/generate-buffer-identification)
   (ad-activate 'rename-buffer)
   (ad-activate 'set-visited-file-name)
+  (ad-activate 'clone-indirect-buffer)
   ;; (ad-activate 'set-buffer-modified-p)
   (add-hook 'after-change-functions 'sml/-this-buffer-changed)
   (add-hook 'post-command-hook 'sml/generate-position-help)
