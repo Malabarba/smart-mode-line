@@ -871,6 +871,15 @@ If you want it to show the backend, just set it to t."
 (defadvice set-visited-file-name (after sml/after-set-visited-file-name-advice ())
   "Regenerate buffer-identification after `set-visited-file-name'."
   (sml/generate-buffer-identification))
+(defadvice clone-indirect-buffer (around sml/around-clone-indirect-buffer-advice ())
+  "Regenerate buffer-identification after `clone-indirect-buffer'"
+  (let ((cloned-buffer-file-name buffer-file-name)
+        (clone ad-do-it))
+    (with-current-buffer clone
+      (setq buffer-file-name cloned-buffer-file-name)
+      (set (make-variable-buffer-local 'sml/clone) t)
+      (sml/generate-buffer-identification))
+    clone))
 
 (defvar sml/name-width-old nil "Used for recalculating buffer identification filling only when necessary.")
 (make-variable-buffer-local 'sml/name-width-old)
@@ -985,6 +994,7 @@ to make sure that we are loaded after any themes)."
   (add-hook 'after-save-hook 'sml/generate-buffer-identification)
   (ad-activate 'rename-buffer)
   (ad-activate 'set-visited-file-name)
+  (ad-activate 'clone-indirect-buffer)
   ;; (ad-activate 'set-buffer-modified-p)
   (add-hook 'after-change-functions 'sml/-this-buffer-changed)
   (add-hook 'post-command-hook 'sml/generate-position-help)
@@ -1418,13 +1428,15 @@ Uses `sml/show-file-name' to decide between the two.
 
 Unless `sml/show-trailing-N' is nil, prevents the \"<N>\" (used in
 duplicated buffer names) from being displayed."
-  (if (and sml/show-file-name (buffer-file-name))
-      (file-name-nondirectory (buffer-file-name))
-    (if (eq major-mode 'dired-mode)
-        (file-name-nondirectory (directory-file-name default-directory))
-     (if sml/show-trailing-N
-         (buffer-name)
-       (replace-regexp-in-string "<[0-9]+>$" "" (buffer-name))))))
+  (if sml/clone
+      (buffer-name)
+    (if (and sml/show-file-name (buffer-file-name))
+	(file-name-nondirectory (buffer-file-name))
+      (if (eq major-mode 'dired-mode)
+	  (file-name-nondirectory (directory-file-name default-directory))
+	(if sml/show-trailing-N
+	    (buffer-name)
+	  (replace-regexp-in-string "<[0-9]+>$" "" (buffer-name)))))))
 
 (defun sml/fill-width-available ()
   "Return the size available for filling."
