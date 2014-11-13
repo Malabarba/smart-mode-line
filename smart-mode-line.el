@@ -1416,7 +1416,7 @@ mouse-3: Describe current input method"))
   "Return either buffer name or file name to be shown on the mode-line.
 Uses `sml/show-file-name' to decide between the two.
 
-Unless `sml/strip-N' is nil, prevents the \"<N>\" (used in
+Unless `sml/show-trailing-N' is nil, prevents the \"<N>\" (used in
 duplicated buffer names) from being displayed."
   (if (and sml/show-file-name (buffer-file-name))
       (file-name-nondirectory (buffer-file-name))
