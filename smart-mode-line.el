@@ -985,6 +985,7 @@ to make sure that we are loaded after any themes)."
   (add-hook 'after-save-hook 'sml/generate-buffer-identification)
   (ad-activate 'rename-buffer)
   (ad-activate 'set-visited-file-name)
+  (add-hook 'clone-indirect-buffer-hook 'sml/generate-buffer-identification)
   ;; (ad-activate 'set-buffer-modified-p)
   (add-hook 'after-change-functions 'sml/-this-buffer-changed)
   (add-hook 'post-command-hook 'sml/generate-position-help)
@@ -1418,13 +1419,15 @@ Uses `sml/show-file-name' to decide between the two.
 
 Unless `sml/show-trailing-N' is nil, prevents the \"<N>\" (used in
 duplicated buffer names) from being displayed."
-  (if (and sml/show-file-name (buffer-file-name))
-      (file-name-nondirectory (buffer-file-name))
-    (if (eq major-mode 'dired-mode)
-        (file-name-nondirectory (directory-file-name default-directory))
-     (if sml/show-trailing-N
-         (buffer-name)
-       (replace-regexp-in-string "<[0-9]+>$" "" (buffer-name))))))
+  (cond ((buffer-base-buffer)
+         (buffer-name))
+        ((and sml/show-file-name (buffer-file-name))
+         (file-name-nondirectory (buffer-file-name)))
+        ((derived-mode-p 'dired-mode)
+         (file-name-nondirectory (directory-file-name default-directory)))
+        (sml/show-trailing-N
+         (buffer-name))
+        (t (replace-regexp-in-string "<[0-9]+>$" "" (buffer-name)))))
 
 (defun sml/fill-width-available ()
   "Return the size available for filling."
@@ -1521,6 +1524,10 @@ duplicated buffer names) from being displayed."
     ((and (symbolp major-mode)
           (member major-mode '(shell-mode eshell-mode)))
      default-directory)
+    ;; In indirect buffers, buffer-file-name is nil. The correct value is
+    ;; retrieved from the base buffer.
+    ((buffer-base-buffer)
+     (with-current-buffer (buffer-base-buffer) (sml/get-directory)))
     (t ""))))
 
 (defun sml/set-battery-font ()
