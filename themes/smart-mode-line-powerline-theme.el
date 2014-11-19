@@ -87,7 +87,7 @@ Mimics the appearance of powerline.")
 
    ;; 0
    `(sml/discharging         ((t :background ,l0 :inherit sml/global :foreground "Red")))
-   `(sml/time                ((t :background ,l0 :inherit sml/modes)))
+   `(sml/time                ((t :background ,l0 :inherit sml/global)))
 
    `(persp-selected-face ((t :foreground "ForestGreen" :inherit sml/filename)))
    `(helm-candidate-number ((t :foreground nil :background nil :inherit sml/filename))))
