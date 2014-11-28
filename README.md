@@ -1,4 +1,4 @@
-smart-mode-line [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GLZLRLW72Q8G2)
+smart-mode-line    [![Say Thank You](https://img.shields.io/gratipay/Malabarba.svg)](https://gratipay.com/Malabarba/)
 ---------------
 
 Smart Mode Line is a sexy mode-line for Emacs. It aims to be easy to
