@@ -1,5 +1,7 @@
-smart-mode-line    [![Say Thank You](https://img.shields.io/gratipay/Malabarba.svg)](https://gratipay.com/Malabarba/)
+smart-mode-line
 ---------------
+<!--     [![Say Thank You](https://img.shields.io/gratipay/Malabarba.svg)](https://gratipay.com/Malabarba/) -->
+(_[Wanna say thank you?](https://gratipay.com/Malabarba/)_)
 
 Smart Mode Line is a sexy mode-line for Emacs. It aims to be easy to
 read from small to large monitors by using *colors*, a *prefix feature*, and
