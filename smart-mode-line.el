@@ -791,7 +791,9 @@ Third argument SILENT prevents messages."
 (defadvice enable-theme (after sml/after-enable-theme-advice (theme) activate)
   "Make sure smart-mode-line themes take priority over global themes that don't customize sml faces."
   (unless (or (eq theme 'user) (sml/faces-from-theme theme))
-    (mapc 'enable-theme (reverse (-filter 'sml/faces-from-theme custom-enabled-themes)))))
+    (mapc #'enable-theme
+      (reverse (-filter (lambda (x) (string-prefix-p "smart-mode-line-" (symbol-name x)))
+                        custom-enabled-themes)))))
 
 (defun sml/theme-p (theme)
   "Return non-nil if theme named THEME is a smart-mode-line theme.
