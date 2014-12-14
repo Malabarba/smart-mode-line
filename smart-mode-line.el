@@ -11,11 +11,11 @@
 ;; Separator: /
 
 ;;; Commentary:
-;; 
+;;
 ;; Smart Mode Line is a sexy mode-line for Emacs. It aims to be easy to
 ;; read from small to large monitors by using *colors*, a *prefix feature*, and
 ;; *smart truncation*.
-;; 
+;;
 ;; New in v2.5
 ;; ===========
 ;; - Emacs 24.4 compatible.
@@ -24,43 +24,43 @@
 ;; - New value for `sml/theme': `automatic' (highly recommended).
 ;; - `sml/apply-theme' is interactive and has completion.
 ;; - Smart-mode-line themes are now regular themes.
-;; 
+;;
 ;; Installation
 ;; ===
 ;; **smart-mode-line** is available on Melpa, and that's the recommended
 ;; way of installing it. If you do that, you can simply activate it with:
-;; 
+;;
 ;;     (sml/setup)
-;; 
+;;
 ;; To install it manually, you need **emacs-version >= 24.3**. First
 ;; make sure you install [dash.el](https://github.com/magnars/dash.el)
 ;; (which is a dependency), then make sure "smart-mode-line.el" is in
 ;; your load path, and finally place this code in your `.emacs' file:
-;; 
+;;
 ;;     (require 'smart-mode-line)
 ;;     (sml/setup)
-;; 
+;;
 ;; To change the color theme, do one of the following:
-;; 
+;;
 ;;     (sml/apply-theme 'dark)
 ;;     (sml/apply-theme 'light)
 ;;     (sml/apply-theme 'respectful)
-;; 
+;;
 ;; Features
 ;; ===
 ;; Its main features include:
-;; 
+;;
 ;;  1. **Color coded**:
 ;;     Highlights the most important information for you
 ;;     (buffer name, modified state, line number). Don't
 ;;     like the colors? See item *5.*!
-;; 
+;;
 ;;  2. **Fixed width** (if you want):
 ;;     Lets you set a maxium width for the path name and mode names, and
 ;;     truncates them intelligently (truncates the directory, not the
 ;;     buffer name). Also let's you **right indent** strings in the
 ;;     mode-line (see `sml/mode-width').
-;; 
+;;
 ;;  3. **Directory as Prefixes**:
 ;;     Prefix feature saves a LOT of space. e.g. *"~/.emacs.d/"*
 ;;     is translated to *":ED:"* in the path (open a file inside
@@ -70,8 +70,8 @@
 ;;     of it (by configuring `sml/replacer-regexp-list'). Mousing
 ;;     over the abbreviated path will show you the full
 ;;     path. See below for examples.
-;; 
-;;  4. **Hide or Highlight minor-modes**:  
+;;
+;;  4. **Hide or Highlight minor-modes**:
 ;;     The [rich-minority](https://github.com/Bruce-Connor/rich-minority)
 ;;     package saves even more space. Select which minor modes you don't
 ;;     want to see listed by adding them to the variable
@@ -79,7 +79,7 @@
 ;;     important with the variable `rm-text-properties'. This will filter
 ;;     out the modes you don't care about and unclutter the modes list
 ;;     (mousing over the modes list still shows the full list).
-;;  
+;;
 ;;  4. **Hide minor-modes**:
 ;;     Hidden-modes feature saves even more space. Select
 ;;     which minor modes you don't want to see listed by
@@ -87,43 +87,43 @@
 ;;     filter out the modes you don't care about and unclutter
 ;;     the modes list (mousing over the modes list still shows
 ;;     the full list).
-;; 
+;;
 ;;  5. **Very easy to configure**:
 ;;     All colors and variables are customizable. You can change the
 ;;     whole theme with `sml/apply-theme', or just customize anything
 ;;     manually with `sml/customize' and `sml/customize-faces'. There are
 ;;     *DOZENS* of variables to customize your mode-line, just pop over
 ;;     there and have a look!
-;; 
+;;
 ;;  6. **Compatible with absolutely anything**:
 ;;     I'm serious. Versions 2.0 and above should be compatible with
 ;;     **any** other packages that display information in the mode-line
 ;;     (evil, nyan-mode, elscreen, display-battery-mode, etc). If you
 ;;     find *ANYTHING* that does not appear as it should, file a bug report
 ;;     and I'll get to it.
-;;     
+;;
 ;; Important Variables:
 ;; ===
 ;; All variables can be edited by running `sml/customize', and the
 ;; documentations are mostly self explanatory, I list here only the
 ;; most important ones.
-;; 
+;;
 ;;  1. `sml/theme'
 ;;   Choose what theme you want to use for the mode-line colors. For now
 ;;   there are 3 different themes: `dark', `light', and `respectful'.
-;;  
+;;
 ;;  1. `sml/shorten-directory' and `sml/shorten-modes'
 ;;   Setting both of these to `t' garantees a fixed width mode-line
 ;;   (directory name and minor-modes list will be truncated to fit). To
 ;;   actually define the width, see below.
-;;   
+;;
 ;;  2. `sml/name-width' and `sml/mode-width'
 ;;   Customize these according to the width of your Emacs frame. I set
 ;;   them to `40' and `full' respectively, and the mode-line fits
 ;;   perfectly when the frame is split in two even on my laptop's small
 ;;   17" monitor. `full' means everything after the minor-modes will be
 ;;   right-indented.
-;;   
+;;
 ;;  3. `sml/replacer-regexp-list'
 ;;   This variable is a list of (REGEXP REPLACEMENT) that is used
 ;;   to parse the path. The replacements are applied
@@ -145,12 +145,12 @@
 ;;   *":InDev:"*, so the path shown in the mode-line will be
 ;;   *":ProjDev:Source/"* (saves a lot of space without hiding
 ;;   information).
-;; 
+;;
 ;; Here go some more useful examples:
-;; 
+;;
 ;;     (add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/Projects/In-Development/" ":ProjDev:") t)
 ;;     (add-to-list 'sml/replacer-regexp-list '("^~/Documents/Work/" ":Work:") t)
-;;     
+;;
 ;;     ;; Added in the right order, they even work sequentially:
 ;;     (add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/" ":DB:") t)
 ;;     (add-to-list 'sml/replacer-regexp-list '("^:DB:Documents" ":DDocs:") t)
@@ -696,6 +696,7 @@ if you just want to fine-tune it)."
 ;; Face definitions
 (defface sml/global           '((t :inverse-video nil)) "" :group 'smart-mode-line-faces)
 (defface sml/modes            '((t :inherit sml/global)) "" :group 'smart-mode-line-faces)
+(defface sml/minor-modes      '((t :inherit sml/global)) "" :group 'smart-mode-line-faces)
 (defface sml/filename         '((t :inherit sml/global :weight bold)) "" :group 'smart-mode-line-faces)
 (defface sml/prefix           '((t :inherit sml/global)) "" :group 'smart-mode-line-faces)
 (defface sml/read-only        '((t :inherit sml/not-modified)) "" :group 'smart-mode-line-faces)
@@ -776,10 +777,10 @@ Third argument SILENT prevents messages."
     (let ((sml/-apply-theme-is-running t)) ;Avoid nesting.
       ;; Set the variable
       (setq-default sml/theme (or value theme))
-      
+
       ;; Disable any previous smart-mode-line themes.
       (mapc (lambda (x) (when (sml/theme-p x) (disable-theme x))) custom-enabled-themes)
-      
+
       ;; Load the theme requested.
       (when (and sml/theme (null (eq sml/theme 'automatic)))
         (load-theme
@@ -933,8 +934,8 @@ to make sure that we are loaded after any themes)."
   ;; Activate rich-minority, and configure it for us.
   (require 'rich-minority)
   (setq rm-base-text-properties
-        (append rm-base-text-properties '('face 'sml/folder)))
-  
+        (append rm-base-text-properties '('face 'sml/minor-modes)))
+
   ;; Set the theme the user requested.
   (when sml/theme
     (let ((set-theme sml/theme))
@@ -964,7 +965,7 @@ to make sure that we are loaded after any themes)."
                   sml/pre-id-separator))
 
   ;; (setq-default mode-line-buffer-identification '("%b"))
-  
+
   (setq-default mode-line-buffer-identification
                 sml/mode-line-buffer-identification)
   (sml/filter-mode-line-list 'mode-line-position)
@@ -997,7 +998,7 @@ to make sure that we are loaded after any themes)."
   ;; (so we can't fill inside the variable), and we want this
   ;; symbol to be an element in `mode-line-format' for compatibility
   ;; with other packages which hack into the mode-line.
-  
+
   (add-to-list 'mode-line-position
                '(sml/buffer-identification-filling
                  sml/buffer-identification-filling
@@ -1028,7 +1029,7 @@ to make sure that we are loaded after any themes)."
   ;; normally respect) but doesn't actually do anything useful with
   ;; it, so we overoverride back.
   (add-hook 'dired-mode-hook 'sml/set-buffer-identification)
-  
+
   ;; Display time
   (add-hook 'display-time-hook 'sml/propertize-time-string)
 
@@ -1070,7 +1071,7 @@ found to match the current file path."
        (add-to-list 'sml/prefix-face-list
                     (list (format (regexp-quote sml/projectile-replacement-format) ".*")
                           'sml/projectile))))
-  
+
   ;; vc-mode
   (eval-after-load "vc-hooks"
     '(defadvice vc-mode-line (after sml/after-vc-mode-line-advice () activate)
@@ -1284,7 +1285,7 @@ doesn't want any buffer-id."
   (if mode-line-buffer-identification
       (propertize
        (make-string (max (- (or (car-safe sml/name-width) sml/name-width)
-                            (length (format-mode-line mode-line-buffer-identification))) 
+                            (length (format-mode-line mode-line-buffer-identification)))
                          0)
                     sml/fill-char)
        'face 'sml/name-filling)
@@ -1399,7 +1400,7 @@ mouse-3: Describe current input method"))
          (equal (car el) :propertize)
          (equal (cadr el) '("" minor-mode-alist)))
     '(:eval (sml/generate-minor-modes)))
-   
+
    ;; ;;; Propertize misc-info
    ;; ((memq (car-safe el) '(which-func-mode global-mode-string))
    ;;  `(:eval (add-text-properties (format-mode-line ',el))))
@@ -1441,13 +1442,13 @@ duplicated buffer names) from being displayed."
 
 (defconst sml/propertized-shorten-mode-string
   '(:propertize sml/shorten-mode-string
-                face sml/folder
+                face sml/minor-modes
                 help-echo "mouse-1: Shorten minor modes"
                 local-map (keymap (mode-line keymap (mouse-1 . sml/toggle-shorten-modes)))
                 mouse-face mode-line-highlight))
 (defconst sml/propertized-full-mode-string
   '(:propertize sml/full-mode-string
-                face sml/folder
+                face sml/minor-modes
                 help-echo "mouse-1: Show all modes"
                 local-map (keymap (mode-line keymap (mouse-1 . sml/toggle-shorten-modes)))
                 mouse-face mode-line-highlight))
@@ -1479,14 +1480,14 @@ duplicated buffer names) from being displayed."
            ;; Used for counting size.
            (finalNameList (mapconcat 'identity  nameList ""))
            needs-removing filling)
-      
+
       ;; Calculate whether truncation is necessary.
       (when (and sml/shorten-modes (> (length finalNameList) size))
-        ;; We need to remove 1+ "the number of spaces found". 
+        ;; We need to remove 1+ "the number of spaces found".
         (setq needs-removing
-              (1+ 
+              (1+
                (sml/count-occurrences-starting-at
-                " " finalNameList 
+                " " finalNameList
                 (- size (string-width sml/full-mode-string))))))
       ;; Add truncation string if necessary
       (when needs-removing
@@ -1499,7 +1500,7 @@ duplicated buffer names) from being displayed."
       ;; Padding
       (setq filling (- size (length (format-mode-line nameList))))
       (setq filling (make-string (max 0 filling) sml/fill-char))
-      
+
       (if (eq sml/mode-width 'right)
           (list (propertize filling 'face 'sml/modes)
                 'sml/pre-minor-modes-separator nameList
