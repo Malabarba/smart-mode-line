@@ -33,6 +33,7 @@ Results may vary.")
 
 (custom-theme-set-faces
  'smart-mode-line-respectful
+ '(mode-line-inactive ((t :inverse-video nil)))
  '(mode-line     ((t :inverse-video nil)))
  '(sml/global    ((t :inherit font-lock-preprocessor-face)))
  '(sml/filename  ((t :inherit mode-line-buffer-id)))
