@@ -1239,11 +1239,10 @@ Also sets SYMBOL to VALUE."
              (verify-visited-file-modtime (current-buffer))))
     (propertize sml/outside-modified-char 'face 'sml/outside-modified
                 'help-echo "Modified outside Emacs!\nRevert first!"))
-   (buffer-read-only (propertize sml/read-only-char
-                                 'face 'sml/read-only
-                                 'help-echo "Read-Only Buffer"))
    ((buffer-modified-p)
-    (propertize sml/modified-char
+    (propertize (if buffer-read-only
+                    sml/read-only-char
+                  sml/modified-char)
                 'face 'sml/modified
                 'help-echo (if (buffer-file-name)
                                (format-time-string
@@ -1251,6 +1250,9 @@ Also sets SYMBOL to VALUE."
                                 (nth 5 (file-attributes (buffer-file-name))))
                              "Buffer Modified")
                 'local-map '(keymap (mode-line keymap (mouse-1 . save-buffer)))))
+   (buffer-read-only (propertize sml/read-only-char
+                                 'face 'sml/read-only
+                                 'help-echo "Read-Only Buffer"))
    (t (propertize " " 'face 'sml/not-modified))))
 
 (defmacro sml/propertize-position (s face help)
