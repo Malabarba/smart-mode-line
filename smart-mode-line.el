@@ -1244,7 +1244,7 @@ Also sets SYMBOL to VALUE."
                     sml/read-only-char
                   sml/modified-char)
                 'face 'sml/modified
-                'help-echo (if (buffer-file-name)
+                'help-echo (if (and (buffer-file-name) (not (file-remote-p buffer-file-name)))
                                (format-time-string
                                 sml/modified-time-string
                                 (nth 5 (file-attributes (buffer-file-name))))
