@@ -5,7 +5,7 @@
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
 ;; Version: 0.1a
-;; Package-Requires: ((emacs "24.3") (powerline "2.3") (smart-mode-line "2.5"))
+;; Package-Requires: ((emacs "24.3") (powerline "2.2") (smart-mode-line "2.5"))
 ;; Separator: -
 
 ;;; License:
