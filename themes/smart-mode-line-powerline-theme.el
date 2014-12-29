@@ -21,7 +21,7 @@
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
-;; 
+;;
 
 ;;; Change Log:
 ;; 0.1a - 2014/05/15 - powerline-theme essentially finished.
@@ -39,24 +39,24 @@ Mimics the appearance of powerline.")
 (let ((l0 "black")
       (l3 (or (face-background 'powerline-active1) "Grey30"))
       (l8 (or (face-background 'powerline-active2) "Grey80"))
-      (separator-left 
+      (separator-left
        '(intern (format "powerline-%s-%s"
                         powerline-default-separator
                         (car powerline-default-separator-dir))))
-      (separator-right 
+      (separator-right
        '(intern (format "powerline-%s-%s"
                         powerline-default-separator
                         (cdr powerline-default-separator-dir)))))
   (custom-theme-set-faces
    'smart-mode-line-powerline
-   `(mode-line-buffer-id ((t :inherit sml/filename :foreground nil :background nil))) 
+   `(mode-line-buffer-id ((t :inherit sml/filename :foreground nil :background nil)))
    `(mode-line-inactive ((((background dark)) :foreground "gray60" :background "Black"
                           :slant italic :box (:line-width -3 :color "black"))
                          (((background light)) :foreground "gray60" :background "Black"
                           :slant italic :box (:line-width -2 :color "white"))))
    `(mode-line     ((t :foreground "gray60" :background "black" :box (:line-width -1 :color "Black"))))
    `(sml/global    ((t :foreground "gray50" :inverse-video nil)))
-   
+
    ;; Layer 0
    `(sml/line-number         ((t :foreground "White" :inherit sml/global :weight bold :background ,l0)))
    `(sml/remote              ((t :inherit sml/global :background ,l0)))
@@ -73,7 +73,7 @@ Mimics the appearance of powerline.")
    `(sml/sudo      ((t :background ,l3 :inherit sml/outside-modified)))
    `(sml/git       ((t :background ,l3 :inherit (sml/read-only sml/prefix))))
    `(sml/folder    ((t :background ,l3 :inherit sml/global :weight normal :foreground "Black")))
-   
+
    ;; 8
    `(sml/name-filling        ((t :background ,l8 :inherit sml/prefix :weight normal)))
    `(sml/position-percentage ((t :background ,l8 :inherit sml/prefix :weight normal :foreground "#330000")))
@@ -84,6 +84,7 @@ Mimics the appearance of powerline.")
 
    ;; 3
    ;; minor modes
+   `(sml/minor-modes         ((t :inherit sml/folder)))
 
    ;; 0
    `(sml/discharging         ((t :background ,l0 :inherit sml/global :foreground "Red")))
