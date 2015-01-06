@@ -685,8 +685,8 @@ name."
 It comes into play when `sml/mode-width' is set to 'full.
 
 This is necessary because the mode-line width (which we need but
-don't have acess to) is larger than the `window-width' (which we
-have access to).
+don't have acess to) is larger than `window-total-width' (which
+we have access to).
 
 Decrease this if right indentation seems to be going too far (or
 if you just want to fine-tune it)."
@@ -1438,7 +1438,7 @@ duplicated buffer names) from being displayed."
   "Return the size available for filling."
   (max 0
        (+ sml/extra-filler
-          (- (window-width)
+          (- (window-total-width)
              (let ((sml/simplified t))
                (length (format-mode-line mode-line-format)))))))
 
