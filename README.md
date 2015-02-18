@@ -167,13 +167,26 @@ most important ones.
   **":ProjDev:Source/"** (saves a lot of space without hiding
   information).  
 
-Here go some more useful examples:
+Some abbreviations are defined out of the box, for instance *(see the
+documentation for a complete list)*:
 
-    (add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/Projects/In-Development/" ":ProjDev:") t)
-    (add-to-list 'sml/replacer-regexp-list '("^~/Documents/Work/" ":Work:") t)
-    
-    ;; Added in the right order, they even work sequentially:
-    (add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/" ":DB:") t)
-    (add-to-list 'sml/replacer-regexp-list '("^:DB:Documents" ":DDocs:") t)
+    ("^~/\\.emacs\\.d/" ":ED:")
+    ("^/sudo:.*:" ":SU:")
+    ("^~/Documents/" ":Doc:")
+    ("^~/Dropbox/" ":DB:")
+
+You can stack abbreviations sequentially, by adding them in order:
+
     (add-to-list 'sml/replacer-regexp-list '("^~/Git-Projects/" ":Git:") t)
-    (add-to-list 'sml/replacer-regexp-list '("^:Git:\\(.*\\)/src/main/java/" ":G/\\1/SMJ:") t)
+    (add-to-list 'sml/replacer-regexp-list '("^:Git:\(.*\)/src/main/java/" ":G/\1/SMJ:") t)
+
+Note the `t` option ensures that your customizations are added to the
+end of the list, which ensures that the second one is applied
+**after** the first.
+
+However, if you want to override one of the pre-defined abbreviations
+with your own definition you need to add it to the start of the list
+(note the ommited `t`):
+
+    (add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/" ":DBox:"))
+
