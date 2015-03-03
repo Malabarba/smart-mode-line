@@ -4,7 +4,6 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 0.1a
 ;; Separator: -
 
 ;;; License:
