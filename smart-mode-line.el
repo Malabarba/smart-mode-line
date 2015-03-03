@@ -919,6 +919,26 @@ If you want it to show the backend, just set it to t."
   "Miscellaneous mode-line construct.")
 (put 'sml/pos-minor-modes-separator 'risky-local-variable t)
 
+(defun sml/-setup-theme ()
+  "Decide what theme to use and apply it.
+Used during initialization."
+  (when sml/theme
+    (let ((set-theme sml/theme))
+      (setq sml/theme nil)
+      (when (eq set-theme 'automatic)
+        (if (sml/global-theme-support-sml-p)
+            (setq set-theme nil)
+          (let ((bg (ignore-errors
+                      (or (face-background 'mode-line nil t)
+                          (face-background 'default nil t)))))
+            (setq set-theme
+                  (if (ignore-errors
+                        (and (stringp bg)
+                             (> (color-distance "white" bg)
+                                (color-distance "black" bg))))
+                      'dark 'light)))))
+      (sml/apply-theme set-theme nil :silent))))
+
 ;;;###autoload
 (defun sml/setup (&optional arg)
   "Setup the mode-line to be smart and sexy.
@@ -937,22 +957,8 @@ to make sure that we are loaded after any themes)."
         (append rm-base-text-properties '('face 'sml/minor-modes)))
 
   ;; Set the theme the user requested.
-  (when sml/theme
-    (let ((set-theme sml/theme))
-      (setq sml/theme nil)
-      (when (eq set-theme 'automatic)
-        (if (sml/global-theme-support-sml-p)
-            (setq set-theme nil)
-          (let ((bg (ignore-errors
-                      (or (face-background 'mode-line nil t)
-                          (face-background 'default nil t)))))
-            (setq set-theme
-                  (if (ignore-errors
-                        (and (stringp bg)
-                             (> (color-distance "white" bg)
-                                (color-distance "black" bg))))
-                      'dark 'light)))))
-      (sml/apply-theme set-theme nil :silent)))
+  (if after-init-time (sml/-setup-theme)
+    (add-hook 'after-init-hook #'sml/-setup-theme))
 
   ;;;; And this is where the magic happens.
   ;; Remove elements we implement separately, and improve the ones not removed.
