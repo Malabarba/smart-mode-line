@@ -5,7 +5,7 @@
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
 ;; Version: 2.8
-;; Package-Requires: ((emacs "24.3") (dash "2.2.0") (rich-minority "0.1"))
+;; Package-Requires: ((emacs "24.3") (dash "2.2.0") (rich-minority "0.1.1"))
 ;; Keywords: mode-line faces theme themes
 ;; Prefix: sml
 ;; Separator: /
@@ -83,7 +83,7 @@
 ;;  4. **Hide minor-modes**:
 ;;     Hidden-modes feature saves even more space. Select
 ;;     which minor modes you don't want to see listed by
-;;     customizing the `sml/hidden-modes' variable. This will
+;;     customizing the `rm-blacklist' variable. This will
 ;;     filter out the modes you don't care about and unclutter
 ;;     the modes list (mousing over the modes list still shows
 ;;     the full list).
@@ -1469,8 +1469,8 @@ duplicated buffer names) from being displayed."
 
 ;;; Patch, in case the user is using the wrong variable.
 (when (boundp 'sml/hidden-modes)
-  (message "[smart-mode-line] Warning: `sml/hidden-modes' is obsolete. Use `rm-excluded-modes' instead.")
-  (setq rm-excluded-modes sml/hidden-modes))
+  (message "[smart-mode-line] Warning: `sml/hidden-modes' is obsolete, use `rm-blacklist' instead")
+  (setq rm-blacklist sml/hidden-modes))
 (define-obsolete-variable-alias 'sml/hidden-modes 'rm-excluded-modes)
 
 (defun sml/generate-minor-modes ()
