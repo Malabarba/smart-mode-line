@@ -957,8 +957,7 @@ to make sure that we are loaded after any themes)."
         (append rm-base-text-properties '('face 'sml/minor-modes)))
 
   ;; Set the theme the user requested.
-  (if after-init-time (sml/-setup-theme)
-    (add-hook 'after-init-hook #'sml/-setup-theme))
+  (sml/-setup-theme)
 
   ;;;; And this is where the magic happens.
   ;; Remove elements we implement separately, and improve the ones not removed.
