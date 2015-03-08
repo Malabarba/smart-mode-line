@@ -981,9 +981,8 @@ Used during initialization."
 (defun sml/setup (&optional arg)
   "Setup the mode-line to be smart and sexy.
 
-ARG is ignored. Just call this function in your init file, and it
-will be evaluated after Emacs finished initializing (we do this
-to make sure that we are loaded after any themes)."
+ARG is ignored. Just call this function in your init file, and
+the mode-line will be setup."
   (interactive)
   (sml/-debug "Entering setup")
   (sml/-debug custom-enabled-themes)
