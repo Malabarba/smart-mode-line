@@ -786,30 +786,38 @@ Third argument SILENT prevents messages."
        (lambda (x) (replace-regexp-in-string "\\`smart-mode-line-" "" (symbol-name x)))
        (-filter 'sml/theme-p (custom-available-themes)))))
     nil nil))
+  (sml/-debug "Entering apply-theme")
   (when (eq theme (intern "")) (setq theme nil))
+  (sml/-debug theme)
+  (sml/-debug sml/theme)
   (unless silent (message "[sml] %s set to %s" 'sml/theme (or value theme)))
+  (sml/-debug sml/-apply-theme-is-running)
   (unless sml/-apply-theme-is-running
     (let ((sml/-apply-theme-is-running t)) ;Avoid nesting.
       ;; Set the variable
       (setq-default sml/theme (or value theme))
+      (sml/-debug sml/theme)
 
       ;; Disable any previous smart-mode-line themes.
+      (sml/-debug custom-enabled-themes)
       (mapc (lambda (x) (when (sml/theme-p x) (disable-theme x))) custom-enabled-themes)
+      (sml/-debug custom-enabled-themes)
 
       ;; Load the theme requested.
+      (sml/-debug sml/theme)
       (when (and sml/theme (null (eq sml/theme 'automatic)))
-        (load-theme
-         (if (sml/theme-p sml/theme)
-             sml/theme
-           (intern (format "smart-mode-line-%s" sml/theme)))
-         sml/no-confirm-load-theme)))))
+        (let ((theme-name
+               (if (sml/theme-p sml/theme) sml/theme
+                 (intern (format "smart-mode-line-%s" sml/theme)))))
+          (sml/-debug theme-name)
+          (load-theme theme-name sml/no-confirm-load-theme))))))
 
 (defadvice enable-theme (after sml/after-enable-theme-advice (theme) activate)
   "Make sure smart-mode-line themes take priority over global themes that don't customize sml faces."
   (unless (or (eq theme 'user) (sml/faces-from-theme theme))
     (mapc #'enable-theme
-      (reverse (-filter (lambda (x) (string-prefix-p "smart-mode-line-" (symbol-name x)))
-                        custom-enabled-themes)))))
+          (reverse (-filter (lambda (x) (string-prefix-p "smart-mode-line-" (symbol-name x)))
+                            custom-enabled-themes)))))
 
 (defun sml/theme-p (theme)
   "Return non-nil if theme named THEME is a smart-mode-line theme.
@@ -937,12 +945,17 @@ If you want it to show the backend, just set it to t."
 (defun sml/-setup-theme ()
   "Decide what theme to use and apply it.
 Used during initialization."
+  (sml/-debug "Entering -setup-theme")
+  (sml/-debug sml/theme)
   (when sml/theme
     (let ((set-theme sml/theme))
       (setq sml/theme nil)
       (when (eq set-theme 'automatic)
+        (sml/-debug (sml/global-theme-support-sml-p))
         (if (sml/global-theme-support-sml-p)
             (setq set-theme nil)
+          (sml/-debug (face-background 'mode-line nil t))
+          (sml/-debug (face-background 'default nil t))
           (let ((bg (ignore-errors
                       (or (face-background 'mode-line nil t)
                           (face-background 'default nil t)))))
@@ -951,7 +964,9 @@ Used during initialization."
                         (and (stringp bg)
                              (> (color-distance "white" bg)
                                 (color-distance "black" bg))))
-                      'dark 'light)))))
+                      'dark 'light))
+            (sml/-debug set-theme))))
+      (sml/-debug set-theme)
       (sml/apply-theme set-theme nil :silent))))
 
 
