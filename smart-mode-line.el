@@ -1687,11 +1687,5 @@ ML isn't used."
           (setq output (concat ".../" output)))
         output))))
 
-;; Backup the original configs, just in case.
-(defconst sml/format-backup mode-line-format
-  "Backs up the `mode-line-format' before SML was required.")
-(defconst sml/battery-format-backup (if (boundp 'battery-mode-line-format) battery-mode-line-format "")
-  "Backs up the `battery-mode-line-format' before SML was required.")
-
 (provide 'smart-mode-line)
 ;;; smart-mode-line.el ends here
