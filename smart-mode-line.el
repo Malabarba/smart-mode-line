@@ -372,6 +372,9 @@ set `sml/override-theme' to nil."
 
 
 ;;; Actual Code
+(defvar sml/simplified nil
+  "Temporary dynamic variable. Used for filling.")
+
 (defvar sml/-debug nil
   "Whether debugging information should be printed.")
 
