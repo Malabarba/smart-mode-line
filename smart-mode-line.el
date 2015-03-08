@@ -978,6 +978,9 @@ ARG is ignored. Just call this function in your init file, and it
 will be evaluated after Emacs finished initializing (we do this
 to make sure that we are loaded after any themes)."
   (interactive)
+  (sml/-debug "Entering setup")
+  (sml/-debug custom-enabled-themes)
+
   ;; Just a couple of useful variables
   (setq sml/simplified nil)
   (setq battery-mode-line-format sml/battery-format)
