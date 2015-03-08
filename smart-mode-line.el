@@ -310,6 +310,7 @@
 ;; 1.5.2   - 2012/06/14 - Saner default widths and mode-name fix for Term.
 ;; 1.5.1   - 2012/06/12 - Fixed battery font for corner cases.
 ;; 1.5     - 2012/06/11 - Added support for display-battery-mode. See the description for more.
+
 ;;; Code:
 
 (eval-when-compile (require 'cl))
@@ -318,7 +319,6 @@
 (require 'cus-face)
 
 (defconst sml/version "2.8" "Version of the smart-mode-line.el package.")
-(defconst sml/version-int 78 "Version of the smart-mode-line.el package, as an integer.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your Emacs and sml versions."
   (interactive)
@@ -939,6 +939,7 @@ Used during initialization."
                       'dark 'light)))))
       (sml/apply-theme set-theme nil :silent))))
 
+
 ;;;###autoload
 (defun sml/setup (&optional arg)
   "Setup the mode-line to be smart and sexy.
