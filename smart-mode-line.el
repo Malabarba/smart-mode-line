@@ -370,6 +370,21 @@ set `sml/override-theme' to nil."
   :group 'smart-mode-line
   :group 'faces)
 
+
+;;; Actual Code
+(defvar sml/-debug nil
+  "Whether debugging information should be printed.")
+
+(defmacro sml/-debug (fmt &rest r)
+  "If variable `sml/-debug' is non-nil, describe FMT.
+If FMT is a string, this is essentially the same as `message'.
+If FMT is anything else, this is essentially:
+    (message \"%s is: %s\" 'FMT FMT)"
+  (when (and (boundp 'sml/-debug) sml/-debug)
+    (if (stringp fmt)
+        `(apply #'message (concat "[sml/debug] " ,fmt) ,r)
+      `(message "[sml/debug] %s is: %s" ',fmt ,fmt))))
+
 (defvar sml/shortener-func 'sml/do-shorten-directory
   "Function used to shorten the directory name.
 
