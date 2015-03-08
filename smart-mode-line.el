@@ -317,6 +317,7 @@
 (require 'dash)
 (require 'custom)
 (require 'cus-face)
+(require 'rich-minority)
 
 (defconst sml/version "2.8" "Version of the smart-mode-line.el package.")
 (defun sml/bug-report ()
@@ -372,6 +373,7 @@ set `sml/override-theme' to nil."
 
 
 ;;; Actual Code
+(defvar erc-track-position-in-mode-line)
 (defvar sml/simplified nil
   "Temporary dynamic variable. Used for filling.")
 
@@ -618,6 +620,26 @@ When the buffer+directory name is longer than
   :set 'sml/set-shortener-func)
 (put 'sml/shorten-directory 'safe-local-variable 'booleanp)
 
+(defcustom sml/full-mode-string " +"
+  "String that's appended to the minor-mode list when it's full."
+  :type 'string
+  :group 'smart-mode-line-mode-list)
+
+(defcustom sml/shorten-mode-string " -"
+  "String that's appended to the minor-mode list when all modes are displayed."
+  :type 'string
+  :group 'smart-mode-line-mode-list)
+
+(defcustom sml/shorten-modes t
+  "Should modes list be shortened to fit width?
+
+When the modes list is longer than `sml/mode-width':
+	if nil the rest of the mode-line is pushed right;
+	otherwise the list is shortened to fit."
+  :type 'boolean
+  :group 'smart-mode-line-mode-list)
+(put 'sml/shorten-modes 'safe-local-variable 'booleanp)
+
 (defun sml/toggle-shorten-directory (&rest val)
   "Toggle the variable `sml/shorten-directory'.
 
@@ -660,26 +682,6 @@ Otherwise, this is both the minimum and maximum width."
   :type '(choice integer symbol)
   :group 'smart-mode-line-mode-list
   :package-version '(smart-mode-line . "2.4.5"))
-
-(defcustom sml/full-mode-string " +"
-  "String that's appended to the minor-mode list when it's full."
-  :type 'string
-  :group 'smart-mode-line-mode-list)
-
-(defcustom sml/shorten-mode-string " -"
-  "String that's appended to the minor-mode list when all modes are displayed."
-  :type 'string
-  :group 'smart-mode-line-mode-list)
-
-(defcustom sml/shorten-modes t
-  "Should modes list be shortened to fit width?
-
-When the modes list is longer than `sml/mode-width':
-	if nil the rest of the mode-line is pushed right;
-	otherwise the list is shortened to fit."
-  :type 'boolean
-  :group 'smart-mode-line-mode-list)
-(put 'sml/shorten-modes 'safe-local-variable 'booleanp)
 
 (defcustom sml/battery-format " %p"
   "Format used to display the battery in the mode-line.
@@ -927,6 +929,8 @@ If you want it to show the backend, just set it to t."
         (:eval (sml/generate-buffer-identification))))
   "Replace the default `mode-line-buffer-identification' with our own.")
 
+(defvar sml/projectile-replacement-format)
+(defvar sml/use-projectile-p)
 (defvar sml/projectile-loaded-p nil "Non-nil if projectile has been loaded.")
 
 (defcustom sml/pos-id-separator " "
@@ -989,7 +993,6 @@ to make sure that we are loaded after any themes)."
   (setq battery-mode-line-format sml/battery-format)
 
   ;; Activate rich-minority, and configure it for us.
-  (require 'rich-minority)
   (setq rm-base-text-properties
         (append rm-base-text-properties '('face 'sml/minor-modes)))
 
@@ -1507,7 +1510,7 @@ duplicated buffer names) from being displayed."
 (when (boundp 'sml/hidden-modes)
   (message "[smart-mode-line] Warning: `sml/hidden-modes' is obsolete, use `rm-blacklist' instead")
   (setq rm-blacklist sml/hidden-modes))
-(define-obsolete-variable-alias 'sml/hidden-modes 'rm-excluded-modes)
+(define-obsolete-variable-alias 'sml/hidden-modes 'rm-blacklist)
 
 (defun sml/generate-minor-modes ()
   "Extracts all rich strings necessary for the minor mode list."
