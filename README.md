@@ -29,7 +29,7 @@ Images
 **Powerline Theme**  
 ![Powerline Theme Screenshot](https://raw.github.com/Bruce-Connor/smart-mode-line/master/screenshot-powerline-theme.png)
 
-(Note: to use the powerline theme, install the "smart-mode-line-powerline-theme" package from MELPA)
+(Note: to use the powerline theme, install the `smart-mode-line-powerline-theme` package from MELPA)
 
 **Solarized Dark Theme**
 ![Solarized Dark Theme Screenshot](screenshot-solarized-dark-theme.png)
@@ -37,7 +37,7 @@ Images
 **Solarized Light Theme**
 ![Solarized Light Theme Screenshot](screenshot-solarized-light-theme.png)
 
-(Note: to use the Solarized themes, install the ["solarized-theme"](https://github.com/bbatsov/solarized-emacs/) package from MELPA)
+(Note: to use the Solarized themes, install the [`solarized-theme`](https://github.com/bbatsov/solarized-emacs/) package from MELPA)
 
 Installation
 ===
