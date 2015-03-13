@@ -1173,16 +1173,15 @@ Might implement a quick flash eventually."
 
 (defun sml/global-theme-support-sml-p ()
   "Non-nil if any of the enabled themes supports smart-mode-line."
-  (--filter
-   (null (sml/theme-p it))
-   (-filter
-    'sml/faces-from-theme
-    custom-enabled-themes)))
+  (cl-remove-if
+   #'sml/theme-p
+   (cl-remove-if-not #'sml/faces-from-theme custom-enabled-themes)))
 
 (defun sml/faces-from-theme (theme)
   "Return the sml faces that THEME customizes."
-  (--filter (string-match "\\`sml/" (symbol-name it))
-            (mapcar 'cadr (get theme 'theme-settings))))
+  (cl-remove-if-not
+   (lambda (it) (string-match "\\`sml/" (symbol-name it)))
+   (mapcar #'cadr (get theme 'theme-settings))))
 
 (defun sml/set-buffer-identification (&rest ignored)
   "Setq the buffer-identification of this buffer back to ours.
@@ -1460,8 +1459,9 @@ mouse-3: Describe current input method"))
 (defun sml/is-%p-p (x)
   "Non-nil if X matches \"%p\" in a very subjective sense."
   (or (and (listp x)
-           (-first (lambda (y) (string-match ".*%p.*" y))
-                   (-filter 'stringp x)))
+           (cl-remove-if-not
+            (lambda (y) (string-match ".*%p.*" y))
+            (cl-remove-if-not #'stringp x)))
       (and (stringp x)
            (string-match ".*%p.*" x))))
 
