@@ -788,9 +788,11 @@ Third argument SILENT prevents messages."
     (intern
      (completing-read
       "Load smart-mode-line theme: "
-      (mapcar
-       (lambda (x) (replace-regexp-in-string "\\`smart-mode-line-" "" (symbol-name x)))
-       (-filter 'sml/theme-p (custom-available-themes)))))
+      (cons
+       'automatic
+       (mapcar
+        (lambda (x) (replace-regexp-in-string "\\`smart-mode-line-" "" (symbol-name x)))
+        (cl-remove-if-not #'sml/theme-p (custom-available-themes))))))
     nil nil))
   (sml/-debug "Entering apply-theme")
   (when (eq theme (intern "")) (setq theme nil))
@@ -806,12 +808,16 @@ Third argument SILENT prevents messages."
 
       ;; Disable any previous smart-mode-line themes.
       (sml/-debug custom-enabled-themes)
-      (mapc (lambda (x) (when (sml/theme-p x) (disable-theme x))) custom-enabled-themes)
+      (mapc (lambda (x) (when (sml/theme-p x) (disable-theme x)))
+            custom-enabled-themes)
       (sml/-debug custom-enabled-themes)
 
       ;; Load the theme requested.
       (sml/-debug sml/theme)
-      (when (and sml/theme (null (eq sml/theme 'automatic)))
+      (when (eq sml/theme 'automatic)
+        (setq sml/theme (sml/-automatically-decide-theme)))      
+      (sml/-debug sml/theme)
+      (when sml/theme
         (let ((theme-name
                (if (sml/theme-p sml/theme) sml/theme
                  (intern (format "smart-mode-line-%s" sml/theme)))))
