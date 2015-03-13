@@ -949,32 +949,33 @@ If you want it to show the backend, just set it to t."
   "Miscellaneous mode-line construct.")
 (put 'sml/pos-minor-modes-separator 'risky-local-variable t)
 
+(defun sml/-automatically-decide-theme ()
+  "Return the most appropriate sml theme, based on global theme."
+  (sml/-debug "Entering -automatically-decide-theme")
+  (sml/-debug (sml/global-theme-support-sml-p))
+  (unless (sml/global-theme-support-sml-p)
+    (sml/-debug (face-background 'mode-line nil t))
+    (sml/-debug (face-background 'default nil t))
+    (let ((bg (ignore-errors
+                (or (face-background 'mode-line nil t)
+                    (face-background 'default nil t)))))
+      (if (ignore-errors
+            (and (stringp bg)
+                 (> (color-distance "white" bg)
+                    (color-distance "black" bg))))
+          'dark 'light))))
+
 (defun sml/-setup-theme ()
   "Decide what theme to use and apply it.
 Used during initialization."
   (sml/-debug "Entering -setup-theme")
   (sml/-debug sml/theme)
   (when sml/theme
-    (let ((set-theme sml/theme))
-      (setq sml/theme nil)
-      (when (eq set-theme 'automatic)
-        (sml/-debug (sml/global-theme-support-sml-p))
-        (if (sml/global-theme-support-sml-p)
-            (setq set-theme nil)
-          (sml/-debug (face-background 'mode-line nil t))
-          (sml/-debug (face-background 'default nil t))
-          (let ((bg (ignore-errors
-                      (or (face-background 'mode-line nil t)
-                          (face-background 'default nil t)))))
-            (setq set-theme
-                  (if (ignore-errors
-                        (and (stringp bg)
-                             (> (color-distance "white" bg)
-                                (color-distance "black" bg))))
-                      'dark 'light))
-            (sml/-debug set-theme))))
-      (sml/-debug set-theme)
-      (sml/apply-theme set-theme nil :silent))))
+    (when (eq sml/theme 'automatic)
+      (setq sml/theme (sml/-automatically-decide-theme)))
+    (sml/-debug "chosen theme:")
+    (sml/-debug sml/theme)
+    (sml/apply-theme sml/theme nil :silent)))
 
 
 ;;;###autoload
