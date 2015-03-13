@@ -1168,6 +1168,9 @@ Might implement a quick flash eventually."
                (null erc-track-position-in-mode-line))
     (setq erc-track-position-in-mode-line t)))
 
+;;;###autoload
+(defalias 'smart-mode-line-enable #'sml/setup)
+
 (defun sml/global-theme-support-sml-p ()
   "Non-nil if any of the enabled themes supports smart-mode-line."
   (--filter
