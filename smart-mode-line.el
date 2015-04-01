@@ -3,7 +3,7 @@
 ;; Copyright (C) 2012 Artur Malabarba <bruce.connor.am@gmail.com>
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
-;; URL: http://github.com/Bruce-Connor/smart-mode-line
+;; URL: http://github.com/Malabarba/smart-mode-line
 ;; Version: 2.8
 ;; Package-Requires: ((emacs "24.3") (dash "2.2.0") (rich-minority "0.1.1"))
 ;; Keywords: mode-line faces theme themes
@@ -72,7 +72,7 @@
 ;;     path. See below for examples.
 ;;
 ;;  4. **Hide or Highlight minor-modes**:
-;;     The [rich-minority](https://github.com/Bruce-Connor/rich-minority)
+;;     The [rich-minority](https://github.com/Malabarba/rich-minority)
 ;;     package saves even more space. Select which minor modes you don't
 ;;     want to see listed by adding them to the variable
 ;;     `rm-excluded-modes', or even highlight the modes that are more
@@ -322,7 +322,7 @@
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your Emacs and sml versions."
   (interactive)
-  (browse-url "https://github.com/Bruce-Connor/smart-mode-line/issues/new")
+  (browse-url "https://github.com/Malabarba/smart-mode-line/issues/new")
   (message "Your sml/version is: %s, and your emacs version is: %s.\nPlease include this in your report!" sml/version emacs-version))
 (defun sml/customize ()
   "Open the customization group for the `smart-mode-line' package."

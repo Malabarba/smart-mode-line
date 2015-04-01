@@ -7,7 +7,7 @@ Smart Mode Line is a sexy mode-line for Emacs. It aims to be easy to
 read from small to large monitors by using *colors*, a *prefix feature*, and
 *smart truncation*. 
 
-[New in v2.5](https://github.com/Bruce-Connor/smart-mode-line/blob/master/news.md)
+[New in v2.5](https://github.com/Malabarba/smart-mode-line/blob/master/news.md)
 ===========
 - Emacs 24.4 compatible.
 - Integration with [Projectile](https://github.com/bbatsov/projectile)!
@@ -16,18 +16,18 @@ read from small to large monitors by using *colors*, a *prefix feature*, and
 - `sml/apply-theme` is interactive and has completion.
 - Smart-mode-line themes are now regular themes.
 
-[Further News](https://github.com/Bruce-Connor/smart-mode-line/blob/master/news.md)
+[Further News](https://github.com/Malabarba/smart-mode-line/blob/master/news.md)
 
 Images
 ======
 **Dark Theme**  
-![Dark Theme Screenshot](https://raw.github.com/Bruce-Connor/smart-mode-line/master/screenshot-2013-11-11-dark.png)
+![Dark Theme Screenshot](https://raw.github.com/Malabarba/smart-mode-line/master/screenshot-2013-11-11-dark.png)
 
 **Light Theme**  
-![Light Theme Screenshot](https://raw.github.com/Bruce-Connor/smart-mode-line/master/screenshot-2013-11-11-light.png)
+![Light Theme Screenshot](https://raw.github.com/Malabarba/smart-mode-line/master/screenshot-2013-11-11-light.png)
 
 **Powerline Theme**  
-![Powerline Theme Screenshot](https://raw.github.com/Bruce-Connor/smart-mode-line/master/screenshot-powerline-theme.png)
+![Powerline Theme Screenshot](https://raw.github.com/Malabarba/smart-mode-line/master/screenshot-powerline-theme.png)
 
 (Note: to use the powerline theme, install the `smart-mode-line-powerline-theme` package from MELPA)
 
@@ -109,7 +109,7 @@ Its main features include:
     path. See below for examples.  	
 
  4. **Hide or Highlight minor-modes**:  
-    The [rich-minority](https://github.com/Bruce-Connor/rich-minority)
+    The [rich-minority](https://github.com/Malabarba/rich-minority)
     package saves even more space. Select which minor modes you don't
     want to see listed by adding them to the variable
     `rm-excluded-modes`, or even highlight the modes that are more
