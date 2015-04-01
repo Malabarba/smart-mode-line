@@ -313,9 +313,7 @@
 
 ;;; Code:
 
-(eval-when-compile (require 'cl))
 (require 'cl-lib)
-(require 'dash)
 (require 'custom)
 (require 'cus-face)
 (require 'rich-minority)
@@ -1568,10 +1566,9 @@ duplicated buffer names) from being displayed."
 
 (defun sml/propertize-prefix (prefix)
   "Set the color of PREFIX according to its contents."
-  (let ((out prefix))
-    (dolist (pair sml/prefix-face-list)
-      (if (string-match (car pair) prefix)
-          (return (propertize prefix 'face (car (cdr pair))))))))
+  (cl-loop for pair in sml/prefix-face-list
+           if (string-match (car pair) prefix)
+           return (propertize prefix 'face (car (cdr pair)))))
 
 (defun sml/get-directory ()
   "Decide if we want directory shown. If so, return it."
