@@ -1,22 +1,11 @@
-smart-mode-line
+smart-mode-line [![Melpa](http://melpa.org/packages/smart-mode-line-badge.svg)](http://melpa.org/#/smart-mode-line) [![Melpa-stable](http://stable.melpa.org/packages/smart-mode-line-badge.svg)](http://melpa.org/#/smart-mode-line)
 ---------------
 <!--     [![Say Thank You](https://img.shields.io/gratipay/Malabarba.svg)](https://gratipay.com/Malabarba/) -->
-(_[Wanna say thank you?](https://gratipay.com/Malabarba/)_)
+[Contribute](https://gratipay.com/Malabarba/)
 
 Smart Mode Line is a sexy mode-line for Emacs. It aims to be easy to
 read from small to large monitors by using *colors*, a *prefix feature*, and
 *smart truncation*. 
-
-[New in v2.5](https://github.com/Malabarba/smart-mode-line/blob/master/news.md)
-===========
-- Emacs 24.4 compatible.
-- Integration with [Projectile](https://github.com/bbatsov/projectile)!
-- Display `current-directory` in Shell and eshell.
-- New value for `sml/theme`: `automatic` (highly recommended).
-- `sml/apply-theme` is interactive and has completion.
-- Smart-mode-line themes are now regular themes.
-
-[Further News](https://github.com/Malabarba/smart-mode-line/blob/master/news.md)
 
 Images
 ======
@@ -46,27 +35,20 @@ way of installing it. If you do that, you can simply activate it with:
 
     (sml/setup)
 
-To install it manually, you need **emacs-version >= 24.3**. First
-make sure you install [dash.el](https://github.com/magnars/dash.el)
-(which is a dependency), then make sure *"smart-mode-line.el"* is in
-your load path, and finally place this code in your `.emacs` file:
+By default, `sml` will try to figure out the best sml theme to go with
+your Emacs theme. But if you want to chose the theme yourself, do one
+of the following BEFORE `sml/setup`:
 
-    (require 'smart-mode-line)
-    (sml/setup)
-
-To change the color theme, do one of the following:
-
-    (sml/apply-theme 'dark)
-    (sml/apply-theme 'light)
-    (sml/apply-theme 'respectful)
-    (sml/apply-theme 'automatic)
+    (setq sml/theme 'dark)
+    (setq sml/theme 'light)
+    (setq sml/theme 'respectful)
 
 #### Installation Issues (FAQ) ####
 
-- **Problem:** If emacs keeps warning you that *"Loading themes can run
-lisp code"* and asking *"Would you like to mark this theme as safe for
-future sessions?"*. That is probably an issue with your `init.el` or
-`.emacs` file, but we offer a workaround.
+- **Problem:** If emacs keeps warning you that *"Loading themes can
+  run lisp code"* and asking *"Would you like to mark this theme as
+  safe for future sessions?"*. That is probably an issue with your
+  `init.el` or `.emacs` file, but we offer a workaround.
 - **Solution A:** Make sure the `(custom-set-variables ...)` sexp is at
   the very top of your `.emacs` file. That is the right place for it.
   If that doesn't work, you can work around it with the code `(setq sml/no-confirm-load-theme t)`,
@@ -197,4 +179,10 @@ with your own definition you need to add it to the start of the list
 (note the ommited `t`):
 
     (add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/" ":DBox:"))
+
+
+Contributing
+=====
+
+[![Gratipay](https://cdn.rawgit.com/gratipay/gratipay-badge/2.1.3/dist/gratipay.png)](https://gratipay.com/Malabarba)
 

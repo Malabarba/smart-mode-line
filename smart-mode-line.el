@@ -5,7 +5,7 @@
 ;; Author: Artur Malabarba <emacs@endlessparentheses.com>
 ;; URL: http://github.com/Malabarba/smart-mode-line
 ;; Version: 2.8
-;; Package-Requires: ((emacs "24.3") (dash "2.2.0") (rich-minority "0.1.1"))
+;; Package-Requires: ((emacs "24.3") (rich-minority "0.1.1"))
 ;; Keywords: mode-line faces theme themes
 ;; Prefix: sml
 ;; Separator: /
@@ -32,19 +32,11 @@
 ;;
 ;;     (sml/setup)
 ;;
-;; To install it manually, you need **emacs-version >= 24.3**. First
-;; make sure you install [dash.el](https://github.com/magnars/dash.el)
-;; (which is a dependency), then make sure "smart-mode-line.el" is in
-;; your load path, and finally place this code in your `.emacs' file:
+;; To set the color theme, do one of the following BEFORE `sml/setup`:
 ;;
-;;     (require 'smart-mode-line)
-;;     (sml/setup)
-;;
-;; To change the color theme, do one of the following:
-;;
-;;     (sml/apply-theme 'dark)
-;;     (sml/apply-theme 'light)
-;;     (sml/apply-theme 'respectful)
+;;     (setq sml/theme 'dark)
+;;     (setq sml/theme 'light)
+;;     (setq sml/theme 'respectful)
 ;;
 ;; Features
 ;; ===
