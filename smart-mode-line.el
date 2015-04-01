@@ -983,6 +983,8 @@ Used during initialization."
     (sml/-debug sml/theme)
     (sml/apply-theme sml/theme nil :silent)))
 
+(defvar battery-mode-line-format)
+
 
 ;;;###autoload
 (defun sml/setup (&optional arg)
@@ -1643,6 +1645,8 @@ project name first."
       (setq out (sml/perform-projectile-replacement out)))
     out))
 
+(declare-function projectile-project-p "projectile")
+(declare-function projectile-project-name "projectile")
 (defun sml/perform-projectile-replacement (in)
   "If path IN is inside a project, use its name as a prefix."
   (let ((proj (projectile-project-p)))
