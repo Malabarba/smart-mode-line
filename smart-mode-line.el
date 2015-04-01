@@ -612,8 +612,8 @@ separately, by setting this variable to a cons cell of integers:
 
 When the buffer+directory name is longer than
 `sml/name-width':
-	if nil the rest of the mode-line is pushed right;
-	otherwise the directory name is shortened to fit."
+    if nil the rest of the mode-line is pushed right;
+    otherwise the directory name is shortened to fit."
   :type 'boolean
   :group 'smart-mode-line-path-and-prefix
   :set 'sml/set-shortener-func)
@@ -633,8 +633,8 @@ When the buffer+directory name is longer than
   "Should modes list be shortened to fit width?
 
 When the modes list is longer than `sml/mode-width':
-	if nil the rest of the mode-line is pushed right;
-	otherwise the list is shortened to fit."
+    if nil the rest of the mode-line is pushed right;
+    otherwise the list is shortened to fit."
   :type 'boolean
   :group 'smart-mode-line-mode-list)
 (put 'sml/shorten-modes 'safe-local-variable 'booleanp)
@@ -813,7 +813,7 @@ Third argument SILENT prevents messages."
       ;; Load the theme requested.
       (sml/-debug sml/theme)
       (when (eq sml/theme 'automatic)
-        (setq sml/theme (sml/-automatically-decide-theme)))      
+        (setq sml/theme (sml/-automatically-decide-theme)))
       (sml/-debug sml/theme)
       (when sml/theme
         (let ((theme-name
