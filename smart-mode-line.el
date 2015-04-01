@@ -1651,10 +1651,19 @@ project name first."
   "If path IN is inside a project, use its name as a prefix."
   (let ((proj (projectile-project-p)))
     (if (stringp proj)
-        (replace-regexp-in-string
-         (concat "^" (abbreviate-file-name proj))
-         (format sml/projectile-replacement-format (projectile-project-name))
-         in)
+        (let* ((replacement
+                (format sml/projectile-replacement-format
+                  (projectile-project-name)))
+               (short (replace-regexp-in-string
+                       (concat "^" (regexp-quote (abbreviate-file-name proj)))
+                       replacement
+                       in)))
+          (if (string= short in)
+              (replace-regexp-in-string
+               (concat "^" (regexp-quote (abbreviate-file-name (file-truename proj))))
+               replacement
+               in)
+            in))
       in)))
 
 (defun sml/regexp-composer (getter)
