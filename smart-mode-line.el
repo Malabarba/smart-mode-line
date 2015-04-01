@@ -1358,22 +1358,22 @@ Argument IGNORED is ignored."
          (member (cadr sml/mode-line-buffer-identification) mode-line-buffer-identification)
          (member sml/mode-line-buffer-identification mode-line-buffer-identification))
     (setq sml/buffer-identification
-          (let* ((got-directory (sml/get-directory))
-                 (sml/use-projectile-p (if (or (not sml/projectile-loaded-p)
-                                               (file-remote-p got-directory))
-                                           nil
+          (let* ((dir (sml/replacer (abbreviate-file-name (sml/get-directory))))
+                 (sml/use-projectile-p (unless (or (not sml/projectile-loaded-p)
+                                                   (and (buffer-file-name)
+                                                        (file-remote-p (buffer-file-name))))
                                          sml/use-projectile-p))
-                 (prefix (sml/get-prefix (sml/replacer got-directory)))
+                 (prefix (sml/get-prefix dir))
                  (bufname (sml/buffer-name))
                  (dirsize (max 0 (- (abs (or (cdr-safe sml/name-width) sml/name-width))
                                     (length prefix) (length bufname))))
-                 (dirstring (funcall sml/shortener-func got-directory dirsize)))
+                 (dirstring (funcall sml/shortener-func dir dirsize)))
 
             (propertize (concat (sml/propertize-prefix (replace-regexp-in-string "%" "%%" prefix))
                                 (propertize (replace-regexp-in-string "%" "%%" dirstring) 'face 'sml/folder)
                                 (propertize (replace-regexp-in-string "%" "%%" bufname) 'face 'sml/filename))
                         'help-echo (format "%s\n\nmouse-1: Previous buffer\nmouse-3: Next buffer"
-                                           (or (buffer-file-name) (buffer-name)))
+                                     (or (buffer-file-name) (buffer-name)))
                         'mouse-face 'mode-line-highlight
                         'local-map   mode-line-buffer-identification-keymap)))))
 
@@ -1694,11 +1694,11 @@ regexp in `sml/prefix-regexp'."
 (defun sml/not-shorten-directory (dir ml)
   "Return DIR, abbreviated and prefixed.
 ML isn't used."
-  (sml/strip-prefix (sml/replacer (abbreviate-file-name dir))))
+  (sml/strip-prefix dir))
 
 (defun sml/do-shorten-directory (dir max-length)
   "Show up to MAX-LENGTH characters of a directory name DIR."
-  (let ((longname (sml/strip-prefix (sml/replacer (abbreviate-file-name dir)))))
+  (let ((longname (sml/strip-prefix dir)))
     ;; If it fits, return the string.
     (if (<= (length longname) max-length) longname
       ;; If it doesn't, shorten it
