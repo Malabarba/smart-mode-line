@@ -1651,7 +1651,7 @@ project name first."
               (replace-regexp-in-string
                (concat "^" (regexp-quote (abbreviate-file-name (file-truename proj))))
                replacement
-               in)
+               (abbreviate-file-name (file-truename in)))
             in))
       in)))
 
