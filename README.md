@@ -45,25 +45,19 @@ of the following BEFORE `sml/setup`:
 
 #### Installation Issues (FAQ) ####
 
-- **Problem:** If emacs keeps warning you that *"Loading themes can
-  run lisp code"* and asking *"Would you like to mark this theme as
-  safe for future sessions?"*. That is probably an issue with your
+- **Problem:** If Emacs always warns you that *“Loading themes can
+  run lisp code”* and keeps asking *“Would you like to mark this theme as
+  safe for future sessions?”*. That is probably an issue with your
   `init.el` or `.emacs` file, but we offer a workaround.
-- **Solution A:** Make sure the `(custom-set-variables ...)` sexp is at
-  the very top of your `.emacs` file. That is the right place for it.
-  If that doesn't work, you can work around it with the code `(setq sml/no-confirm-load-theme t)`,
-  but we recommend you try to figure out what's wrong with your configs.
-- **Solution B:** `smart-mode-line` ships with multiple themes, and
-  each must be separately marked as safe. And when `sml/apply-theme`
-  is set to `automatic`, it may attempt to load a theme which you
-  haven't previously loaded, causing the *"Would you like to mark this
-  theme as safe..."* question to be asked again.  
-  If you don't want to use the `sml/no-confirm-load-theme` variable, a
-  second option is to manually cycle through all the themes and say
-  "yes" to mark each of them safe. Your goal is for the
-  `(custom-set-variables ...)` sexp at the top of your `.emacs` to
-  contain at least three different entries under `(custom-safe-themes
-  ...)`.
+- **Workaround:** Add the following snippet before `sml/setup` 
+
+        (setq sml/no-confirm-load-theme t)
+
+- **Proper Solution:** Make sure the `(custom-set-variables ...)` sexp
+  is at the very top of your `.emacs` file. That is the right place
+  for it. If that doesn't work, forget about smart-mode-line for a
+  moment and see if you have the same problem with other themes
+  installed from Melpa.
 
 Features
 ===
