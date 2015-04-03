@@ -1604,19 +1604,7 @@ Used by `sml/strip-prefix' and `sml/get-prefix'."
   ;; First try replacing on the original path
   (if (string= in "")
       in
-    (let ((out (sml/replacer-raw in)))
-      (if (not (string= out in))
-          out
-        ;; If no replacements were made, try again after expanding all
-        ;; symlinks in the path (unless the expansion is trivial).
-        (let* ((expanded (abbreviate-file-name (file-truename in))))
-          (if (or (string= expanded out) ;(no expansion)
-                  (string= expanded      ;(no replacements)
-                           (setq out (sml/replacer-raw expanded))))
-              in
-            ;; If still no replacements were made, return the original
-            ;; unexpanded form.
-            out))))))
+    (sml/replacer-raw in)))
 
 (defun sml/replacer-raw (in)
   "Run on the string IN the replacements from `sml/replacer-regexp-list'.
@@ -1625,12 +1613,27 @@ If projectile is loaded, also performs replacements specified by
 project name first."
   (let ((out in)
         proj)
-    (when (and sml/projectile-loaded-p (eq sml/use-projectile-p 'before-prefixes))
+    ;; Maybe try projectile
+    (when (and sml/projectile-loaded-p
+               (eq sml/use-projectile-p 'before-prefixes))
       (setq out (sml/perform-projectile-replacement out)))
-    (dolist (cur sml/replacer-regexp-list)
-      (setq out (replace-regexp-in-string
-                 (car cur) (car (cdr cur)) out)))
-    (when (and sml/projectile-loaded-p (eq sml/use-projectile-p 'after-prefixes))
+    ;; Try regular replacements
+    (when (string= out in)
+      (dolist (cur sml/replacer-regexp-list)
+        (setq out (replace-regexp-in-string (car cur) (car (cdr cur)) out))))
+    ;; Try truename replacements
+    (when (string= out in)
+      (let* ((true-in (abbreviate-file-name (file-truename in)))
+             (true-out true-in))
+        (dolist (cur sml/replacer-regexp-list)
+          (setq true-out (replace-regexp-in-string
+                          (car cur) (car (cdr cur)) true-out)))
+        (unless (string= true-in true-out)
+          (setq out true-out))))
+    ;; Maybe try projectile later
+    (when (and sml/projectile-loaded-p
+               (eq sml/use-projectile-p 'after-prefixes)
+               (string= out in))
       (setq out (sml/perform-projectile-replacement out)))
     out))
 
@@ -1648,10 +1651,12 @@ project name first."
                        replacement
                        in)))
           (if (string= short in)
-              (replace-regexp-in-string
-               (concat "^" (regexp-quote (abbreviate-file-name (file-truename proj))))
-               replacement
-               (abbreviate-file-name (file-truename in)))
+              (let* ((true-in (abbreviate-file-name (file-truename in)))
+                     (true-short
+                      (replace-regexp-in-string
+                       (concat "^" (regexp-quote (abbreviate-file-name (file-truename proj))))
+                       replacement true-in)))
+                (if (string= true-in true-short) in true-short))
             in))
       in)))
 
