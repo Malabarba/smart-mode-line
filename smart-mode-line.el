@@ -1657,7 +1657,7 @@ project name first."
                        (concat "^" (regexp-quote (abbreviate-file-name (file-truename proj))))
                        replacement true-in)))
                 (if (string= true-in true-short) in true-short))
-            in))
+            short))
       in)))
 
 (defun sml/regexp-composer (getter)
