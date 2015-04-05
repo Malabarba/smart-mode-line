@@ -705,7 +705,7 @@ if you just want to fine-tune it)."
   :group 'smart-mode-line-mode-list)
 
 ;; Face definitions
-(defface sml/global           '((t :inverse-video nil)) "" :group 'smart-mode-line-faces)
+(defface sml/global           '((t :inverse-video nil :family "Arial")) "" :group 'smart-mode-line-faces)
 (defface sml/modes            '((t :inherit sml/global)) "" :group 'smart-mode-line-faces)
 (defface sml/minor-modes      '((t :inherit sml/global)) "" :group 'smart-mode-line-faces)
 (defface sml/filename         '((t :inherit sml/global :weight bold)) "" :group 'smart-mode-line-faces)
