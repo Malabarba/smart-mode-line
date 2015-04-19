@@ -20,13 +20,13 @@ Images
 
 (Note: to use the powerline theme, install the `smart-mode-line-powerline-theme` package from MELPA)
 
-<!-- **Solarized Dark Theme** -->
-<!-- ![Solarized Dark Theme Screenshot](screenshot-solarized-dark-theme.png) -->
+**Solarized Dark Theme**
+![Solarized Dark Theme Screenshot](https://cloud.githubusercontent.com/assets/601365/7131638/34a3b0f8-e247-11e4-8fd5-811365167d22.png)
 
-<!-- **Solarized Light Theme** -->
-<!-- ![Solarized Light Theme Screenshot](screenshot-solarized-light-theme.png) -->
+**Solarized Light Theme**
+![Solarized Light Theme Screenshot](https://cloud.githubusercontent.com/assets/601365/7131637/34946ac6-e247-11e4-8e0e-35a47df70686.png)
 
-<!-- (Note: to use the Solarized themes, install the [`solarized-theme`](https://github.com/bbatsov/solarized-emacs/) package from MELPA) -->
+(Note: to use the Solarized themes, install the [`solarized-theme`](https://github.com/bbatsov/solarized-emacs/) package from MELPA)
 
 Installation
 ===
