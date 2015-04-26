@@ -6,6 +6,7 @@
 ;; URL: http://github.com/Bruce-Connor/smart-mode-line
 ;; Version: 0.1a
 ;; Package-Requires: ((emacs "24.3") (powerline "2.2") (smart-mode-line "2.5"))
+;; Keywords: mode-line faces themes
 ;; Separator: -
 
 ;;; License:

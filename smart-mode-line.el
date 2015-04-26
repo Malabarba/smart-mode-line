@@ -6,7 +6,7 @@
 ;; URL: http://github.com/Malabarba/smart-mode-line
 ;; Version: 2.8
 ;; Package-Requires: ((emacs "24.3") (rich-minority "0.1.1"))
-;; Keywords: mode-line faces theme themes
+;; Keywords: mode-line faces themes
 ;; Prefix: sml
 ;; Separator: /
 
