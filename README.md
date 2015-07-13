@@ -174,6 +174,14 @@ with your own definition you need to add it to the start of the list
 
     (add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/" ":DBox:"))
 
+In order to use more complex transformations (like upcasing), you'll need to write a more complex
+replacement. The second argument needs to be a function that accepts the matched string as its
+argument and returns the replacement string. You can access matched data with the `match-string`
+function as explained [in the manual.](https://www.gnu.org/software/emacs/manual/html_node/elisp/Simple-Match-Data.html#Simple-Match-Data) For example, for using the upcased project name (assuming the project is in the `~/Projects` directory:
+
+    (add-to-list 'sml/replacer-regexp-list '("^~/Projects/\\(\\w+\\)/"
+                                                (lambda(s) (concat ":" (upcase (match-string 1 s)) ":"))
+                                                ) t)
 
 Contributing
 =====
