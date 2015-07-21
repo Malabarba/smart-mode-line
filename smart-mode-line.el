@@ -1089,7 +1089,7 @@ the mode-line will be setup."
   (eval-after-load "projectile"
     '(progn
        (setq sml/projectile-loaded-p t)
-       (defcustom sml/projectile-replacement-format "[P/%s]"
+       (defcustom sml/projectile-replacement-format "[%s]"
          "Format used for replacements derived from projectile."
          :type 'string
          :group 'smart-mode-line-others
