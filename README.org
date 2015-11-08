@@ -17,7 +17,10 @@ and /smart truncation/.
 *Powerline Theme*\\
 [[https://raw.github.com/Malabarba/smart-mode-line/master/screenshot-powerline-theme.png]]
 
-(Note: to use the powerline theme, install the
+*Light Powerline Theme*\\
+[[https://raw.github.com/Malabarba/smart-mode-line/master/screenshot-light-powerline-theme.png]]
+
+(Note: to use either powerline theme, install the
 =smart-mode-line-powerline-theme= package from MELPA)
 
 *Solarized Dark Theme*\\
