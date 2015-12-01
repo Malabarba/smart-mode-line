@@ -57,7 +57,7 @@
 ;;     Prefix feature saves a LOT of space. e.g. *"~/.emacs.d/"*
 ;;     is translated to *":ED:"* in the path (open a file inside
 ;;     this folder to see it in action). Long path names you
-;;     are commmonly working on are displayed as short
+;;     are commonly working on are displayed as short
 ;;     abbreviations. Set your own prefixes to make best use
 ;;     of it (by configuring `sml/replacer-regexp-list'). Mousing
 ;;     over the abbreviated path will show you the full
@@ -105,7 +105,7 @@
 ;;   there are 3 different themes: `dark', `light', and `respectful'.
 ;;
 ;;  1. `sml/shorten-directory' and `sml/shorten-modes'
-;;   Setting both of these to `t' garantees a fixed width mode-line
+;;   Setting both of these to `t' guarantees a fixed width mode-line
 ;;   (directory name and minor-modes list will be truncated to fit). To
 ;;   actually define the width, see below.
 ;;
@@ -128,7 +128,7 @@
 ;;   *"~/Dropbox/Projects/In-Development/"* almost half the
 ;;   mode-line would be occupied just by the folder name, which
 ;;   is much less important than the buffer name. But, you can't
-;;   just hide the folder name, since editting a file in
+;;   just hide the folder name, since editing a file in
 ;;   *"~/Dropbox/Projects/In-Development/Source"* is VERY different
 ;;   from editting a file in *"~/Dropbox/Projects/Source"*. By
 ;;   setting up a prefix for your commonly used folders, you get
@@ -312,7 +312,7 @@
 
 (defconst sml/version "2.10" "Version of the smart-mode-line.el package.")
 (defun sml/bug-report ()
-  "Opens github issues page in a web browser. Please send me any bugs you find, and please inclue your Emacs and sml versions."
+  "Opens github issues page in a web browser. Please send me any bugs you find, and please include your Emacs and sml versions."
   (interactive)
   (browse-url "https://github.com/Malabarba/smart-mode-line/issues/new")
   (message "Your sml/version is: %s, and your emacs version is: %s.\nPlease include this in your report!" sml/version emacs-version))
@@ -567,7 +567,7 @@ set `sml/prefix-face-list' accordingly."
 (defcustom sml/prefix-regexp '(":\\(.*:\\)" "~/")
   "List of Regexps used to identify prefixes.
 
-A prefix is anything at the begining of a line that matches any
+A prefix is anything at the beginning of a line that matches any
 of these regexps. Don't start these regexps with \"^\", the
 parser applies that for you."
   :type '(repeat regexp)
@@ -666,7 +666,7 @@ empty space is available in the mode-line (this has the effect of
 indenting right anything after the mode-list).
 
 If it is the symbol `right', then it behaves like `full', but the
-minor-modes list is moved al the way to the right.
+minor-modes list is moved all the way to the right.
 
 If `sml/shorten-modes' is nil, this is the minimum width.
 Otherwise, this is both the minimum and maximum width."
@@ -696,7 +696,7 @@ name."
 It comes into play when `sml/mode-width' is set to 'full.
 
 This is necessary because the mode-line width (which we need but
-don't have acess to) is larger than `window-total-width' (which
+don't have access to) is larger than `window-total-width' (which
 we have access to).
 
 Decrease this if right indentation seems to be going too far (or
@@ -1318,10 +1318,10 @@ Also sets SYMBOL to VALUE."
 (defun sml/filter-mode-line-list (l)
   "Filter some elements of L and propertize the ones not filtered.
 
-L must be a symbol! We asign right back to it"
+L must be a symbol! We assign right back to it"
   (if (and (symbolp l) (listp (eval l)))
       (set-default l
-       (remove nil (mapcar 'sml/parse-mode-line-elements (eval l))))
+                   (remove nil (mapcar 'sml/parse-mode-line-elements (eval l))))
     (error "l must be a symbol to a list!")))
 
 (defun sml/fill-for-buffer-identification ()
@@ -1674,14 +1674,14 @@ If GETTER is non-nil, result regexp also accepts empty match."
 (defun sml/strip-prefix (path)
   "Remove prefix from string PATH.
 
-A prefix is anything at the begining of the line that matches a
+A prefix is anything at the beginning of the line that matches a
 regexp in `sml/prefix-regexp'."
   (replace-regexp-in-string (sml/regexp-composer nil) "" path))
 
 (defun sml/get-prefix (path)
   "Get prefix from string PATH.
 
-A prefix is anything at the begining of the line that matches a
+A prefix is anything at the beginning of the line that matches a
 regexp in `sml/prefix-regexp'."
   (replace-regexp-in-string (sml/regexp-composer t) "\\1" path))
 
@@ -1691,7 +1691,7 @@ ML isn't used."
   (sml/strip-prefix dir))
 
 (defcustom sml/directory-truncation-string (if (char-displayable-p ?…) "…/" ".../")
-  "String used when trucating part of the file path.
+  "String used when truncating part of the file path.
 Set this to nil or an empty string if you don't want any
 indication of a truncated path."
   :type 'string
