@@ -42,11 +42,11 @@ Mimics the appearance of powerline.")
       (l8 (or (face-background 'powerline-active2) "Grey80"))
       (separator-left
        '(intern (format "powerline-%s-%s"
-                        powerline-default-separator
+                        (powerline-current-separator)
                         (car powerline-default-separator-dir))))
       (separator-right
        '(intern (format "powerline-%s-%s"
-                        powerline-default-separator
+                        (powerline-current-separator)
                         (cdr powerline-default-separator-dir)))))
   (custom-theme-set-faces
    'smart-mode-line-powerline
@@ -95,7 +95,7 @@ Mimics the appearance of powerline.")
    `(helm-candidate-number ((t :foreground nil :background nil :inherit sml/filename))))
   (custom-theme-set-variables
    'smart-mode-line-powerline
-   '(sml/mode-width (if (eq powerline-default-separator 'arrow) 'right 'full))
+   '(sml/mode-width (if (eq (powerline-current-separator) 'arrow) 'right 'full))
    `(sml/pre-id-separator
      '(""
        (:propertize " " face sml/global)
