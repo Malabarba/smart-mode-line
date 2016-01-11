@@ -1546,7 +1546,11 @@ duplicated buffer names) from being displayed."
         (add-to-list 'nameList sml/propertized-shorten-mode-string t))
 
       ;; Padding
-      (setq filling (- size (length (format-mode-line nameList))))
+      (setq filling (- size (length (format-mode-line
+                                     (list ""
+                                           'sml/pre-minor-modes-separator
+                                           nameList
+                                           'sml/pos-minor-modes-separator)))))
       (setq filling (make-string (max 0 filling) sml/fill-char))
 
       (if (eq sml/mode-width 'right)
