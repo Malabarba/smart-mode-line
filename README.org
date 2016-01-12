@@ -81,7 +81,7 @@ Its main features include:
    like the colors? See item /5./!
 
 - Fixed width (if you want) ::
-   Lets you set a maxium width for the path name and mode names, and
+   Lets you set a maximum width for the path name and mode names, and
    truncates them intelligently (truncates the directory, not the
    buffer name). Also let's you *right indent* strings in the
    mode-line (see =sml/mode-width=).
@@ -90,7 +90,7 @@ Its main features include:
    Prefix feature saves a LOT of space. e.g. =~/.emacs.d/=
    is translated to =:ED:= in the path (open a file inside
    this folder to see it in action). Long path names you
-   are commmonly working on are displayed as short
+   are commonly working on are displayed as short
    abbreviations. Set your own prefixes to make best use
    of it (by configuring =sml/replacer-regexp-list=). Mousing
    over the abbreviated path will show you the full
@@ -130,7 +130,7 @@ most important ones.
     there are 3 different themes: =dark=, =light=, and =respectful=.
 
 2. =sml/shorten-directory= and =sml/shorten-modes=\\
-    Setting both of these to =t= garantees a fixed width mode-line
+    Setting both of these to =t= guarantees a fixed width mode-line
     (directory name and minor-modes list will be truncated to fit). To
     actually define the width, see below.
 
@@ -186,7 +186,7 @@ end of the list, which ensures that the second one is applied
 
 However, if you want to override one of the pre-defined abbreviations
 with your own definition you need to add it to the start of the list
-(note the ommited =t=):
+(note the omitted =t=):
 
 #+BEGIN_SRC emacs-lisp
     (add-to-list 'sml/replacer-regexp-list '("^~/Dropbox/" ":DBox:"))
