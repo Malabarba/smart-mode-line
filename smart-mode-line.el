@@ -1332,7 +1332,7 @@ doesn't want any buffer-id."
   (if mode-line-buffer-identification
       (propertize
        (make-string (max (- (or (car-safe sml/name-width) sml/name-width)
-                            (length (format-mode-line mode-line-buffer-identification)))
+                            (string-width (format-mode-line mode-line-buffer-identification)))
                          0)
                     sml/fill-char)
        'face 'sml/name-filling)
@@ -1356,7 +1356,7 @@ Argument IGNORED is ignored."
                  (prefix (sml/get-prefix dir))
                  (bufname (sml/buffer-name))
                  (dirsize (max 0 (- (abs (or (cdr-safe sml/name-width) sml/name-width))
-                                    (length prefix) (length bufname))))
+                                    (string-width prefix) (string-width bufname))))
                  (dirstring (funcall sml/shortener-func dir dirsize)))
 
             (propertize (concat (sml/propertize-prefix (replace-regexp-in-string "%" "%%" prefix))
@@ -1486,7 +1486,7 @@ duplicated buffer names) from being displayed."
        (+ sml/extra-filler
           (- (window-total-width)
              (let ((sml/simplified t))
-               (length (format-mode-line mode-line-format)))))))
+               (string-width (format-mode-line mode-line-format)))))))
 
 (defconst sml/propertized-shorten-mode-string
   '(:propertize sml/shorten-mode-string
@@ -1534,7 +1534,7 @@ duplicated buffer names) from being displayed."
            needs-removing filling)
 
       ;; Calculate whether truncation is necessary.
-      (when (and sml/shorten-modes (> (length finalNameList) size))
+      (when (and sml/shorten-modes (> (string-width finalNameList) size))
         ;; We need to remove 1+ "the number of spaces found".
         (setq needs-removing
               (1+
@@ -1550,7 +1550,7 @@ duplicated buffer names) from being displayed."
         (add-to-list 'nameList sml/propertized-shorten-mode-string t))
 
       ;; Padding
-      (setq filling (- size (length (format-mode-line nameList))))
+      (setq filling (- size (string-width (format-mode-line nameList))))
       (setq filling (make-string (max 0 filling) sml/fill-char))
 
       (if (eq sml/mode-width 'right)
@@ -1706,7 +1706,7 @@ indication of a truncated path."
   "Show up to MAX-LENGTH characters of a directory name DIR."
   (let ((longname (sml/strip-prefix dir)))
     ;; If it fits, return the string.
-    (if (<= (length longname) max-length) longname
+    (if (<= (string-width longname) max-length) longname
       ;; If it doesn't, shorten it
       (let ((path (reverse (split-string longname "/")))
             (output ""))
@@ -1714,7 +1714,7 @@ indication of a truncated path."
           (setq path (cdr path)))
         (let ((max (- max-length (string-width sml/directory-truncation-string))))
           ;; Concat as many levels as possible, leaving 4 chars for safety.
-          (while (and path (<= (length (concat (car path) "/" output))
+          (while (and path (<= (string-width (concat (car path) "/" output))
                                max))
             (setq output (concat (car path) "/" output))
             (setq path (cdr path))))
