@@ -531,6 +531,7 @@ just set this to \"\" to save an extra char of space."
 
 (defcustom sml/replacer-regexp-list
   `((,(concat "^" (if (boundp 'org-directory) (regexp-quote org-directory) "~/org/")) ":Org:")
+    ("^~/\\.emacs\\.d/elpa/" ":ELPA:")
     ("^~/\\.emacs\\.d/" ":ED:")
     ("^/sudo:.*:" ":SU:")
     ("^~/Documents/" ":Doc:")
