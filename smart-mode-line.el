@@ -495,7 +495,9 @@ just set this to \"\" to save an extra char of space."
   :group 'smart-mode-line-position)
 
 (defcustom sml/show-remote t
-  "Whether to show an \"@\" for remote buffers."
+  "Whether to display an \"@\" for remote buffers.
+If the buffer is local, an \"-\" is displayed instead.
+If this variable is nil, nothing is displayed."
   :type 'boolean
   :group 'smart-mode-line-others)
 (put 'sml/show-remote 'safe-local-variable 'booleanp)
