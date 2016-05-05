@@ -1537,7 +1537,7 @@ duplicated buffer names) from being displayed."
            needs-removing filling)
 
       ;; Calculate whether truncation is necessary.
-      (when (and sml/shorten-modes (> (string-width finalNameList) size))
+      (when (and sml/shorten-modes (> size 0) (> (string-width finalNameList) size))
         ;; We need to remove 1+ "the number of spaces found".
         (setq needs-removing
               (1+
