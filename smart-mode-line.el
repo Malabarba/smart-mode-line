@@ -1523,21 +1523,22 @@ duplicated buffer names) from being displayed."
     (let* (;; The minor-mode-alist
            (nameList (rm--mode-list-as-string-list))
            ;; The size available
-           (size (- (if (member sml/mode-width '(full right))
-                        ;; Calculate how much width is available
-                        (sml/fill-width-available)
-                      ;; or use what the user requested.
-                      sml/mode-width)
-                    (string-width (format-mode-line
-                                   'sml/pre-minor-modes-separator))
-                    (string-width (format-mode-line
-                                   'sml/pos-minor-modes-separator))))
+           (size (max 0
+                      (- (if (member sml/mode-width '(full right))
+                             ;; Calculate how much width is available
+                             (sml/fill-width-available)
+                           ;; or use what the user requested.
+                           sml/mode-width)
+                         (string-width (format-mode-line
+                                        'sml/pre-minor-modes-separator))
+                         (string-width (format-mode-line
+                                        'sml/pos-minor-modes-separator)))))
            ;; Used for counting size.
            (finalNameList (mapconcat 'identity  nameList ""))
            needs-removing filling)
 
       ;; Calculate whether truncation is necessary.
-      (when (and sml/shorten-modes (> size 0) (> (string-width finalNameList) size))
+      (when (and sml/shorten-modes (> (string-width finalNameList) size))
         ;; We need to remove 1+ "the number of spaces found".
         (setq needs-removing
               (1+
