@@ -99,7 +99,7 @@ Mimics the appearance of powerline.")
    `(sml/pre-id-separator
      '(""
        (:propertize " " face sml/global)
-       (:eval (propertize " " 'display (funcall ,separator-left nil 'powerline-active1)))
+       (:eval (propertize " " 'display (funcall ,separator-left 'sml/global 'powerline-active1)))
        (:propertize " " face powerline-active1)))
    `(sml/pos-id-separator
      '(""
@@ -112,7 +112,7 @@ Mimics the appearance of powerline.")
        (:propertize " " face powerline-active1)))
    `(sml/pos-minor-modes-separator
      '("" (:propertize " " face powerline-active1)
-       (:eval (propertize " " 'display (funcall ,separator-right 'powerline-active1 nil)))
+       (:eval (propertize " " 'display (funcall ,separator-right 'powerline-active1 'sml/global)))
        (:propertize " " face sml/global)))
    '(sml/pre-modes-separator
      (propertize " " 'face 'sml/modes))))
