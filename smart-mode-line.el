@@ -1072,8 +1072,11 @@ the mode-line will be setup."
   (add-hook 'eshell-directory-change-hook 'sml/generate-buffer-identification)
 
   ;; Term support
-  (advice-add 'term-command-hook :after 'sml/generate-buffer-identification)
-  (advice-add 'term-handle-ansi-terminal-messages :after 'sml/generate-buffer-identification)
+  (defadvice term-command-hook (after sml/term-advice-1 activate)
+    (sml/generate-buffer-identification))
+
+  (defadvice term-handle-ansi-terminal-messages (after sml/term-advice-2 activate)
+    (sml/generate-buffer-identification))
 
   ;; Dired overrides the buffer-identification (which we would
   ;; normally respect) but doesn't actually do anything useful with
