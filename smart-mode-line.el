@@ -1071,6 +1071,13 @@ the mode-line will be setup."
   (add-hook 'comint-output-filter-functions 'sml/generate-buffer-identification)
   (add-hook 'eshell-directory-change-hook 'sml/generate-buffer-identification)
 
+  ;; Term support
+  (defadvice term-command-hook (after sml/term-advice-1 activate)
+    (sml/generate-buffer-identification))
+
+  (defadvice term-handle-ansi-terminal-messages (after sml/term-advice-2 activate)
+    (sml/generate-buffer-identification))
+
   ;; Dired overrides the buffer-identification (which we would
   ;; normally respect) but doesn't actually do anything useful with
   ;; it, so we overoverride back.
@@ -1580,7 +1587,7 @@ duplicated buffer names) from being displayed."
     ((eq major-mode 'dired-mode)
      (replace-regexp-in-string "/[^/]*/$" "/" default-directory))
     ((and (symbolp major-mode)
-          (member major-mode '(shell-mode eshell-mode)))
+          (member major-mode '(shell-mode eshell-mode term-mode)))
      default-directory)
     ;; In indirect buffers, buffer-file-name is nil. The correct value is
     ;; retrieved from the base buffer.
