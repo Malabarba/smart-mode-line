@@ -2,13 +2,6 @@
 
 ;; Copyright (C) 2015 Artur Malabarba <bruce.connor.am@gmail.com>
 
-;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
-;; URL: http://github.com/Bruce-Connor/smart-mode-line
-;; Version: 0.1a
-;; Package-Requires: ((emacs "24.3") (powerline "2.2") (smart-mode-line "2.5"))
-;; Keywords: mode-line faces themes
-;; Separator: -
-
 ;;; License:
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -23,9 +16,6 @@
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
 ;;
-
-;;; Change Log:
-;; 0.1a - 2015/11/08 - Created File.
 
 ;;; Code:
 
