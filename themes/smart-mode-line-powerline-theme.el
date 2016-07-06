@@ -55,8 +55,8 @@ Mimics the appearance of powerline.")
                           :slant italic :box (:line-width -3 :color "black"))
                          (((background light)) :foreground "gray60" :background "Black"
                           :slant italic :box (:line-width -2 :color "white"))))
-   `(mode-line     ((t :foreground "gray60" :background "black" :box (:line-width -1 :color "Black"))))
-   `(sml/global    ((t :foreground "gray50" :inverse-video nil)))
+   `(mode-line     ((t :foreground "gray60" :background ,l0 :box (:line-width -1 :color "Black"))))
+   `(sml/global    ((t :foreground "gray60" :background ,l0 :inverse-video nil)))
 
    ;; Layer 0
    `(sml/line-number         ((t :foreground "White" :inherit sml/global :weight bold :background ,l0)))
