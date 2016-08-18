@@ -367,6 +367,7 @@ set `sml/override-theme' to nil."
 (defvar erc-track-position-in-mode-line)
 (defvar sml/simplified nil
   "Temporary dynamic variable. Used for filling.")
+(defvar sml/active-background-color)
 
 (defvar sml/-debug nil
   "Whether debugging information should be printed.")
