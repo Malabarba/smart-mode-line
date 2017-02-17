@@ -505,6 +505,22 @@ It can only be t or nil.
                  (const :tag "mode-line-position" nil))
   :group 'smart-mode-line-position)
 
+(defcustom sml/unified-line-and-column ""
+  "Format used to display line and column number when both are on.
+
+If set, smart-mode-line will use this format when
+`line-number-mode' and `column-number-mode' are both on
+instead of `sml/line-number-format', `sml/numbers-separator',
+and `sml/col-number-format'.
+
+For example, you can set it to \"(%l,%c)\" to get a similar lighter
+to the one in the default Emacs mode-line."
+  :type 'string
+  :group 'smart-mode-line-position)
+(put 'sml/unified-line-and-column 'risky-local-variable t)
+
+(defvar sml/unified-line-and-column-p)
+
 (defcustom sml/show-remote t
   "Whether to display an \"@\" for remote buffers.
 If the buffer is local, an \"-\" is displayed instead.
@@ -1258,6 +1274,8 @@ It can only be t or nil.
 Also sets SYMBOL to VALUE."
   (when (and symbol value) (set symbol value))
   (sml/generate-position-help)
+  (setq sml/unified-line-and-column-p
+        (if (= (length sml/unified-line-and-column) 0) nil t))
   (setq sml/position-construct
         `((size-indication-mode
            ,(propertize sml/size-indication-format
@@ -1265,39 +1283,66 @@ Also sets SYMBOL to VALUE."
                         'help-echo 'sml/position-help-text
                         'mouse-face 'mode-line-highlight
                         'local-map mode-line-column-line-number-mode-map))
-          (sml/order-of-line-and-column
-           (column-number-mode
-            ,(propertize sml/col-number-format
-                         'face 'sml/col-number
-                         'help-echo 'sml/position-help-text
-                         'mouse-face 'mode-line-highlight
-                         'local-map mode-line-column-line-number-mode-map))
+          
+          (sml/unified-line-and-column-p
            (line-number-mode
-            ,(propertize sml/line-number-format
-                         'face 'sml/line-number
-                         'help-echo 'sml/position-help-text
-                         'mouse-face 'mode-line-highlight
-                         'local-map mode-line-column-line-number-mode-map)))
+            (column-number-mode
+             nil
+             ,(propertize sml/line-number-format
+                          'face 'sml/line-number
+                          'help-echo 'sml/position-help-text
+                          'mouse-face 'mode-line-highlight
+                          'local-map mode-line-column-line-number-mode-map)))
+           (sml/order-of-line-and-column
+            (column-number-mode
+             ,(propertize sml/col-number-format
+                          'face 'sml/col-number
+                          'help-echo 'sml/position-help-text
+                          'mouse-face 'mode-line-highlight
+                          'local-map mode-line-column-line-number-mode-map))
+            (line-number-mode
+             ,(propertize sml/line-number-format
+                          'face 'sml/line-number
+                          'help-echo 'sml/position-help-text
+                          'mouse-face 'mode-line-highlight
+                          'local-map mode-line-column-line-number-mode-map))))
+          
           (column-number-mode
            (line-number-mode
-            ,(propertize sml/numbers-separator
-                         'face 'sml/numbers-separator
-                         'help-echo 'sml/position-help-text
-                         'mouse-face 'mode-line-highlight
-                         'local-map mode-line-column-line-number-mode-map)))
-          (sml/order-of-line-and-column
-           (line-number-mode
-            ,(propertize sml/line-number-format
-                         'face 'sml/line-number
-                         'help-echo 'sml/position-help-text
-                         'mouse-face 'mode-line-highlight
-                         'local-map mode-line-column-line-number-mode-map))
+            (sml/unified-line-and-column-p
+             ,(propertize sml/unified-line-and-column
+                           'face 'sml/col-number
+                           'help-echo 'sml/position-help-text
+                           'mouse-face 'mode-line-highlight
+                           'local-map mode-line-column-line-number-mode-map)
+             ,(propertize sml/numbers-separator
+                           'face 'sml/numbers-separator
+                           'help-echo 'sml/position-help-text
+                           'mouse-face 'mode-line-highlight
+                           'local-map mode-line-column-line-number-mode-map))))
+          
+          (sml/unified-line-and-column-p
            (column-number-mode
-            ,(propertize sml/col-number-format
-                         'face 'sml/col-number
-                         'help-echo 'sml/position-help-text
-                         'mouse-face 'mode-line-highlight
-                         'local-map mode-line-column-line-number-mode-map))))))
+            (line-number-mode
+             nil
+             ,(propertize sml/col-number-format
+                          'face 'sml/col-number
+                          'help-echo 'sml/position-help-text
+                          'mouse-face 'mode-line-highlight
+                          'local-map mode-line-column-line-number-mode-map)))
+           (sml/order-of-line-and-column
+            (line-number-mode
+             ,(propertize sml/line-number-format
+                          'face 'sml/line-number
+                          'help-echo 'sml/position-help-text
+                          'mouse-face 'mode-line-highlight
+                          'local-map mode-line-column-line-number-mode-map))
+            (column-number-mode
+             ,(propertize sml/col-number-format
+                          'face 'sml/col-number
+                          'help-echo 'sml/position-help-text
+                          'mouse-face 'mode-line-highlight
+                          'local-map mode-line-column-line-number-mode-map)))))))
 
 (defun sml/generate-modified-status ()
   "Return a string describing the modified status of the buffer."
