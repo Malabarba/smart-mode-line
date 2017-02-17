@@ -495,6 +495,16 @@ just set this to \"\" to save an extra char of space."
   :type 'string
   :group 'smart-mode-line-position)
 
+(defcustom sml/position-construct-location t
+  "Decide the location of the position construct.
+
+It can only be t or nil.
+    t means position construct in `mode-line-front-space'
+    nil means position construct in `mode-line-position'"
+  :type '(choice (const :tag "mode-line-front-space" t)
+                 (const :tag "mode-line-position" nil))
+  :group 'smart-mode-line-position)
+
 (defcustom sml/show-remote t
   "Whether to display an \"@\" for remote buffers.
 If the buffer is local, an \"-\" is displayed instead.
@@ -1028,9 +1038,10 @@ the mode-line will be setup."
                                          nil
                                          (:eval (let ((sml/-this-buffer-changed-p t))
                                                   (sml/generate-position-help))))
-                                        (sml/position-construct
-                                         sml/position-construct
-                                         (:eval (sml/compile-position-construct)))))
+                                        (sml/position-construct-location
+                                         (sml/position-construct
+                                          sml/position-construct
+                                          (:eval (sml/compile-position-construct))))))
 
   (add-hook 'after-save-hook 'sml/generate-buffer-identification)
   (ad-activate 'rename-buffer)
@@ -1389,7 +1400,7 @@ To be used in mapcar and accumulate results."
                  (:eval (unless (display-graphic-p) "-%-"))
                  (:eval (mode-line-frame-control))))
     nil)
-   ((member (car-safe el) '(line-number-mode column-number-mode size-indication-mode current-input-method)) nil)
+   ((member (car-safe el) '(size-indication-mode current-input-method)) nil)
    ;; mode-line-remote
    ((and (stringp el) (string= el "%1@"))
     `(sml/show-remote
@@ -1416,7 +1427,15 @@ To be used in mapcar and accumulate results."
                        face sml/position-percentage
                        help-echo "Buffer Relative Position\n\
 mouse-1: Display Line and Column Mode Menu"))))
-
+   ;; Position construct
+   ((member (car-safe el) '(line-number-mode column-number-mode))
+    '(sml/position-construct-location
+      nil
+      ((:propertize " " face sml/name-filling)
+       (sml/position-construct
+        sml/position-construct
+        (:eval (sml/compile-position-construct))))))
+   
    ;;;; mode-line-mule-info
    ;; Partially hide some MULE info
    ((and (stringp el) (string-match "\\s-*%[-0-9]*z" el))
