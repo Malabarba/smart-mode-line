@@ -100,7 +100,7 @@ Its main features include:
    The [[https://github.com/Malabarba/rich-minority][rich-minority]]
    package saves even more space. Select which minor modes you don't
    want to see listed by adding them to the variable
-   =rm-excluded-modes=, or even highlight the modes that are more
+   =rm-blacklist=, or even highlight the modes that are more
    important with the variable =rm-text-properties=. This will filter
    out the modes you don't care about and unclutter the modes list
    (mousing over the modes list still shows the full list).
