@@ -1176,7 +1176,9 @@ Might implement a quick flash eventually."
 
   (unless (and (boundp 'erc-track-position-in-mode-line)
                (null erc-track-position-in-mode-line))
-    (setq erc-track-position-in-mode-line t)))
+    (setq erc-track-position-in-mode-line t))
+
+  (run-hooks 'sml/after-setup-hook))
 
 ;;;###autoload
 (defalias 'smart-mode-line-enable #'sml/setup)
