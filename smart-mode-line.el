@@ -934,19 +934,24 @@ If you want it to show the backend, just set it to t."
 (defvar sml/projectile-loaded-p nil "Non-nil if projectile has been loaded.")
 
 (defcustom sml/pos-id-separator " "
-  "Miscellaneous mode-line construct.")
+  "Miscellaneous mode-line construct."
+  :type 'string)
 (put 'sml/pos-id-separator 'risky-local-variable t)
 (defcustom sml/pre-modes-separator " "
-  "Miscellaneous mode-line construct.")
+  "Miscellaneous mode-line construct."
+  :type 'string)
 (put 'sml/pre-modes-separator 'risky-local-variable t)
 (defcustom sml/pre-id-separator ""
-  "Miscellaneous mode-line construct.")
+  "Miscellaneous mode-line construct."
+  :type 'string)
 (put 'sml/pre-id-separator 'risky-local-variable t)
 (defcustom sml/pre-minor-modes-separator ""
-  "Miscellaneous mode-line construct.")
+  "Miscellaneous mode-line construct."
+  :type 'string)
 (put 'sml/pre-minor-modes-separator 'risky-local-variable t)
 (defcustom sml/pos-minor-modes-separator ""
-  "Miscellaneous mode-line construct.")
+  "Miscellaneous mode-line construct."
+  :type 'string)
 (put 'sml/pos-minor-modes-separator 'risky-local-variable t)
 
 (defun sml/-automatically-decide-theme ()
