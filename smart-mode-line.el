@@ -1525,10 +1525,15 @@ duplicated buffer names) from being displayed."
       (+ 1 (sml/count-occurrences-starting-at regex string (match-end 0)))
     0))
 
-;;; Patch, in case the user is using the wrong variable.
-(when (boundp 'sml/hidden-modes)
+;; Patch, in case the user is using the wrong variable.  Use a helper
+;; variable to make sure reloading this file does not result in an
+;; irrelevant warning.  This is needed because defining an obsolete
+;; variable alias of course results in the variable being defined.
+(defvar sml/-sml/hidden-modes--bound-by-user
+  (bound-and-true-p sml/hidden-modes))
+(when sml/-sml/hidden-modes--bound-by-user
   (message "[smart-mode-line] Warning: `sml/hidden-modes' is obsolete, use `rm-blacklist' instead")
-  (setq rm-blacklist sml/hidden-modes))
+  (setq rm-blacklist (bound-and-true-p sml/hidden-modes)))
 (define-obsolete-variable-alias 'sml/hidden-modes 'rm-blacklist)
 
 (defun sml/generate-minor-modes ()
