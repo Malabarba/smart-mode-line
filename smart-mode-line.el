@@ -1526,9 +1526,11 @@ duplicated buffer names) from being displayed."
     0))
 
 ;;; Patch, in case the user is using the wrong variable.
-(when (boundp 'sml/hidden-modes)
-  (message "[smart-mode-line] Warning: `sml/hidden-modes' is obsolete, use `rm-blacklist' instead")
-  (setq rm-blacklist sml/hidden-modes))
+(defvar sml/-hidden-modes-bound-by-user
+  (bound-and-true-p sml/hidden-modes))
+(when sml/-hidden-modes-bound-by-user
+  (setq sml/-hidden-modes-bound-by-user nil)
+  (setq rm-blacklist (bound-and-true-p sml/hidden-modes)))
 (define-obsolete-variable-alias 'sml/hidden-modes 'rm-blacklist)
 
 (defun sml/generate-minor-modes ()
