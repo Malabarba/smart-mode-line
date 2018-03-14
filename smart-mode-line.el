@@ -1453,7 +1453,10 @@ mouse-3: Describe current input method"))
    ;; Color the mode line process
    ((or (equal el '("" mode-line-process))
         (equal (car (cdr-safe el)) '("" mode-line-process)))
-    `(:propertize ("" mode-line-process) face sml/process))
+    '(mode-line-process
+      (:eval (let ((text (format-mode-line mode-line-process)))
+               (add-face-text-property 0 (length text) 'sml/process t text)
+               text))))
    ;; Color the mode name, without changing other properties
    ((and (listp el)
          (equal (car el) :propertize)
