@@ -5,7 +5,7 @@
 ;; Author: Artur Malabarba <emacs@endlessparentheses.com>
 ;; URL: http://github.com/Malabarba/smart-mode-line
 ;; Version: 2.10
-;; Package-Requires: ((emacs "24.3") (rich-minority "0.1.1"))
+;; Package-Requires: ((emacs "24.3"))
 ;; Keywords: mode-line faces themes
 ;; Prefix: sml
 ;; Separator: /
@@ -65,20 +65,22 @@
 ;;
 ;;  4. **Hide or Highlight minor-modes**:
 ;;     The [rich-minority](https://github.com/Malabarba/rich-minority)
-;;     package saves even more space. Select which minor modes you don't
-;;     want to see listed by adding them to the variable
-;;     `rm-excluded-modes', or even highlight the modes that are more
-;;     important with the variable `rm-text-properties'. This will filter
-;;     out the modes you don't care about and unclutter the modes list
-;;     (mousing over the modes list still shows the full list).
+;;     package saves even more space.  Note that `rich-minority' isn't
+;;     a mandatory dependency of this package; you have to install it
+;;     explicitly.
 ;;
-;;  4. **Hide minor-modes**:
-;;     Hidden-modes feature saves even more space. Select
-;;     which minor modes you don't want to see listed by
-;;     customizing the `rm-blacklist' variable. This will
-;;     filter out the modes you don't care about and unclutter
-;;     the modes list (mousing over the modes list still shows
-;;     the full list).
+;;     Select which minor modes you don't want to see listed by adding
+;;     them to the variable `rm-blacklist', or even highlight the modes
+;;     that are more important with the variable `rm-text-properties'.
+;;     This will filter out the modes you don't care about and
+;;     unclutter the modes list (mousing over the modes list still
+;;     shows the full list).
+;;
+;;     Hidden-modes feature saves even more space. Select which minor
+;;     modes you don't want to see listed by customizing the
+;;     `rm-blacklist' variable. This will filter out the modes you
+;;     don't care about and unclutter the modes list (mousing over the
+;;     modes list still shows the full list).
 ;;
 ;;  5. **Very easy to configure**:
 ;;     All colors and variables are customizable. You can change the
@@ -165,6 +167,7 @@
 ;;
 
 ;;; Change Log:
+;;         - UNRELEASED - The rich-minority package is no longer mandatory.
 ;; 2.6     - 2014/08/15 - Allow for sml/name-width to have different mininum and maximum values.
 ;; 2.6     - 2014/08/15 - Delegated minor-mode filtering to rich-minority package.
 ;; 2.5.3   - 2014/06/18 - Fix custom-theme-load-path for manual installations.
@@ -308,7 +311,10 @@
 (require 'cl-lib)
 (require 'custom)
 (require 'cus-face)
-(require 'rich-minority)
+
+(require 'rich-minority nil t)
+(defvar rm-base-text-properties)
+(defvar rm-blacklist)
 
 (defconst sml/version "2.10" "Version of the smart-mode-line.el package.")
 (defun sml/bug-report ()
@@ -1000,8 +1006,9 @@ the mode-line will be setup."
   (setq battery-mode-line-format sml/battery-format)
 
   ;; Activate rich-minority, and configure it for us.
-  (setq rm-base-text-properties
-        (append rm-base-text-properties '('face 'sml/minor-modes)))
+  (when (require 'rich-minority nil t)
+    (setq rm-base-text-properties
+          (append rm-base-text-properties '('face 'sml/minor-modes))))
 
   ;; Set the theme the user requested.
   (sml/-setup-theme)
@@ -1464,7 +1471,8 @@ mouse-3: Describe current input method"))
     (setf (cadr el) '("" "%[" mode-name "%]"))
     (append el '(face sml/modes)))
    ;; Completely replace the minor modes (so we can truncate)
-   ((and (listp el)
+   ((and (featurep 'rich-minority)
+	 (listp el)
          (equal (car el) :propertize)
          (equal (cadr el) '("" minor-mode-alist)))
     '(:eval (sml/generate-minor-modes)))

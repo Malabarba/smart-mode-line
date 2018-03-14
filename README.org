@@ -97,13 +97,21 @@ Its main features include:
    path. See below for examples.
 
 - Hide or Highlight minor-modes ::
-   The [[https://github.com/Malabarba/rich-minority][rich-minority]]
-   package saves even more space. Select which minor modes you don't
-   want to see listed by adding them to the variable
-   =rm-blacklist=, or even highlight the modes that are more
-   important with the variable =rm-text-properties=. This will filter
-   out the modes you don't care about and unclutter the modes list
-   (mousing over the modes list still shows the full list).
+   The [[https://github.com/Malabarba/rich-minority][rich-minority]] package saves even more space.  It no longer
+   is a mandatory dependency, so you have to install it explicitly.
+
+   Select which minor modes you don't want to see listed by adding
+   them to the variable =rm-blacklist=, or even highlight the modes
+   that are more important with the variable =rm-text-properties=.
+   This will filter out the modes you don't care about and
+   unclutter the modes list (mousing over the modes list still
+   shows the full list).
+
+   Hidden-modes feature saves even more space. Select which minor
+   modes you don't want to see listed by customizing the
+   ~rm-blacklist~ variable. This will filter out the modes you
+   don't care about and unclutter the modes list (mousing over the
+   modes list still shows the full list).
 
 - Very easy to configure ::
    All colors and variables are customizable. You can change the
