@@ -1651,7 +1651,9 @@ project name first."
         (setq out (replace-regexp-in-string (car cur) (car (cdr cur)) out))))
     ;; Try truename replacements
     (when (string= out in)
-      (let* ((true-in (abbreviate-file-name (file-truename in)))
+      (let* ((true-in (abbreviate-file-name (if (file-remote-p in)
+                                                in
+                                              (file-truename in))))
              (true-out true-in))
         (dolist (cur sml/replacer-regexp-list)
           (setq true-out (replace-regexp-in-string
