@@ -1415,7 +1415,8 @@ To be used in mapcar and accumulate results."
 
    ;;;; mode-line-position
    ;; Color the position percentage
-   ((sml/is-%p-p el)
+   ((or (sml/is-%p-p el)
+        (and (listp el) (memq 'mode-line-percent-position el)))
     `(sml/position-percentage-format
       (-3 (:propertize (:eval sml/position-percentage-format)
                        local-map ,mode-line-column-line-number-mode-map
