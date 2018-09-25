@@ -1639,6 +1639,14 @@ Used by `sml/strip-prefix' and `sml/get-prefix'."
       in
     (sml/replacer-raw in)))
 
+(defcustom sml/fallback-on-buffer-identification nil
+  "Whether to fallback on regular buffer-identification.
+Defines the what should be displayed in the buffer identification
+if it is unchanged by the entries in `sml/replacer-regexp-list'.
+If the value is nil, use the sml behaviour (full file name).
+Otherwise, use the default Emacs behaviour (usually just `buffer-name')."
+  :type 'boolean)
+
 (defun sml/replacer-raw (in)
   "Run on the string IN the replacements from `sml/replacer-regexp-list'.
 
@@ -1654,6 +1662,9 @@ project name first."
     (when (string= out in)
       (dolist (cur sml/replacer-regexp-list)
         (setq out (replace-regexp-in-string (car cur) (car (cdr cur)) out))))
+    (when (and sml/fallback-on-buffer-identification
+               (string= out in))
+      (setq out (format-mode-line (propertized-buffer-identification "%12b"))))
     ;; Try truename replacements
     (when (string= out in)
       (let* ((true-in (abbreviate-file-name (if (file-remote-p in)
