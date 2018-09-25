@@ -14,14 +14,12 @@ and /smart truncation/.
 *Light Theme*\\
 [[https://raw.github.com/Malabarba/smart-mode-line/master/screenshot-2013-11-11-light.png]]
 
-*Powerline Theme*\\
-[[https://raw.github.com/Malabarba/smart-mode-line/master/screenshot-powerline-theme.png]]
+*Atom-one Dark Theme*\\
+[[https://raw.github.com/Malabarba/smart-mode-line/master/screenshot-atom-one-dark.png]]
 
-*Light Powerline Theme*\\
-[[https://raw.github.com/Malabarba/smart-mode-line/master/screenshot-light-powerline-theme.png]]
-
-(Note: to use either powerline theme, install the
-=smart-mode-line-powerline-theme= package from MELPA)
+(Note: to use the Atom-one theme, install the
+[[https://github.com/daviderestivo/smart-mode-line-atom-one-dark-theme][=smart-mode-line-atom-one-dark-theme=]]
+package from MELPA)
 
 *Solarized Dark Theme*\\
 [[https://cloud.githubusercontent.com/assets/601365/7131638/34a3b0f8-e247-11e4-8fd5-811365167d22.png]]
@@ -32,6 +30,15 @@ and /smart truncation/.
 (Note: to use the Solarized themes, install the
 [[https://github.com/bbatsov/solarized-emacs/][=solarized-theme=]]
 package from MELPA)
+
+*Powerline Theme*\\
+[[https://raw.github.com/Malabarba/smart-mode-line/master/screenshot-powerline-theme.png]]
+
+*Light Powerline Theme*\\
+[[https://raw.github.com/Malabarba/smart-mode-line/master/screenshot-light-powerline-theme.png]]
+
+(Note: to use either powerline theme, install the
+=smart-mode-line-powerline-theme= package from MELPA)
 
 * Installation
 
