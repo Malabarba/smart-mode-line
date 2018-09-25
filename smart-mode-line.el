@@ -604,6 +604,8 @@ separately, by setting this variable to a cons cell of integers:
                                (integer :tag "Maximum width")))
   :group 'smart-mode-line-path-and-prefix)
 
+(defvaralias 'sml/path-width 'sml/name-width)
+
 (defcustom sml/shorten-directory t
   "Should directory name be shortened to fit width?
 
