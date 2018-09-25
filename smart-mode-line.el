@@ -579,6 +579,7 @@ parser applies that for you."
 
 (defcustom sml/prefix-face-list '((":SU:" sml/sudo)
                                   (":G" sml/git)
+                                  (sml/projectile-replacement-format sml/projectile)
                                   ("" sml/prefix))
   "List of (STRING FACE) pairs used by `sml/propertize-prefix'.
 
@@ -1588,7 +1589,10 @@ duplicated buffer names) from being displayed."
 (defun sml/propertize-prefix (prefix)
   "Set the color of PREFIX according to its contents."
   (cl-loop for pair in sml/prefix-face-list
-           if (string-match (car pair) prefix)
+           if (string-match (format (let ((c (car pair)))
+                                      (regexp-quote (if (symbolp c) (symbol-value c) c)))
+                                    ".*")
+                            prefix)
            return (propertize prefix 'face (car (cdr pair)))))
 
 (defun sml/get-directory ()
