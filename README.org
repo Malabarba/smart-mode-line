@@ -18,7 +18,7 @@ and /smart truncation/.
 [[https://raw.github.com/Malabarba/smart-mode-line/master/screenshot-atom-one-dark.png]]
 
 (Note: to use the Atom-one theme, install the
-[[https://github.com/daviderestivo/smart-mode-line-atom-one-dark-theme][=smart-mode-line-atom-one-dark-theme=]]
+[[https://github.com/daviderestivo/smart-mode-line-atom-one-dark-theme][smart-mode-line-atom-one-dark-theme]]
 package from MELPA)
 
 *Solarized Dark Theme*\\
@@ -28,7 +28,7 @@ package from MELPA)
 [[https://cloud.githubusercontent.com/assets/601365/7131637/34946ac6-e247-11e4-8e0e-35a47df70686.png]]
 
 (Note: to use the Solarized themes, install the
-[[https://github.com/bbatsov/solarized-emacs/][=solarized-theme=]]
+[[https://github.com/bbatsov/solarized-emacs/][solarized-theme]]
 package from MELPA)
 
 *Powerline Theme*\\
