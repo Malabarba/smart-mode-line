@@ -1129,10 +1129,7 @@ found to match the current file path."
          :group 'smart-mode-line-others
          :package-version '(smart-mode-line . "2.4.1"))
        (defface sml/projectile '((t :inherit sml/git)) "" :group 'smart-mode-line-faces)
-       (add-to-list 'sml/prefix-regexp (format (regexp-quote sml/projectile-replacement-format) ".*"))
-       (add-to-list 'sml/prefix-face-list
-                    (list (format (regexp-quote sml/projectile-replacement-format) ".*")
-                          'sml/projectile))))
+       (add-to-list 'sml/prefix-regexp (format (regexp-quote sml/projectile-replacement-format) ".*"))))
 
   ;; vc-mode
   (eval-after-load "vc-hooks"
@@ -1591,10 +1588,12 @@ duplicated buffer names) from being displayed."
 (defun sml/propertize-prefix (prefix)
   "Set the color of PREFIX according to its contents."
   (cl-loop for pair in sml/prefix-face-list
-           if (string-match (format (let ((c (car pair)))
-                                      (regexp-quote (if (symbolp c) (symbol-value c) c)))
-                                    ".*")
-                            prefix)
+           if (let* ((c (car pair))
+                     (s (if (symbolp c)
+                            (when (boundp c) (symbol-value c))
+                          c)))
+                (when s
+                  (string-match (format (regexp-quote s) ".*") prefix)))
            return (propertize prefix 'face (car (cdr pair)))))
 
 (defun sml/get-directory ()
