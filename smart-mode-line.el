@@ -515,6 +515,13 @@ If this variable is nil, nothing is displayed."
   :group 'smart-mode-line-others
   :package-version '(smart-mode-line . "1.16"))
 
+(defcustom sml/not-modified-char (char-to-string
+                                  (if (char-displayable-p ?✓) ?✓ ? ))
+  "String that indicates if buffer is un-modified. Should be one SINGLE char."
+  :type 'string
+  :group 'smart-mode-line-others
+  :package-version '(smart-mode-line . "1.16"))
+
 (defcustom sml/show-trailing-N t
   "Whether the \"<N>\" suffix in buffer names should be displayed in the mode-line."
   :type 'boolean
@@ -1316,7 +1323,7 @@ Also sets SYMBOL to VALUE."
    (buffer-read-only (propertize sml/read-only-char
                                  'face 'sml/read-only
                                  'help-echo "Read-Only Buffer"))
-   (t (propertize " " 'face 'sml/not-modified))))
+   (t (propertize sml/not-modified-char 'face 'sml/not-modified))))
 
 (defmacro sml/propertize-position (s face help)
   "Propertize string S as a line/column number, using FACE and help-echo HELP."
