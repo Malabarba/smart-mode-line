@@ -515,8 +515,7 @@ If this variable is nil, nothing is displayed."
   :group 'smart-mode-line-others
   :package-version '(smart-mode-line . "1.16"))
 
-(defcustom sml/not-modified-char (char-to-string
-                                  (if (char-displayable-p ?✓) ?✓ ? ))
+(defcustom sml/not-modified-char " "
   "String that indicates if buffer is un-modified. Should be one SINGLE char."
   :type 'string
   :group 'smart-mode-line-others
