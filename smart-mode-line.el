@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <emacs@endlessparentheses.com>
 ;; URL: http://github.com/Malabarba/smart-mode-line
-;; Version: 2.12
+;; Version: 2.13
 ;; Package-Requires: ((emacs "24.3") (rich-minority "0.1.1"))
 ;; Keywords: mode-line faces themes
 ;; Prefix: sml
@@ -310,7 +310,7 @@
 (require 'cus-face)
 (require 'rich-minority)
 
-(defconst sml/version "2.10" "Version of the smart-mode-line.el package.")
+(defconst sml/version "2.13" "Version of the smart-mode-line.el package.")
 (defun sml/bug-report ()
   "Opens github issues page in a web browser. Please send me any bugs you find, and please include your Emacs and sml versions."
   (interactive)
