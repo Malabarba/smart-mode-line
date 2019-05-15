@@ -1369,7 +1369,8 @@ Argument IGNORED is ignored."
   (setq sml/buffer-identification-filling nil)
   (when (or ;; Only calculate all this if it will actually be used
          (equal sml/mode-line-buffer-identification mode-line-buffer-identification)
-         (member (cadr sml/mode-line-buffer-identification) mode-line-buffer-identification)
+         (and (listp mode-line-buffer-identification)
+              (member (cadr sml/mode-line-buffer-identification) mode-line-buffer-identification))
          (member sml/mode-line-buffer-identification mode-line-buffer-identification))
     (setq sml/buffer-identification
           (let* ((dir (sml/replacer (abbreviate-file-name (sml/get-directory))))
