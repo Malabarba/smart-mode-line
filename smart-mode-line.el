@@ -398,9 +398,9 @@ Set SYM to VAL."
   (if val (setq sml/shortener-func 'sml/do-shorten-directory)
     (setq sml/shortener-func 'sml/not-shorten-directory)))
 
-(define-obsolete-variable-alias 'sml/time-format 'display-time-format)
-(define-obsolete-variable-alias 'sml/show-time 'display-time-mode)
-(define-obsolete-variable-alias 'sml/override-theme 'sml/theme)
+(define-obsolete-variable-alias 'sml/time-format 'display-time-format "2.0.3")
+(define-obsolete-variable-alias 'sml/show-time 'display-time-mode "2.0.3")
+(define-obsolete-variable-alias 'sml/override-theme 'sml/theme "2.0.3")
 
 (defcustom sml/theme 'automatic
   "Defines which theme `smart-mode-line' should use.
@@ -1542,7 +1542,7 @@ duplicated buffer names) from being displayed."
 (when sml/-hidden-modes-bound-by-user
   (setq sml/-hidden-modes-bound-by-user nil)
   (setq rm-blacklist (bound-and-true-p sml/hidden-modes)))
-(define-obsolete-variable-alias 'sml/hidden-modes 'rm-blacklist)
+(define-obsolete-variable-alias 'sml/hidden-modes 'rm-blacklist "2.9")
 
 (defun sml/generate-minor-modes ()
   "Extracts all rich strings necessary for the minor mode list."
