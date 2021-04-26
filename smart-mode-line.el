@@ -596,6 +596,8 @@ FACE is applied to it (and checking stops there)."
   :type '(repeat (list string face))
   :group 'smart-mode-line-path-and-prefix)
 
+(defvaralias 'sml/path-width 'sml/name-width)
+
 (defcustom sml/name-width 44
   "Minimum and maximum size of the file name in the mode-line.
 
@@ -609,8 +611,6 @@ separately, by setting this variable to a cons cell of integers:
   :type '(choice integer (cons (integer :tag "Minimum width")
                                (integer :tag "Maximum width")))
   :group 'smart-mode-line-path-and-prefix)
-
-(defvaralias 'sml/path-width 'sml/name-width)
 
 (defcustom sml/shorten-directory t
   "Should directory name be shortened to fit width?
