@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <emacs@endlessparentheses.com>
 ;; URL: http://github.com/Malabarba/smart-mode-line
-;; Version: 2.13
+;; Version: 2.14
 ;; Package-Requires: ((emacs "24.3") (rich-minority "0.1.1"))
 ;; Keywords: mode-line faces themes
 ;; Prefix: sml
