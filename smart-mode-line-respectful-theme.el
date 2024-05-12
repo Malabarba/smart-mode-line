@@ -38,7 +38,7 @@ Results may vary.")
  '(sml/filename  ((t :inherit mode-line-buffer-id)))
  '(sml/prefix    ((t :inherit (font-lock-variable-name-face sml/global))))
  '(sml/read-only ((t :inherit (font-lock-type-face sml/not-modified))))
- '(sml/modes     ((t :foreground nil :inherit sml/filename :weight normal))))
+ '(sml/modes     ((t :foreground "unspecified" :inherit sml/filename :weight normal))))
 
 ;;;###autoload
 (when load-file-name
