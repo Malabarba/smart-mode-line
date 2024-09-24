@@ -29,7 +29,7 @@
 
 (custom-theme-set-faces
  'smart-mode-line-dark
- '(mode-line-buffer-id ((t :inherit sml/filename :foreground nil :background nil))) 
+ '(mode-line-buffer-id ((t :inherit sml/filename :foreground "unspecified" :background "unspecified")))
  '(mode-line-inactive ((t :foreground "gray60" :background "#404045" :inverse-video nil)))
  '(mode-line     ((t :foreground "gray60" :background "black" :inverse-video nil)))
  '(sml/global    ((t :foreground "gray50" :inverse-video nil)))
@@ -38,7 +38,7 @@
  '(sml/prefix    ((t :inherit sml/global :foreground "#bf6000")))
  '(sml/read-only ((t :inherit sml/not-modified :foreground "DeepSkyBlue")))
  '(persp-selected-face ((t :foreground "ForestGreen" :inherit sml/filename)))
- '(helm-candidate-number ((t :foreground nil :background nil :inherit sml/filename))))
+ '(helm-candidate-number ((t :foreground "unspecified" :background "unspecified" :inherit sml/filename))))
 
 ;;;###autoload
 (when load-file-name
